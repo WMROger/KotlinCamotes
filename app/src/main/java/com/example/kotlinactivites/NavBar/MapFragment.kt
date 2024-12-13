@@ -1,10 +1,12 @@
 package com.example.kotlinactivites.NavBar
 
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.VideoView
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.MapLibreMap
 import androidx.fragment.app.Fragment
@@ -25,11 +27,12 @@ class MapFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
         mapView = view.findViewById(R.id.mapView)
 
+        // Configure the MapView
         mapView.getMapAsync { mapLibreMap ->
             mapLibreMap.setStyle(Style.Builder().fromUri("https://api.maptiler.com/maps/basic/style.json?key=sShjeVn7hIilAZkYXgYD")) {
                 Log.d("MapFragment", "Map style loaded successfully")
 
-                // Set the initial camera position to match the desired location
+                // Set the initial camera position
                 mapLibreMap.animateCamera(
                     CameraUpdateFactory.newLatLngZoom(
                         LatLng(10.61923, 124.30813), // Latitude and longitude
@@ -38,6 +41,7 @@ class MapFragment : Fragment() {
                 )
             }
         }
+
 
         return view
     }

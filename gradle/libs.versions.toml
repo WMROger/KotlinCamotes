@@ -12,6 +12,8 @@ activity = "1.9.3"
 constraintlayout = "2.1.4"
 webkit = "1.8.0"
 playServicesMaps = "19.0.0"
+googleGmsGoogleServices = "4.4.2"
+firebaseAuth = "23.1.0"
 
 [libraries]
 android-sdk = { module = "org.maplibre.gl:android-sdk", version.ref = "androidSdk" }
@@ -29,7 +31,9 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidxwebkit = { group = "androidx.webkit", name = "webkit", version.ref = "webkit" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 maplibre-sdk = { group = "org.maplibre.gl", name = "android-sdk", version.ref = "androidSdk" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
