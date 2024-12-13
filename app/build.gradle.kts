@@ -45,9 +45,6 @@ android {
 dependencies {
     implementation(libs.firebase.auth.v2130)
     implementation(libs.firebase.bom)
-    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
-    implementation(libs.retrofit2)
-    implementation(libs.gson.v2101)
     implementation(libs.maplibre.sdk)
     implementation(libs.android.sdk)
     implementation(libs.androidx.activity.ktx)
@@ -57,4 +54,9 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.play.services.maps)
-}
+
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+    implementation(libs.gson.v2101)}
