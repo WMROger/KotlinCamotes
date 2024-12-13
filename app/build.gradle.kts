@@ -1,7 +1,5 @@
-import org.jetbrains.kotlin.storage.CacheResetOnProcessCanceled.enabled
-
 plugins {
-    alias(libs.plugins.android.application) // Alias from the version catalog
+    alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
 }
@@ -39,20 +37,17 @@ android {
         freeCompilerArgs += "-Xjvm-default=all"
     }
 
-    // Enable View Binding
     buildFeatures {
         viewBinding = true
     }
 }
 
 dependencies {
-    // Firebase dependencies
-    implementation(libs.firebase.auth.v2130) // Latest Firebase Authentication library
-    implementation("com.google.firebase:firebase-bom:32.0.0") // Firebase BOM (manages versions of Firebase libraries)
+    implementation(libs.firebase.auth.v2130)
+    implementation(libs.firebase.bom)
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
-    implementation("com.google.android.gms:play-services-auth:20.7.0") // Check for latest version
-
-    // Other libraries from your version catalog
+    implementation(libs.retrofit2)
+    implementation(libs.gson.v2101)
     implementation(libs.maplibre.sdk)
     implementation(libs.android.sdk)
     implementation(libs.androidx.activity.ktx)
@@ -60,15 +55,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.play.services.maps)
-
-    // Unit Testing
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 }
-
-// Apply the Google Services plugin
-apply(plugin = "com.google.gms.google-services")
