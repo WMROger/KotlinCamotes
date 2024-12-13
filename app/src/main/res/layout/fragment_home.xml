@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".NavBar.HomeFragment">
 
-    <!-- Example TextView -->
+    <!-- TextView -->
     <TextView
         android:id="@+id/homeText"
         android:layout_width="wrap_content"
@@ -15,7 +15,18 @@
         android:text="Welcome to the Home Page"
         android:textSize="20sp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp" />
+
+    <!-- Button -->
+    <Button
+        android:id="@+id/payButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pay with GCash"
+        app:layout_constraintTop_toBottomOf="@id/homeText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

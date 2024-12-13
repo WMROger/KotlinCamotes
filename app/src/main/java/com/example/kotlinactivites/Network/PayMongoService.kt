@@ -1,3 +1,6 @@
+import com.example.kotlinactivites.Network.PaymentIntentResponse
+import com.example.kotlinactivites.Network.PaymentMethodResponse
+import com.example.kotlinactivites.Network.PaymentResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.Headers
