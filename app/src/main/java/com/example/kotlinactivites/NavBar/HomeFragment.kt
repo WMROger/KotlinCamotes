@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.kotlinactivites.Network.PaymentIntentRequest
@@ -38,23 +39,28 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
-        // Initialize button
         val payButton: Button = view.findViewById(R.id.payButton)
+        val amountSpinner: Spinner = view.findViewById(R.id.amountSpinner)
+
         payButton.setOnClickListener {
-            Log.d("PayWithGCash", "Button clicked")
-            try {
-                initiateGcashPayment(10000, "09171234567")
-            } catch (e: Exception) {
-                Log.e("PayWithGCash", "Error occurred: ${e.message}", e)
+            val selectedAmount = when (amountSpinner.selectedItem.toString()) {
+                "PHP 1000" -> 1000 * 100 // Amount in centavos
+                "PHP 3000" -> 3000 * 100
+                else -> 0
+            }
+
+            if (selectedAmount > 0) {
+                initiateGcashPayment(selectedAmount, "09171234567")
+            } else {
+                showToast("Please select a valid amount.")
             }
         }
 
-
         return view
     }
+
 
     private fun initiateGcashPayment(amount: Int, phone: String) {
         Log.d("PayWithGCash", "Initiating GCash payment with amount: $amount and phone: $phone")
@@ -77,8 +83,8 @@ class HomeFragment : Fragment() {
                 attributes = SourceAttributes(
                     amount = amount,
                     redirect = Redirect(
-                        success = "https://your-app.com/success",
-                        failed = "https://your-app.com/failed"
+                        success = "https://httpbin.org/anything?status=success",
+                        failed ="https://httpbin.org/anything?status=failed"
                     ),
                     type = "gcash" // Specify the source type as "gcash"
                 )
