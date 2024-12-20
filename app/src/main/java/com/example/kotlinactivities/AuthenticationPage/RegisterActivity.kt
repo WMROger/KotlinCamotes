@@ -1,7 +1,10 @@
 package com.example.kotlinactivities.AuthenticationPage
 
 import android.content.Intent
+import android.graphics.Paint
 import android.os.Bundle
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -9,6 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinactivities.R
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -20,6 +24,10 @@ class RegisterActivity : AppCompatActivity() {
         // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
 
+        // Initialize Firebase Realtime Database reference
+        val database = FirebaseDatabase.getInstance()
+        val usersRef = database.getReference("users")
+
         // UI references
         val nameEditText = findViewById<EditText>(R.id.registerNameEditText)
         val phoneNumberEditText = findViewById<EditText>(R.id.registerPhoneNumberEditText)
@@ -27,8 +35,20 @@ class RegisterActivity : AppCompatActivity() {
         val emailSuffixTextView = findViewById<TextView>(R.id.emailSuffixTextView)
         val passwordEditText = findViewById<EditText>(R.id.registerPasswordEditText)
         val confirmPasswordEditText = findViewById<EditText>(R.id.registerConfirmPasswordEditText)
+        val passwordShowTextView = findViewById<TextView>(R.id.passwordShowTextView)
+        val confirmPasswordShowTextView = findViewById<TextView>(R.id.confirmPasswordShowTextView)
         val registerButton = findViewById<Button>(R.id.registerButton)
         val backToLoginTextView = findViewById<TextView>(R.id.backToLoginTextView)
+
+        // Toggle password visibility for Password field
+        passwordShowTextView.setOnClickListener {
+            togglePasswordVisibility(passwordEditText, passwordShowTextView)
+        }
+
+        // Toggle password visibility for Confirm Password field
+        confirmPasswordShowTextView.setOnClickListener {
+            togglePasswordVisibility(confirmPasswordEditText, confirmPasswordShowTextView)
+        }
 
         // Register button action
         registerButton.setOnClickListener {
@@ -38,30 +58,62 @@ class RegisterActivity : AppCompatActivity() {
             val password = passwordEditText.text.toString().trim()
             val confirmPassword = confirmPasswordEditText.text.toString().trim()
 
+            // Check for empty fields
             if (name.isEmpty() || phoneNumber.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 Toast.makeText(this, "Please fill out all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
+            // Validate phone number (10 digits only)
+            if (!phoneNumber.matches(Regex("^\\d{10}$"))) {
+                Toast.makeText(this, "Phone number must be 10 digits", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Convert phone number to 09xxxxxxxxx format
+            val formattedPhoneNumber = "09" + phoneNumber.substring(1)
+
+            // Check if passwords match
             if (password != confirmPassword) {
                 Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            if (password.length < 6) {
-                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
+            // Validate password strength
+            val passwordRegex = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&])[A-Za-z\\d@\$!%*?&]{8,}\$")
+            if (!password.matches(passwordRegex)) {
+                Toast.makeText(
+                    this,
+                    "Password must be at least 8 characters, include upper and lower case letters, a number, and a special character",
+                    Toast.LENGTH_LONG
+                ).show()
                 return@setOnClickListener
             }
 
-            // Register the user with Firebase
+            // Register the user with Firebase Authentication
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show()
-                        startActivity(Intent(this, LoginActivity::class.java))
-                        finish()
+                        // Save additional user data (name and formatted phone number) to Realtime Database
+                        val userId = auth.currentUser?.uid
+                        val userMap = mapOf(
+                            "name" to name,
+                            "phoneNumber" to formattedPhoneNumber,
+                            "email" to email
+                        )
+                        userId?.let {
+                            usersRef.child(it).setValue(userMap).addOnCompleteListener { dbTask ->
+                                if (dbTask.isSuccessful) {
+                                    Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show()
+                                    startActivity(Intent(this, LoginActivity::class.java))
+                                    finish()
+                                } else {
+                                    Toast.makeText(this, "Database Error: ${dbTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
                     } else {
-                        Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Authentication Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
         }
@@ -72,4 +124,20 @@ class RegisterActivity : AppCompatActivity() {
             finish()
         }
     }
+
+    private fun togglePasswordVisibility(editText: EditText, toggleTextView: TextView) {
+        if (editText.transformationMethod is PasswordTransformationMethod) {
+            // Show password
+            editText.transformationMethod = HideReturnsTransformationMethod.getInstance()
+            toggleTextView.text = "Hide"
+        } else {
+            // Hide password
+            editText.transformationMethod = PasswordTransformationMethod.getInstance()
+            toggleTextView.text = "Show"
+        }
+        // Apply underline to the text
+        toggleTextView.paintFlags = toggleTextView.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+        editText.setSelection(editText.text.length) // Keep cursor at the end
+    }
+
 }

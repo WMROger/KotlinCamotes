@@ -16,6 +16,7 @@ activity = "1.9.3"
 constraintlayout = "2.1.4"
 webkit = "1.8.0"
 playServicesMaps = "19.0.0"
+firebaseDatabaseKtx = "21.0.0"
 
 [libraries]
 android-sdk = { module = "org.maplibre.gl:android-sdk", version.ref = "androidSdk" }
@@ -41,6 +42,7 @@ retrofit2 = { group = "com.squareup.retrofit2", name = "retrofit", version = "2.
 retrofit2-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version = "2.9.0" }
 okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version = "4.10.0" }
 okhttp3-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version = "4.10.0" }
+firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

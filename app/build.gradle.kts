@@ -62,4 +62,5 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
     implementation(libs.gson.v2101)
     implementation(libs.androidx.activity)
+    implementation(libs.firebase.database.ktx)
 }
