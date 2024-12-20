@@ -4,9 +4,8 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
 }
 
-
 android {
-    namespace = "com.example.kotlinactivites"
+    namespace = "com.example.kotlinactivities"
     compileSdk = 34
 
     defaultConfig {
@@ -56,7 +55,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.play.services.maps)
     implementation("com.google.android.gms:play-services-auth:20.7.0")
-    implementation ("com.google.android.material:material:1.9.0") // Use the latest stable version
+
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")

@@ -1,4 +1,4 @@
-package com.example.kotlinactivites.NavBar
+package com.example.kotlinactivities.NavBar
 
 import android.os.Bundle
 import android.util.Log
@@ -10,16 +10,17 @@ import android.widget.Button
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.kotlinactivites.Network.PaymentIntentAttributes
-import com.example.kotlinactivites.Network.PaymentIntentData
-import com.example.kotlinactivites.Network.PaymentIntentRequest
-import com.example.kotlinactivites.Network.PaymentIntentResponse
-import com.example.kotlinactivites.Network.Redirect
-import com.example.kotlinactivites.Network.SourceAttributes
-import com.example.kotlinactivites.Network.SourceData
-import com.example.kotlinactivites.Network.SourceRequest
-import com.example.kotlinactivites.Network.SourceResponse
-import com.example.kotlinactivites.R
+import com.example.kotlinactivities.R
+import com.example.kotlinactivities.Network.PaymentIntentAttributes
+import com.example.kotlinactivities.Network.PaymentIntentData
+import com.example.kotlinactivities.Network.PaymentIntentRequest
+import com.example.kotlinactivities.Network.PaymentIntentResponse
+import com.example.kotlinactivities.Network.Redirect
+import com.example.kotlinactivities.Network.RetrofitClient
+import com.example.kotlinactivities.Network.SourceAttributes
+import com.example.kotlinactivities.Network.SourceData
+import com.example.kotlinactivities.Network.SourceRequest
+import com.example.kotlinactivities.Network.SourceResponse
 
 class paymentNotImplemented : AppCompatActivity() {
 

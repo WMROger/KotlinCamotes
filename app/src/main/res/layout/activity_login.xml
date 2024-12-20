@@ -18,22 +18,23 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
         android:layout_width="304dp"
         android:layout_height="42dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="10dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loginButton">
+        app:layout_constraintTop_toBottomOf="@+id/orText">
 
         <LinearLayout
             android:id="@+id/googleSignInButton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
             android:gravity="center"
+            android:orientation="horizontal"
             android:paddingStart="16dp"
             android:paddingEnd="16dp">
 
@@ -42,9 +43,9 @@
                 android:id="@+id/googleIcon"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/ic_google_logo"
-                android:contentDescription="Google logo"
                 android:layout_gravity="center_vertical"
+                android:contentDescription="Google logo"
+                android:src="@drawable/ic_google_logo"
                 android:tint="@null" />
 
             <!-- Sign-In Text -->
@@ -56,7 +57,7 @@
                 android:fontFamily="@font/inter"
                 android:gravity="center_vertical"
                 android:text="Continue with Google"
-                android:textColor="@android:color/black"
+                android:textColor="#2E2E2E"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -64,7 +65,7 @@
 
 
     <TextView
-        android:id="@+id/registerTextView"
+        android:id="@+id/semiHeaderTextView"
         android:layout_width="260dp"
         android:layout_height="44dp"
         android:layout_marginTop="408dp"
@@ -72,9 +73,26 @@
         android:paddingTop="8dp"
         android:text="Create a WaveAway Account or Log in to your existing account"
         android:textAlignment="center"
-        android:textColor="#10D1FD"
+        android:textColor="#646464"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/HeaderLogin"
+        android:layout_width="260dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="364dp"
+        android:fontFamily="@font/inter"
+        android:paddingTop="8dp"
+        android:text="Let’s Get Started!"
+        android:textAlignment="center"
+        android:textSize="28dp"
+        android:textColor="#202020"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -82,14 +100,57 @@
         android:id="@+id/orText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:paddingTop="8dp"
         android:text="Or"
-        android:textColor="#10D1FD"
+        android:textColor="#818181"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/loginButton" />
+
+    <TextView
+        android:id="@+id/forgotPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto"
+        android:paddingTop="8dp"
+        android:text="Forgot Password"
+        android:textSize="10.34dp"
+        android:textColor="#2170B4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.819"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/passwordEditText" />
+
+    <TextView
+        android:id="@+id/RegisterAccountTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto"
+        android:paddingTop="8dp"
+        android:text="Don't have an account?"
+        android:textColor="#818181"
+        android:textSize="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.355"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView" />
+
+    <TextView
+        android:id="@+id/RegisterAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto"
+        android:paddingTop="8dp"
+        android:text="Sign up"
+        android:textColor="#2170B4"
+        android:textSize="15.34dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.138"
+        app:layout_constraintStart_toEndOf="@+id/RegisterAccountTxt"
+        app:layout_constraintTop_toBottomOf="@+id/cardView" />
 
     <EditText
         android:id="@+id/passwordEditText"
@@ -107,7 +168,7 @@
         android:id="@+id/loginButton"
         android:layout_width="304dp"
         android:layout_height="42dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="40dp"
         android:text="Continue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"

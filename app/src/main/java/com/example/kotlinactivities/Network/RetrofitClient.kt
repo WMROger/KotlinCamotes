@@ -1,7 +1,7 @@
+package com.example.kotlinactivities.Network
+
 import android.util.Base64
-import com.example.kotlinactivites.Network.PayMongoService
 import okhttp3.OkHttpClient
-import okhttp3.Interceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 

@@ -1,4 +1,4 @@
-package com.example.kotlinactivites
+package com.example.kotlinactivities
 
 import org.junit.Test
 

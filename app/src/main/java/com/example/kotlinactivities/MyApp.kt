@@ -1,4 +1,4 @@
-package com.example.kotlinactivites
+package com.example.kotlinactivities
 
 import android.app.Application
 import org.maplibre.android.MapLibre

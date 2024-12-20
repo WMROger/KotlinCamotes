@@ -1,11 +1,11 @@
-package com.example.kotlinactivites.AuthenticationPage
+package com.example.kotlinactivities.AuthenticationPage
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.example.kotlinactivites.MainActivity
-import com.example.kotlinactivites.R
+import com.example.kotlinactivities.MainActivity
+import com.example.kotlinactivities.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -46,7 +46,7 @@ class LoginActivity : AppCompatActivity() {
             startActivityForResult(signInIntent, RC_SIGN_IN)
         }
 
-        val registerTextView = findViewById<TextView>(R.id.registerTextView)
+        val registerTextView = findViewById<TextView>(R.id.RegisterAccount)
         registerTextView.setOnClickListener {
             // Redirect to RegisterActivity
             val intent = Intent(this, RegisterActivity::class.java)

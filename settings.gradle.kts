@@ -20,6 +20,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "KotlinActivites"
+rootProject.name = "KotlinActivities"
 include(":app")
  

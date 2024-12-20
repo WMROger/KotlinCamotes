@@ -1,4 +1,4 @@
-package com.example.kotlinactivites
+package com.example.kotlinactivities
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,11 +7,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import com.example.kotlinactivites.NavBar.HomeFragment
-import com.example.kotlinactivites.NavBar.MapFragment
-import com.example.kotlinactivites.NavBar.MyRoomFragment
-import com.example.kotlinactivites.NavBar.ProfileFragment
-import com.example.kotlinactivites.AuthenticationPage.LoginActivity
+import com.example.kotlinactivities.NavBar.HomeFragment
+import com.example.kotlinactivities.NavBar.MapFragment
+import com.example.kotlinactivities.NavBar.MyRoomFragment
+import com.example.kotlinactivities.NavBar.ProfileFragment
+import com.example.kotlinactivities.AuthenticationPage.LoginActivity
+import com.example.kotlinactivities.R
 import com.google.firebase.auth.FirebaseAuth
 import io.ak1.BubbleTabBar
 

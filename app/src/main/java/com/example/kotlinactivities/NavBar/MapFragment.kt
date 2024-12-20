@@ -1,4 +1,4 @@
-package com.example.kotlinactivites.NavBar
+package com.example.kotlinactivities.NavBar
 
 import android.os.Bundle
 import android.util.Log
@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.MapLibreMap
 import androidx.fragment.app.Fragment
-import com.example.kotlinactivites.R
 import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.Style
