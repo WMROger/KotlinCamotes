@@ -1,11 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme -->
     <style name="Base.Theme.KotlinActivites" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary color for selected tab -->
         <item name="colorPrimary">#25443E</item>
         <!-- Control highlight for ripple effects -->
         <item name="colorControlHighlight">#25443E</item>
+        <!-- Set custom font as default -->
+        <item name="android:fontFamily">@font/inter</item>
     </style>
 
+
+
+    <!-- Application theme inheriting from Base Theme -->
     <style name="Theme.KotlinActivites" parent="Base.Theme.KotlinActivites" />
 </resources>

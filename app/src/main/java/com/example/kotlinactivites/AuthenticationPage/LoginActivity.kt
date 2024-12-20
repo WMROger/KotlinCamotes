@@ -2,21 +2,17 @@ package com.example.kotlinactivites.AuthenticationPage
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinactivites.MainActivity
 import com.example.kotlinactivites.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.android.gms.common.SignInButton
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -35,6 +31,7 @@ class LoginActivity : AppCompatActivity() {
         val emailEditText = findViewById<EditText>(R.id.emailEditText)
         val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
         val loginButton = findViewById<Button>(R.id.loginButton)
+
         // Configure Google Sign-In
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -42,18 +39,20 @@ class LoginActivity : AppCompatActivity() {
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        // Google Sign-In button action
-        val googleSignInButton = findViewById<SignInButton>(R.id.googleSignInButton)
+        // Set click listener for the custom Google Sign-In button
+        val googleSignInButton = findViewById<LinearLayout>(R.id.googleSignInButton) // Correct type
         googleSignInButton.setOnClickListener {
             val signInIntent = googleSignInClient.signInIntent
             startActivityForResult(signInIntent, RC_SIGN_IN)
         }
+
         val registerTextView = findViewById<TextView>(R.id.registerTextView)
         registerTextView.setOnClickListener {
             // Redirect to RegisterActivity
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
+
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
@@ -115,5 +114,4 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
     }
-
 }
