@@ -6,6 +6,8 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinactivities.MainActivity
 import com.example.kotlinactivities.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import kotlin.random.Random
 import com.example.kotlinactivities.Network.sendEmail
 
@@ -33,13 +35,14 @@ class VerificationActivity : AppCompatActivity() {
             val enteredCode = verificationCodeEditText.text.toString().trim()
 
             if (enteredCode == verificationCode) {
-                // If the entered code matches, proceed to the next activity
+                // Verification code matches
                 Toast.makeText(this, "Verification Successful!", Toast.LENGTH_SHORT).show()
 
-                // Redirect to MainActivity or next step
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
+                // Mark the email as verified in Firebase Realtime Database
+                markEmailAsVerified()
+
             } else {
+                // Verification code does not match
                 Toast.makeText(this, "Invalid code. Please try again.", Toast.LENGTH_SHORT).show()
             }
         }
@@ -62,12 +65,32 @@ class VerificationActivity : AppCompatActivity() {
         }
     }
 
+    // Function to update the emailVerified status in Firebase Realtime Database
+    private fun markEmailAsVerified() {
+        val database = FirebaseDatabase.getInstance()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val usersRef = database.getReference("users").child(userId)
+
+        usersRef.child("emailVerified").setValue(true)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Email verification status updated.", Toast.LENGTH_SHORT).show()
+
+                    // Redirect to LoginActivity after successful verification
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                } else {
+                    Toast.makeText(this, "Failed to update verification status: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
     // Function to generate a 6-digit verification code
     private fun generateVerificationCode(): String {
         return Random.nextInt(100000, 999999).toString()
     }
 
-    // Simulated function to send the verification code to the email
+    // Function to send the verification code to the user's email
     private fun sendVerificationCodeToEmail(email: String, verificationCode: String) {
         val subject = "Your Verification Code"
         val messageBody = "Your new verification code is: $verificationCode"
@@ -86,5 +109,4 @@ class VerificationActivity : AppCompatActivity() {
             }
         }.start()
     }
-
 }

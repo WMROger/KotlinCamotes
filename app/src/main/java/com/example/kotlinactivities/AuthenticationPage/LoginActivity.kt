@@ -13,6 +13,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.database.FirebaseDatabase
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -68,17 +69,34 @@ class LoginActivity : AppCompatActivity() {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-                        // Navigate to MainActivity
-                        val intent = Intent(this, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
-                        finish() // Close LoginActivity
+                        val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
+                        val database = FirebaseDatabase.getInstance()
+                        val usersRef = database.getReference("users").child(userId)
+
+                        // Check the emailVerified status in the database
+                        usersRef.child("emailVerified").get().addOnCompleteListener { dbTask ->
+                            if (dbTask.isSuccessful && dbTask.result.exists() && dbTask.result.value == true) {
+                                // Email is verified, allow login
+                                Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
+
+                                val intent = Intent(this, MainActivity::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                startActivity(intent)
+                                finish()
+                            } else {
+                                // Email is not verified
+                                auth.signOut()
+                                Toast.makeText(this, "Please verify your email before logging in.", Toast.LENGTH_LONG).show()
+                            }
+                        }
                     } else {
                         Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
+
         }
+
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
