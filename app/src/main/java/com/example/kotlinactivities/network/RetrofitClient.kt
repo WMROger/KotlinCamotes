@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.Network
+package com.example.kotlinactivities.network
 
 import android.util.Base64
 import okhttp3.OkHttpClient

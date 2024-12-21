@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.Network
+package com.example.kotlinactivities.network
 
 import javax.mail.*
 import javax.mail.internet.InternetAddress

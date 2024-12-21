@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.NavBar
+package com.example.kotlinactivities.navBar
 
 import android.os.Bundle
 import android.util.Log

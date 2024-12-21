@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.Network
+package com.example.kotlinactivities.network
 
 import retrofit2.Call
 import retrofit2.http.Body

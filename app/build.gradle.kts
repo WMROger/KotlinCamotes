@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+    id("kotlin-kapt")
 }
 
 android {
@@ -72,5 +73,17 @@ dependencies {
     implementation(libs.firebase.database.ktx)
     implementation(libs.android.mail)
     implementation(libs.android.activation)
+    implementation(libs.glide)
+    implementation(libs.androidx.monitor)
+    implementation(libs.androidx.junit.ktx)
+    testImplementation(libs.junit.junit)
+    testImplementation(libs.junit.junit)
+    androidTestImplementation(libs.junit.junit)
+    implementation(libs.androidx.recyclerview)
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+    kapt("com.github.bumptech.glide:compiler:4.15.1")
+    debugImplementation("com.github.bumptech.glide:okhttp3-integration:4.15.1")
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
 
 }

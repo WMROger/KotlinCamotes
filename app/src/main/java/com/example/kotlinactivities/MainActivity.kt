@@ -7,12 +7,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import com.example.kotlinactivities.NavBar.HomeFragment
-import com.example.kotlinactivities.NavBar.MapFragment
-import com.example.kotlinactivities.NavBar.MyRoomFragment
-import com.example.kotlinactivities.NavBar.ProfileFragment
-import com.example.kotlinactivities.AuthenticationPage.LoginActivity
-import com.example.kotlinactivities.R
+import com.example.kotlinactivities.navBar.HomeFragment
+import com.example.kotlinactivities.navBar.MapFragment
+import com.example.kotlinactivities.navBar.MyRoomFragment
+import com.example.kotlinactivities.navBar.ProfileFragment
+import com.example.kotlinactivities.authenticationPage.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import io.ak1.BubbleTabBar
 

@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.AuthenticationPage
+package com.example.kotlinactivities.authenticationPage
 
 import android.content.Intent
 import android.graphics.Paint
@@ -11,7 +11,7 @@ import com.example.kotlinactivities.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kotlin.random.Random
-import com.example.kotlinactivities.Network.sendEmail
+import com.example.kotlinactivities.network.sendEmail
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth

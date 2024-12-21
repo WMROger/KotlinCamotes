@@ -1,15 +1,14 @@
-package com.example.kotlinactivities.AuthenticationPage
+package com.example.kotlinactivities.authenticationPage
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.example.kotlinactivities.MainActivity
 import com.example.kotlinactivities.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kotlin.random.Random
-import com.example.kotlinactivities.Network.sendEmail
+import com.example.kotlinactivities.network.sendEmail
 
 class VerificationActivity : AppCompatActivity() {
 

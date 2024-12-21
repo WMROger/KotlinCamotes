@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.Network
+package com.example.kotlinactivities.network
 
 data class AttachPaymentRequest(
     val data: AttachPaymentData

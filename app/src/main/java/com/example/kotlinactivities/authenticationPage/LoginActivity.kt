@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.AuthenticationPage
+package com.example.kotlinactivities.authenticationPage
 
 import android.content.Intent
 import android.os.Bundle

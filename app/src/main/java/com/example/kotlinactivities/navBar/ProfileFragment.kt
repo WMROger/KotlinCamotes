@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.NavBar
+package com.example.kotlinactivities.navBar
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import com.example.kotlinactivities.AuthenticationPage.LoginActivity
+import com.example.kotlinactivities.authenticationPage.LoginActivity
 import com.example.kotlinactivities.R
 import com.google.firebase.auth.FirebaseAuth
 

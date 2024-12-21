@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.Network
+package com.example.kotlinactivities.network
 
 // Source Request
 data class SourceRequest(
