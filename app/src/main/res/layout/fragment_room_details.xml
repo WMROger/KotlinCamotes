@@ -13,13 +13,14 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Room Image -->
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/roomImage"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="400dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_cupids_deluxe" />
+            android:contentDescription="Room Image"
+            app:shapeAppearanceOverlay="@style/CustomCornerShape" />
+
 
         <!-- Room Title -->
         <TextView

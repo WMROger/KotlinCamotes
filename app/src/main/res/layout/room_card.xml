@@ -15,12 +15,14 @@
         android:padding="8dp">
 
         <!-- Room Image -->
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/roomImage"
             android:layout_width="match_parent"
             android:layout_height="400dp"
             android:scaleType="centerCrop"
-            android:contentDescription="Room Image" />
+            android:contentDescription="Room Image"
+            app:shapeAppearanceOverlay="@style/CustomCornerShape" />
+
 
         <!-- Title and Rating in ConstraintLayout -->
         <androidx.constraintlayout.widget.ConstraintLayout
