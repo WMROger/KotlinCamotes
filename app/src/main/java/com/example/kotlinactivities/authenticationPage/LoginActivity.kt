@@ -3,6 +3,7 @@ package com.example.kotlinactivities.authenticationPage
 import android.content.Intent
 import android.os.Bundle
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinactivities.MainActivity
 import com.example.kotlinactivities.R
@@ -18,10 +19,6 @@ import com.google.firebase.database.FirebaseDatabase
 class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
-
-    companion object {
-        private const val RC_SIGN_IN = 1001
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +43,7 @@ class LoginActivity : AppCompatActivity() {
             // Force user to select an account every time
             googleSignInClient.signOut().addOnCompleteListener {
                 val signInIntent = googleSignInClient.signInIntent
-                startActivityForResult(signInIntent, RC_SIGN_IN)
+                googleSignInLauncher.launch(signInIntent)
             }
         }
 
@@ -95,16 +92,15 @@ class LoginActivity : AppCompatActivity() {
                 }
 
         }
-
-
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == RC_SIGN_IN) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+    // Use the Activity Result API for handling Google Sign-In
+    private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             handleSignInResult(task)
+        } else {
+            Toast.makeText(this, "Google Sign-In canceled", Toast.LENGTH_SHORT).show()
         }
     }
 

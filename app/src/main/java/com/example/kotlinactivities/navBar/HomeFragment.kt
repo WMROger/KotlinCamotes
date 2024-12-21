@@ -1,6 +1,5 @@
 package com.example.kotlinactivities.navBar
 
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -41,12 +40,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadRoomData() {
-        val context = requireContext()
-
-        // Add mock data with dynamically constructed URI
+        // Add mock data using resource ID directly
         roomList.add(
             Room(
-                imageUrl = Uri.parse("android.resource://${context.packageName}/drawable/ic_home").toString(),
+                imageUrl = R.drawable.ic_home, // Pass resource ID directly
                 title = "Deluxe Room",
                 people = "2",
                 price = "₱1,678/night",
@@ -56,7 +53,7 @@ class HomeFragment : Fragment() {
 
         roomList.add(
             Room(
-                imageUrl = Uri.parse("android.resource://${context.packageName}/drawable/ic_home").toString(),
+                imageUrl = R.drawable.ic_home,
                 title = "Barkada Room",
                 people = "5",
                 price = "₱2,500/night",
@@ -66,7 +63,7 @@ class HomeFragment : Fragment() {
 
         roomList.add(
             Room(
-                imageUrl = Uri.parse("android.resource://${context.packageName}/drawable/ic_home").toString(),
+                imageUrl = R.drawable.ic_home,
                 title = "Regular Room",
                 people = "3",
                 price = "₱1,200/night",
@@ -76,7 +73,7 @@ class HomeFragment : Fragment() {
 
         // Log data
         for (room in roomList) {
-            println("Loaded Room: ${room.title}, ${room.price}")
+            Log.d("HomeFragment", "Loaded Room: ${room.title}, ${room.price}")
         }
 
         // Notify the adapter about data changes
