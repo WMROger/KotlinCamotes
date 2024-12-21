@@ -10,7 +10,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.kotlinactivities" // Fix the typo if necessary to match `namespace`
+        applicationId = "com.example.kotlinactivities" // Ensure it matches `namespace`
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -39,10 +39,9 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true
+        viewBinding = true // This is the correct way to enable ViewBinding
     }
 
-    // Packaging options to exclude conflicting files
     packaging {
         resources {
             excludes += "META-INF/NOTICE.md"
