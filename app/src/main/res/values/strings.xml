@@ -5,6 +5,9 @@
     <string name="default_web_client_id">YOUR_WEB_CLIENT_ID</string>
     <string name="show_underline"><u>Show</u></string>
     <string name="back_button"> &lt; </string>
+    <string name="verification_sub_header">To continue, enter the code we just sent to your email.</string>
+    <string name="verification_header">Check your email</string>
+    <string name="resend_code">Didn’t get a code?Try again</string>
     <string-array name="payment_options">
         <item>PHP 1000</item>
         <item>PHP 3000</item>

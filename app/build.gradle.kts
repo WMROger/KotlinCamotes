@@ -40,6 +40,13 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    // Packaging options to exclude conflicting files
+    packaging {
+        resources {
+            excludes += "META-INF/NOTICE.md"
+            excludes += "META-INF/LICENSE.md"
+        }
+    }
 }
 
 dependencies {
@@ -54,13 +61,16 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.play.services.maps)
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation(libs.play.services.auth)
 
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+    implementation(libs.retrofit2)
+    implementation(libs.retrofit2.gson)
+    implementation(libs.okhttp.v4120)
+    implementation(libs.okhttp3.logging)
     implementation(libs.gson.v2101)
     implementation(libs.androidx.activity)
     implementation(libs.firebase.database.ktx)
+    implementation(libs.android.mail)
+    implementation(libs.android.activation)
+
 }

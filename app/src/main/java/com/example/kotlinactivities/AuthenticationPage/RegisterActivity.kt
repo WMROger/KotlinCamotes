@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinactivities.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import kotlin.random.Random
+import com.example.kotlinactivities.Network.sendEmail
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -67,9 +69,6 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Convert phone number to 09xxxxxxxxx format
-            val formattedPhoneNumber = "09" + phoneNumber.substring(1)
-
             // Check if passwords match
             if (password != confirmPassword) {
                 Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
@@ -91,39 +90,33 @@ class RegisterActivity : AppCompatActivity() {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        // Send email verification
+                        // Generate a 6-digit verification code
+                        val verificationCode = Random.nextInt(100000, 999999).toString()
+
+                        // Send email with verification code (use any email-sending service or Firebase Functions)
+                        sendEmailVerification(email, verificationCode)
+
+                        // Save additional user data (name and phone number) to Realtime Database
                         val user = auth.currentUser
-                        user?.sendEmailVerification()?.addOnCompleteListener { emailTask ->
-                            if (emailTask.isSuccessful) {
-                                // Save additional user data (name and formatted phone number) to Realtime Database
-                                val userId = user.uid
-                                val userMap = mapOf(
-                                    "name" to name,
-                                    "phoneNumber" to formattedPhoneNumber,
-                                    "email" to email,
-                                    "emailVerified" to false // Set initial verification status
-                                )
-                                usersRef.child(userId).setValue(userMap).addOnCompleteListener { dbTask ->
-                                    if (dbTask.isSuccessful) {
-                                        Toast.makeText(
-                                            this,
-                                            "Registration Successful. Please verify your email before logging in.",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                        startActivity(Intent(this, LoginActivity::class.java))
-                                        finish()
-                                    } else {
-                                        Toast.makeText(
-                                            this,
-                                            "Database Error: ${dbTask.exception?.message}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
+                        val userId = user!!.uid
+                        val userMap = mapOf(
+                            "name" to name,
+                            "phoneNumber" to phoneNumber,
+                            "email" to email,
+                            "emailVerified" to false // Set initial verification status
+                        )
+                        usersRef.child(userId).setValue(userMap).addOnCompleteListener { dbTask ->
+                            if (dbTask.isSuccessful) {
+                                // Redirect to VerificationActivity
+                                val intent = Intent(this, VerificationActivity::class.java)
+                                intent.putExtra("EMAIL", email)
+                                intent.putExtra("VERIFICATION_CODE", verificationCode)
+                                startActivity(intent)
+                                finish()
                             } else {
                                 Toast.makeText(
                                     this,
-                                    "Failed to send verification email: ${emailTask.exception?.message}",
+                                    "Database Error: ${dbTask.exception?.message}",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -141,18 +134,35 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    private fun sendEmailVerification(email: String, verificationCode: String) {
+        val subject = "Your Verification Code"
+        val messageBody = "Your verification code is: $verificationCode"
+
+        // Use a background thread to send the email
+        Thread {
+            try {
+                sendEmail(email, subject, messageBody)
+                runOnUiThread {
+                    Toast.makeText(this, "Verification code sent to $email", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    Toast.makeText(this, "Failed to send email: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }.start()
+    }
+
+
     private fun togglePasswordVisibility(editText: EditText, toggleTextView: TextView) {
         if (editText.transformationMethod is PasswordTransformationMethod) {
-            // Show password
             editText.transformationMethod = HideReturnsTransformationMethod.getInstance()
             toggleTextView.text = "Hide"
         } else {
-            // Hide password
             editText.transformationMethod = PasswordTransformationMethod.getInstance()
             toggleTextView.text = "Show"
         }
-        // Apply underline to the text
         toggleTextView.paintFlags = toggleTextView.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-        editText.setSelection(editText.text.length) // Keep cursor at the end
+        editText.setSelection(editText.text.length)
     }
 }
