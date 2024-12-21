@@ -45,7 +45,7 @@ class HomeFragment : Fragment() {
         roomList.apply {
             add(
                 Room(
-                    imageUrl = R.drawable.ic_home,
+                    imageUrl = R.drawable.ic_cupids_deluxe,
                     title = "Cupid's Deluxe Room",
                     people = "2",
                     price = "₱1,678/night",
@@ -54,7 +54,7 @@ class HomeFragment : Fragment() {
             )
             add(
                 Room(
-                    imageUrl = R.drawable.ic_home,
+                    imageUrl = R.drawable.ic_cupids_deluxe,
                     title = "Barkada Room",
                     people = "5",
                     price = "₱2,500/night",
@@ -63,7 +63,7 @@ class HomeFragment : Fragment() {
             )
             add(
                 Room(
-                    imageUrl = R.drawable.ic_home,
+                    imageUrl = R.drawable.ic_cupids_deluxe,
                     title = "Regular Room",
                     people = "3",
                     price = "₱1,200/night",
