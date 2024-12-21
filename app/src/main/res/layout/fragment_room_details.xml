@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".homePage.RoomDetailsFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Room Image -->
+        <ImageView
+            android:id="@+id/roomImage"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_home" />
+
+        <!-- Room Title -->
+        <TextView
+            android:id="@+id/roomTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Cupid's Deluxe Room"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <!-- Room Location -->
+        <TextView
+            android:id="@+id/roomLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Himensulan Island, Camotes Cebu"
+            android:textColor="#7C7C7C"
+            android:textSize="14sp" />
+
+        <!-- Room Rating -->
+        <TextView
+            android:id="@+id/roomRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="4.9 ★"
+            android:textSize="14sp"
+            android:textColor="#7C7C7C" />
+
+        <!-- Room Price -->
+        <TextView
+            android:id="@+id/roomPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="₱1,678/night"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Amenities -->
+        <TextView
+            android:id="@+id/amenitiesHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Amenities"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/wifi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_wifi"
+                android:drawablePadding="8dp"
+                android:text="Wi-Fi" />
+
+            <TextView
+                android:id="@+id/airConditioning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_air_conditioning"
+                android:drawablePadding="8dp"
+                android:layout_marginStart="16dp"
+                android:text="Air Conditioning" />
+        </LinearLayout>
+
+        <!-- About Section -->
+        <TextView
+            android:id="@+id/aboutHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="About"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/roomDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Indulge in luxury and comfort in our Deluxe Room, featuring elegant interiors, plush bedding, a spacious seating area, and modern amenities."
+            android:textSize="14sp"
+            android:textColor="#7C7C7C" />
+
+        <!-- Book Button -->
+        <Button
+            android:id="@+id/bookButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/filter_button_background"
+            android:text="Book"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

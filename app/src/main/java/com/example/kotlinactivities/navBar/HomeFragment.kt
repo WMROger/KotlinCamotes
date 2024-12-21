@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.RoomAdapter
+import com.example.kotlinactivities.homePage.RoomDetailsFragment
 import com.example.kotlinactivities.model.Room
 
 class HomeFragment : Fragment() {
@@ -27,7 +28,11 @@ class HomeFragment : Fragment() {
         // Setup RecyclerView
         roomsRecyclerView = view.findViewById(R.id.roomsRecyclerView)
         roomsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        roomAdapter = RoomAdapter(roomList)
+
+        // Initialize RoomAdapter with click handling
+        roomAdapter = RoomAdapter(roomList) { room ->
+            navigateToRoomDetails(room)
+        }
         roomsRecyclerView.adapter = roomAdapter
 
         // Load data
@@ -41,10 +46,10 @@ class HomeFragment : Fragment() {
             add(
                 Room(
                     imageUrl = R.drawable.ic_home,
-                    title = "Deluxe Room",
+                    title = "Cupid's Deluxe Room",
                     people = "2",
                     price = "₱1,678/night",
-                    rating = "4.9"
+                    rating = "4.9 ★"
                 )
             )
             add(
@@ -53,7 +58,7 @@ class HomeFragment : Fragment() {
                     title = "Barkada Room",
                     people = "5",
                     price = "₱2,500/night",
-                    rating = "4.8"
+                    rating = "4.8 ★"
                 )
             )
             add(
@@ -62,11 +67,23 @@ class HomeFragment : Fragment() {
                     title = "Regular Room",
                     people = "3",
                     price = "₱1,200/night",
-                    rating = "4.5"
+                    rating = "4.5 ★"
                 )
             )
         }
         Log.d("HomeFragment", "Room data loaded: ${roomList.size} items")
         roomAdapter.notifyDataSetChanged()
+    }
+
+    private fun navigateToRoomDetails(room: Room) {
+        val fragment = RoomDetailsFragment().apply {
+            arguments = Bundle().apply {
+                putParcelable("room", room)
+            }
+        }
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 }
