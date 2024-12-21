@@ -40,10 +40,13 @@ class LoginActivity : AppCompatActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         // Set click listener for the custom Google Sign-In button
-        val googleSignInButton = findViewById<LinearLayout>(R.id.googleSignInButton) // Correct type
+        val googleSignInButton = findViewById<LinearLayout>(R.id.googleSignInButton)
         googleSignInButton.setOnClickListener {
-            val signInIntent = googleSignInClient.signInIntent
-            startActivityForResult(signInIntent, RC_SIGN_IN)
+            // Force user to select an account every time
+            googleSignInClient.signOut().addOnCompleteListener {
+                val signInIntent = googleSignInClient.signInIntent
+                startActivityForResult(signInIntent, RC_SIGN_IN)
+            }
         }
 
         val registerTextView = findViewById<TextView>(R.id.RegisterAccount)

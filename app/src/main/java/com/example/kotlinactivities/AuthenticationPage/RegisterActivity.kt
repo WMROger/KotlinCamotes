@@ -5,10 +5,7 @@ import android.graphics.Paint
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinactivities.R
 import com.google.firebase.auth.FirebaseAuth
@@ -94,22 +91,41 @@ class RegisterActivity : AppCompatActivity() {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        // Save additional user data (name and formatted phone number) to Realtime Database
-                        val userId = auth.currentUser?.uid
-                        val userMap = mapOf(
-                            "name" to name,
-                            "phoneNumber" to formattedPhoneNumber,
-                            "email" to email
-                        )
-                        userId?.let {
-                            usersRef.child(it).setValue(userMap).addOnCompleteListener { dbTask ->
-                                if (dbTask.isSuccessful) {
-                                    Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show()
-                                    startActivity(Intent(this, LoginActivity::class.java))
-                                    finish()
-                                } else {
-                                    Toast.makeText(this, "Database Error: ${dbTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                        // Send email verification
+                        val user = auth.currentUser
+                        user?.sendEmailVerification()?.addOnCompleteListener { emailTask ->
+                            if (emailTask.isSuccessful) {
+                                // Save additional user data (name and formatted phone number) to Realtime Database
+                                val userId = user.uid
+                                val userMap = mapOf(
+                                    "name" to name,
+                                    "phoneNumber" to formattedPhoneNumber,
+                                    "email" to email,
+                                    "emailVerified" to false // Set initial verification status
+                                )
+                                usersRef.child(userId).setValue(userMap).addOnCompleteListener { dbTask ->
+                                    if (dbTask.isSuccessful) {
+                                        Toast.makeText(
+                                            this,
+                                            "Registration Successful. Please verify your email before logging in.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                        startActivity(Intent(this, LoginActivity::class.java))
+                                        finish()
+                                    } else {
+                                        Toast.makeText(
+                                            this,
+                                            "Database Error: ${dbTask.exception?.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
+                            } else {
+                                Toast.makeText(
+                                    this,
+                                    "Failed to send verification email: ${emailTask.exception?.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     } else {
@@ -139,5 +155,4 @@ class RegisterActivity : AppCompatActivity() {
         toggleTextView.paintFlags = toggleTextView.paintFlags or Paint.UNDERLINE_TEXT_FLAG
         editText.setSelection(editText.text.length) // Keep cursor at the end
     }
-
 }
