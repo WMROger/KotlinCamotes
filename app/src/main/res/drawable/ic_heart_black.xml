@@ -1,0 +1,29 @@
+<vector xmlns:aapt="http://schemas.android.com/aapt" xmlns:android="http://schemas.android.com/apk/res/android" android:autoMirrored="true" android:height="49dp" android:viewportHeight="49" android:viewportWidth="51" android:width="51dp">
+      
+    <group>
+            
+        <clip-path android:pathData="M17.414,0L33.965,0A12.414,12.414 0,0 1,46.379 12.414L46.379,27.931A12.414,12.414 0,0 1,33.965 40.345L17.414,40.345A12.414,12.414 0,0 1,5 27.931L5,12.414A12.414,12.414 0,0 1,17.414 0z"/>
+            
+        <path android:fillColor="#ffffff" android:pathData="M17.414,0L33.965,0A12.414,12.414 0,0 1,46.379 12.414L46.379,27.931A12.414,12.414 0,0 1,33.965 40.345L17.414,40.345A12.414,12.414 0,0 1,5 27.931L5,12.414A12.414,12.414 0,0 1,17.414 0z"/>
+            
+        <path android:pathData="M-23.966,-4.138h331.034v78.621h-331.034z">
+                  
+            <aapt:attr name="android:fillColor">
+                        
+                <gradient android:endX="307.069" android:endY="35.172" android:startX="-23.966" android:startY="35.172" android:type="linear">
+                              
+                    <item android:color="#FFFFFFFF" android:offset="0"/>
+                              
+                    <item android:color="#FFFFFFFF" android:offset="1"/>
+                            
+                </gradient>
+                      
+            </aapt:attr>
+                
+        </path>
+            
+        <path android:fillColor="#15070C" android:fillType="evenOdd" android:pathData="M25.166,13.707C23.227,11.447 19.987,10.749 17.558,12.818C15.128,14.887 14.786,18.347 16.694,20.794C18.281,22.829 23.081,27.121 24.654,28.51C24.83,28.665 24.919,28.743 25.021,28.773C25.111,28.8 25.209,28.8 25.298,28.773C25.401,28.743 25.489,28.665 25.665,28.51C27.239,27.121 32.039,22.829 33.625,20.794C35.533,18.347 35.233,14.866 32.762,12.818C30.29,10.771 27.105,11.447 25.166,13.707Z" android:strokeColor="#15070C" android:strokeLineCap="round" android:strokeLineJoin="round" android:strokeWidth="2.15517"/>
+          
+    </group>
+    
+</vector>
