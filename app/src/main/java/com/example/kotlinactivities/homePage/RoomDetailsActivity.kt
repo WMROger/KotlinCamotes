@@ -46,10 +46,20 @@ class RoomDetailsActivity : AppCompatActivity() {
             toggleFavorite()
         }
 
-        // Book button action (placeholder)
+        // Book button action
         binding.bookButton.setOnClickListener {
-            // Implement booking action
+            // Create an intent to navigate to BookingRoomActivity
+            val intent = Intent(this, BookingRoomActivity::class.java)
+
+            // Pass data to the BookingRoomActivity (if needed)
+            intent.putExtra("roomName", room?.title) // Pass room title
+            intent.putExtra("roomPrice", room?.price) // Pass room price
+            intent.putExtra("maxGuests", room?.people) // Pass max guests
+
+            // Start the BookingRoomActivity
+            startActivity(intent)
         }
+
     }
 
     // Function to toggle favorite state

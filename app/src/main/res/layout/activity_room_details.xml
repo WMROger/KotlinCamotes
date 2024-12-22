@@ -142,8 +142,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:paddingHorizontal="5dp"
-        android:background="@android:color/transparent"> <!-- Transparent background -->
+        android:background="@android:color/transparent"
+        android:paddingHorizontal="5dp"> <!-- Transparent background -->
 
         <!-- Back Button -->
         <ImageView
@@ -168,11 +168,16 @@
     <!-- Static Bottom Button -->
     <Button
         android:id="@+id/bookButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_margin="16dp"
+        android:layout_width="336dp"
+        android:layout_height="76dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="20dp"
         android:background="@drawable/filter_button_background"
+        android:gravity="center"
         android:text="Book"
-        android:textColor="#FFFFFF" />
+        android:textColor="#FFFFFF"
+        android:textSize="22sp"
+        android:textStyle="bold"
+         />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
