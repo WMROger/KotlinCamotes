@@ -1,5 +1,6 @@
 package com.example.kotlinactivities.navBar
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.RoomAdapter
-import com.example.kotlinactivities.homePage.RoomDetailsFragment
+import com.example.kotlinactivities.homePage.RoomDetailsActivity
 import com.example.kotlinactivities.model.Room
 
 class HomeFragment : Fragment() {
@@ -76,14 +77,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun navigateToRoomDetails(room: Room) {
-        val fragment = RoomDetailsFragment().apply {
-            arguments = Bundle().apply {
-                putParcelable("room", room)
-            }
+        // Use an Intent to navigate to RoomDetailsActivity
+        val intent = Intent(requireContext(), RoomDetailsActivity::class.java).apply {
+            putExtra("room", room)
         }
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
+        startActivity(intent)
     }
 }

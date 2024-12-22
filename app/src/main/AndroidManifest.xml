@@ -44,6 +44,9 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".homePage.RoomDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".navBar.paymentNotImplemented"
             android:exported="true" />
         <activity
