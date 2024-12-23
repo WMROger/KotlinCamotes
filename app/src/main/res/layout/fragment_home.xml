@@ -8,26 +8,41 @@
 
     <!-- Header Text -->
 
-    <!-- Subheader Text -->
-
-    <!-- Room Filters -->
+    <!-- Notification Button -->
     <TextView
         android:id="@+id/headerText"
-        android:layout_width="216dp"
-        android:layout_height="82dp"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
         android:padding="16dp"
         android:text="Where the wave meets your soul"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintEnd_toStartOf="@id/notificationButton"
+        app:layout_constraintHorizontal_bias="0.11"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Subheader Text -->
+
+    <!-- Room Filters -->
+
+    <ImageView
+        android:id="@+id/notificationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:contentDescription="Notification Button"
+        android:src="@drawable/ic_notification"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/subheaderText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/ic_location"
+        android:paddingLeft="16dp"
         android:paddingBottom="16dp"
         android:text="Himensulan Island, Camotes Cebu"
         android:textColor="#7C7C7C"
@@ -53,8 +68,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/filter_button_background"
-            android:paddingStart="1dp"
-            android:paddingEnd="1dp"
             android:singleLine="true"
             android:text="Deluxe Room"
             android:textColor="#FFFFFF"
@@ -64,12 +77,9 @@
             android:id="@+id/barkadaRoomFilter"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
             android:layout_weight="1"
+            android:layout_marginHorizontal="8dp"
             android:background="@drawable/filter_button_background"
-            android:paddingStart="1dp"
-            android:paddingEnd="1dp"
             android:singleLine="true"
             android:text="Barkada Room"
             android:textColor="#FFFFFF"
@@ -81,14 +91,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/filter_button_background"
-            android:paddingStart="1dp"
-            android:paddingEnd="1dp"
             android:singleLine="true"
             android:text="Regular Room"
             android:textColor="#FFFFFF"
             android:textSize="14sp" />
-
-
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <!-- RecyclerView -->
@@ -100,6 +106,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/filtersLayout"
+        app:layout_constraintTop_toBottomOf="@id/filtersLayout"
         tools:listitem="@layout/room_card" />
 </androidx.constraintlayout.widget.ConstraintLayout>

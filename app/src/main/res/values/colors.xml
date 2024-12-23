@@ -5,4 +5,5 @@
     <color name="unselected_tab_color">#808080</color> <!-- Default grey for unselected -->
     <color name="selected_tab_color">#25443E</color> <!-- Dark green for selected -->
     <color name="gray">#D3D3D3</color> <!-- Light Gray -->
+    <color name="green">#4CAF50</color>
 </resources>

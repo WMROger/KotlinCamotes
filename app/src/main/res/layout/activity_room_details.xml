@@ -162,7 +162,7 @@
             android:layout_alignParentEnd="true"
             android:contentDescription="Favorite Button"
             android:padding="10dp"
-            android:src="@drawable/ic_heart" />
+            android:src="@drawable/ic_heart_black" />
     </RelativeLayout>
 
     <!-- Static Bottom Button -->

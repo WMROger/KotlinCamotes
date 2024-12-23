@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -15,14 +14,30 @@
         android:padding="8dp">
 
         <!-- Room Image -->
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/roomImage"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="400dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="Room Image"
-            app:shapeAppearanceOverlay="@style/CustomCornerShape" />
+            android:layout_height="400dp">
 
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/roomImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="Room Image"
+                android:scaleType="centerCrop"
+                app:shapeAppearanceOverlay="@style/CustomCornerShape" />
+
+            <!-- Favorite Button -->
+            <ImageView
+                android:id="@+id/favoriteButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_margin="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Favorite Button"
+                android:src="@drawable/ic_heart_black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Title and Rating in ConstraintLayout -->
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,10 +53,10 @@
                 android:text="Room Title"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/roomRating"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <!-- Room Rating -->
             <TextView
@@ -49,11 +64,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.9 ★"
-                android:textSize="14sp"
                 android:textColor="@android:color/darker_gray"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Room People -->
@@ -61,8 +76,8 @@
             android:id="@+id/roomPeople"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="People: 2"
             android:layout_marginTop="4dp"
+            android:text="People: 2"
             android:textSize="14sp" />
 
         <!-- Room Price -->
@@ -70,9 +85,8 @@
             android:id="@+id/roomPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="₱1,678/night"
             android:layout_marginTop="4dp"
+            android:text="₱1,678/night"
             android:textSize="14sp" />
-
     </LinearLayout>
 </androidx.cardview.widget.CardView>
