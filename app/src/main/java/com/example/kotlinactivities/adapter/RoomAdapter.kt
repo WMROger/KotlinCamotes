@@ -10,7 +10,7 @@ import com.example.kotlinactivities.R
 import com.example.kotlinactivities.model.Room
 
 class RoomAdapter(
-    private val roomList: MutableList<Room>,
+    private var roomList: MutableList<Room>, // Changed to var for mutability
     private val onRoomClick: (Room) -> Unit
 ) : RecyclerView.Adapter<RoomAdapter.RoomViewHolder>() {
 
@@ -43,6 +43,13 @@ class RoomAdapter(
     }
 
     override fun getItemCount(): Int = roomList.size
+
+    // Function to update the list dynamically
+    fun updateRooms(newRooms: List<Room>) {
+        roomList.clear() // Clear the current list
+        roomList.addAll(newRooms) // Add all new items to the list
+        notifyDataSetChanged() // Notify the adapter to refresh the RecyclerView
+    }
 
     class RoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val roomImage: ImageView = itemView.findViewById(R.id.roomImage)
