@@ -17,6 +17,36 @@
         android:contentDescription="Onboarding Image"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_splash2" />
+    <!-- Dots Indicator -->
+    <LinearLayout
+        android:id="@+id/indicator_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
+
+        <!-- Dot 1 -->
+        <ImageView
+            android:layout_width="7dp"
+            android:layout_height="12dp"
+            android:layout_margin="4dp"
+            android:src="@drawable/dot_inactive" />
+
+        <!-- Dot 2 -->
+        <ImageView
+            android:layout_width="42dp"
+            android:layout_height="12dp"
+            android:layout_margin="4dp"
+            android:src="@drawable/dot_active" />
+
+        <!-- Dot 3 -->
+        <ImageView
+            android:layout_width="7dp"
+            android:layout_height="12dp"
+            android:layout_margin="4dp"
+            android:src="@drawable/dot_inactive" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/text_e"
