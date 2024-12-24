@@ -1,21 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/black">
+    android:layout_height="match_parent">
+
+    <!-- Background Image -->
+
+
+
+
+
+
+    <!-- Background Image -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="Onboarding Image"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_splash" />
 
     <TextView
-        android:id="@+id/splashTitle1"
+        android:id="@+id/text_e"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:fontFamily="@font/kapakana"
+        android:paddingStart="20dp"
+        android:layout_marginStart="-80dp"
+        android:shadowColor="#80000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="6"
+        android:text="E"
+        android:textColor="@android:color/white"
+        android:textSize="110sp" />
+
+    <TextView
+        android:id="@+id/text_xperience"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome to App - Splash 1"
+        android:layout_gravity="center"
+        android:layout_marginStart="35dp"
+        android:fontFamily="@font/kalnia"
+        android:shadowColor="#80000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
+        android:text="xperience"
         android:textColor="@android:color/white"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:textSize="40sp" />
+</FrameLayout>
