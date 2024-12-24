@@ -3,6 +3,7 @@ package com.example.kotlinactivities.homePage
 import android.os.Bundle
 import android.widget.Button
 import android.widget.CalendarView
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -25,13 +26,16 @@ class BookingRoomActivity : AppCompatActivity() {
         val minusButton = findViewById<Button>(R.id.minusButton)
         val plusButton = findViewById<Button>(R.id.plusButton)
         val guestCountText = findViewById<TextView>(R.id.guestCount)
-
+        val backButton = findViewById<ImageView>(R.id.backButton)
         // Initialize guest count
         guestCountText.text = guestCount.toString()
 
         // Block past dates in CalendarView
         calendarView.minDate = System.currentTimeMillis()
 
+        backButton.setOnClickListener{
+            finish()
+        }
         // Handle CalendarView date selection
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             val selectedCalendar = Calendar.getInstance()

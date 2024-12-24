@@ -1,37 +1,39 @@
 package com.example.kotlinactivities
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.airbnb.lottie.LottieAnimationView
+import kotlinx.coroutines.*
 
 class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
+
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_splash)
 
-        // Access SharedPreferences
-        val sharedPreferences: SharedPreferences = getSharedPreferences("SplashPrefs", MODE_PRIVATE)
-        val currentSplash = sharedPreferences.getInt("currentSplash", 1)
+        // Set status bar and navigation bar colors to white
+        window.statusBarColor = resources.getColor(android.R.color.white, theme)
+        window.navigationBarColor = resources.getColor(android.R.color.white, theme)
 
-        // Load the appropriate splash layout
-        when (currentSplash) {
-            1 -> setContentView(R.layout.splash_screen1)
-            2 -> setContentView(R.layout.splash_screen2)
-            3 -> setContentView(R.layout.splash_screen3)
+        // Start Lottie animation
+        val lottieAnimationView = findViewById<LottieAnimationView>(R.id.lottieAnimationView)
+        lottieAnimationView.playAnimation()
+
+        // Delay and transition to MainActivity
+        CoroutineScope(Dispatchers.Main).launch {
+            delay(3000) // Duration of animation
+            navigateToMainActivity()
         }
+    }
 
-        // Determine the next splash screen
-        val nextSplash = if (currentSplash < 3) currentSplash + 1 else 1
-        sharedPreferences.edit().putInt("currentSplash", nextSplash).apply()
 
-        // Delay and navigate to MainActivity
-        Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish() // Close the SplashActivity
-        }, 3000) // 3-second delay
+    private fun navigateToMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish() // End SplashActivity
     }
 }

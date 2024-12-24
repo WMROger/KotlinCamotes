@@ -1,7 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="CustomCornerShape" parent="Widget.MaterialComponents.ShapeableImageView">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">16dp</item>
     </style>
+
+    <style name="Theme.KotlinActivities.Splash" parent="Theme.SplashScreen">
+        <!-- Background color for splash -->
+        <item name="windowSplashScreenBackground">@color/white</item>
+
+        <!-- Set placeholder animated icon -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/waves_in_gradient_logo</item>
+
+        <!-- Remove icon background -->
+        <item name="windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
+
+        <!-- Remove status bar color or make it white -->
+        <item name="android:statusBarColor">@android:color/white</item>
+
+        <!-- Set the post splash screen theme -->
+        <item name="postSplashScreenTheme">@style/PostSplashScreenTheme</item>
+    </style>
+
+    <!-- Post Splash Screen Theme -->
+    <style name="PostSplashScreenTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Ensure background is white -->
+        <item name="android:windowBackground">@color/white</item>
+
+        <!-- Remove navigation bar and action bar -->
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+
+    <!-- Base App Theme -->
+    <style name="Theme.KotlinActivities" parent="Theme.Material3.DayNight">
+        <!-- Your main app theme -->
+    </style>
+
+
 </resources>
