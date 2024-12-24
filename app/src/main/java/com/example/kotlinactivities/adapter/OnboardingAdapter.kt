@@ -5,28 +5,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.Slide
 import com.example.kotlinactivities.R
 
 class OnboardingAdapter(private val context: Context) :
     RecyclerView.Adapter<OnboardingAdapter.OnboardingViewHolder>() {
 
-    // Define the layouts for each slide
-    private val layouts = listOf(
-        R.layout.splash_screen1,
-        R.layout.splash_screen2,
-        R.layout.splash_screen3
+    // Define the data for each slide
+    private val slides = listOf(
+        Slide(R.layout.splash_screen1),
+        Slide(R.layout.splash_screen2),
+        Slide(R.layout.splash_screen3)
     )
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OnboardingViewHolder {
-        val view = LayoutInflater.from(context).inflate(layouts[viewType], parent, false)
+        val view = LayoutInflater.from(context).inflate(slides[viewType].layoutRes, parent, false)
         return OnboardingViewHolder(view)
     }
+    data class Slide(val layoutRes: Int)
 
     override fun onBindViewHolder(holder: OnboardingViewHolder, position: Int) {
-        // No binding needed for static layouts
+        // Future: Add logic for dynamic binding (if needed)
     }
 
-    override fun getItemCount(): Int = layouts.size
+    override fun getItemCount(): Int = slides.size
 
     override fun getItemViewType(position: Int): Int = position
 

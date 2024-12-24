@@ -1,82 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <!-- Background Image -->
-    <ImageView
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:contentDescription="Onboarding Image"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_splash" />
+        android:layout_height="match_parent">
 
-    <!-- Dots Indicator -->
-    <LinearLayout
-        android:id="@+id/indicator_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|center_horizontal"
-        android:layout_marginTop="16dp"
-        android:orientation="horizontal">
-
-        <!-- Dot 1 -->
+        <!-- Background Image -->
         <ImageView
-            android:layout_width="42dp"
-            android:layout_height="12dp"
-            android:layout_margin="4dp"
-            android:src="@drawable/dot_active" />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="Onboarding Image"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_splash" />
 
-        <!-- Dot 2 -->
-        <ImageView
-            android:layout_width="7dp"
-            android:layout_height="12dp"
-            android:layout_margin="4dp"
-            android:src="@drawable/dot_inactive" />
+        <!-- Dots Indicator -->
+<!--        <LinearLayout-->
+<!--            android:id="@+id/indicator_layout"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="top|center_horizontal"-->
+<!--            android:layout_marginTop="16dp"-->
+<!--            android:orientation="horizontal">-->
 
-        <!-- Dot 3 -->
-        <ImageView
-            android:layout_width="7dp"
-            android:layout_height="12dp"
-            android:layout_margin="4dp"
-            android:src="@drawable/dot_inactive" />
-    </LinearLayout>
+<!--            &lt;!&ndash; Dot 1 &ndash;&gt;-->
+<!--            <ImageView-->
+<!--                android:layout_width="42dp"-->
+<!--                android:layout_height="12dp"-->
+<!--                android:layout_margin="4dp"-->
+<!--                android:src="@drawable/dot_active" />-->
 
-    <!-- Combined "E" and "xperience" Text -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="horizontal"
-        android:baselineAligned="false">
+<!--            &lt;!&ndash; Dot 2 &ndash;&gt;-->
+<!--            <ImageView-->
+<!--                android:layout_width="7dp"-->
+<!--                android:layout_height="12dp"-->
+<!--                android:layout_margin="4dp"-->
+<!--                android:src="@drawable/dot_inactive" />-->
 
-        <!-- "E" Text -->
-        <TextView
-            android:id="@+id/text_e"
+<!--            &lt;!&ndash; Dot 3 &ndash;&gt;-->
+<!--            <ImageView-->
+<!--                android:layout_width="7dp"-->
+<!--                android:layout_height="12dp"-->
+<!--                android:layout_margin="4dp"-->
+<!--                android:src="@drawable/dot_inactive" />-->
+<!--        </LinearLayout>-->
+
+        <!-- Combined "E" and "xperience" Text -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/kapakana"
-            android:shadowColor="#80000000"
-            android:shadowDx="2"
-            android:shadowDy="2"
-            android:shadowRadius="6"
-            android:text="E"
-            android:textColor="@android:color/white"
-            android:textSize="110sp" />
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
 
-        <!-- "xperience" Text -->
-        <TextView
-            android:id="@+id/text_xperience"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:fontFamily="@font/kalnia"
-            android:shadowColor="#80000000"
-            android:shadowDx="2"
-            android:shadowDy="2"
-            android:shadowRadius="4"
-            android:text="xperience"
-            android:textColor="@android:color/white"
-            android:textSize="40sp" />
-    </LinearLayout>
-</FrameLayout>
+            <!-- "E" Text -->
+            <TextView
+                android:id="@+id/text_e"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/kapakana"
+                android:shadowColor="#80000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="6"
+                android:text="E"
+                android:textColor="@android:color/white"
+                android:textSize="110sp" />
+
+            <!-- "xperience" Text -->
+            <TextView
+                android:id="@+id/text_xperience"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:fontFamily="@font/kalnia"
+                android:shadowColor="#80000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="4"
+                android:text="xperience"
+                android:textColor="@android:color/white"
+                android:textSize="40sp" />
+        </LinearLayout>
+    </FrameLayout>
