@@ -34,10 +34,10 @@ class OnboardingActivity : AppCompatActivity() {
             val dot = ImageView(this).apply {
                 setImageResource(if (index == 0) R.drawable.dot_active else R.drawable.dot_inactive)
                 layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
+                    30, // Default width for unselected dots (20dp converted to pixels)
+                    30  // Default height for all dots (20dp converted to pixels)
                 ).apply {
-                    setMargins(4, 0, 4, 0)
+                    setMargins(8, 0, 8, 0) // Spacing between dots
                 }
             }
             indicatorLayout.addView(dot)
@@ -63,7 +63,7 @@ class OnboardingActivity : AppCompatActivity() {
                     // Delay the button's appearance by 2 seconds
                     delayHandler?.postDelayed({
                         btnGetStarted.visibility = View.VISIBLE
-                    }, 2000)
+                    }, 1500)
                 } else {
                     // Hide the button on other slides and cancel pending delays
                     btnGetStarted.visibility = View.GONE
@@ -83,9 +83,19 @@ class OnboardingActivity : AppCompatActivity() {
 
     private fun updateIndicator(position: Int) {
         for (i in indicatorDots.indices) {
-            indicatorDots[i].setImageResource(
-                if (i == position) R.drawable.dot_active else R.drawable.dot_inactive
-            )
+            val params = indicatorDots[i].layoutParams as LinearLayout.LayoutParams
+            if (i == position) {
+                // Set the selected dot to be longer in width
+                params.width = 80 // Selected dot width (50dp converted to pixels)
+                params.height = 30 // Keep the height same
+                indicatorDots[i].setImageResource(R.drawable.dot_active) // Active dot drawable
+            } else {
+                // Reset the unselected dots to default size
+                params.width = 30 // Default dot width (20dp converted to pixels)
+                params.height = 30 // Default dot height
+                indicatorDots[i].setImageResource(R.drawable.dot_inactive) // Inactive dot drawable
+            }
+            indicatorDots[i].layoutParams = params
         }
     }
 
