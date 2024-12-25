@@ -26,16 +26,16 @@ class SplashActivity : AppCompatActivity() {
         // Delay and always navigate to onboarding for now
         CoroutineScope(Dispatchers.Main).launch {
             delay(3000) // Duration of animation
-//            navigateToOnboarding()
-            checkFirstTimeUser()// Temporarily always navigate to onboarding
+            navigateToOnboarding()
+//            checkFirstTimeUser()// Temporarily always navigate to onboarding
         }
     }
 
-//    private fun navigateToOnboarding() {
-//        val intent = Intent(this, OnboardingActivity::class.java) // Redirect to onboarding
-//        startActivity(intent)
-//        finish() // End SplashActivity
-//    }
+    private fun navigateToOnboarding() {
+        val intent = Intent(this, OnboardingActivity::class.java) // Redirect to onboarding
+        startActivity(intent)
+        finish() // End SplashActivity
+    }
 
 
     private fun checkFirstTimeUser() {

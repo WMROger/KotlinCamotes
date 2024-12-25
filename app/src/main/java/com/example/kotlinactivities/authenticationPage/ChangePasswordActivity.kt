@@ -2,129 +2,86 @@ package com.example.kotlinactivities.authenticationPage
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.method.HideReturnsTransformationMethod
-import android.text.method.PasswordTransformationMethod
+import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinactivities.R
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 
 class ChangePasswordActivity : AppCompatActivity() {
-    private lateinit var auth: FirebaseAuth
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_change_password)
 
-        auth = FirebaseAuth.getInstance()
-
-        // Get email and reset code passed from VerificationActivity
-        val email = intent.getStringExtra("EMAIL") ?: ""
-        val resetCode = intent.getStringExtra("RESET_CODE") ?: ""
-
         // UI references
         val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
         val confirmPasswordEditText = findViewById<EditText>(R.id.confirmPasswordEditText)
-        val passwordShowTextView = findViewById<TextView>(R.id.passwordShowTextView)
-        val confirmPasswordShowTextView = findViewById<TextView>(R.id.confirmPasswordShowTextView)
-        val continueButton = findViewById<Button>(R.id.continueButton)
+        val resetPasswordButton = findViewById<Button>(R.id.continueButton)
 
-        // Toggle password visibility for passwordEditText
-        passwordShowTextView.setOnClickListener {
-            togglePasswordVisibility(passwordEditText, passwordShowTextView)
-        }
+        // Get the email and verification code from the intent
+        val email = intent.getStringExtra("EMAIL") ?: ""
+        val verificationCode = intent.getStringExtra("RESET_CODE") ?: ""
 
-        // Toggle password visibility for confirmPasswordEditText
-        confirmPasswordShowTextView.setOnClickListener {
-            togglePasswordVisibility(confirmPasswordEditText, confirmPasswordShowTextView)
-        }
+        // Debug intent values
+        Log.d("ChangePasswordActivity", "Email: $email")
+        Log.d("ChangePasswordActivity", "Verification Code from Intent: $verificationCode")
 
-        // Continue button action
-        continueButton.setOnClickListener {
+        resetPasswordButton.setOnClickListener {
             val newPassword = passwordEditText.text.toString().trim()
             val confirmPassword = confirmPasswordEditText.text.toString().trim()
 
             // Validate inputs
             if (newPassword.isEmpty() || confirmPassword.isEmpty() || newPassword != confirmPassword) {
-                Toast.makeText(this, "Passwords must match and cannot be empty", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Passwords must match and cannot be empty.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Validate reset code in Firebase
-            val databaseRef = FirebaseDatabase.getInstance().reference.child("password_reset_codes")
-            databaseRef.orderByChild("email").equalTo(email).get().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val snapshot = task.result
-                    if (snapshot.exists()) {
-                        var validResetRef: String? = null
-                        for (child: DataSnapshot in snapshot.children) {
-                            val storedCode = child.child("code").value.toString()
-                            if (storedCode == resetCode) {
-                                validResetRef = child.key // Store the reference to delete later if successful
-                                break
-                            }
-                        }
-
-                        if (validResetRef != null) {
-                            // Proceed to reset the password
-                            manuallyResetPassword(email, newPassword, validResetRef, databaseRef)
-                        } else {
-                            Toast.makeText(this, "Invalid reset code. Please try again.", Toast.LENGTH_SHORT).show()
-                        }
-                    } else {
-                        Toast.makeText(this, "No reset code found for this email.", Toast.LENGTH_SHORT).show()
+            // Check the verification code in Firebase Realtime Database
+            val database = FirebaseDatabase.getInstance().getReference("password_reset_codes")
+            database.orderByChild("email").equalTo(email)
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    val resetEntry = snapshot.children.firstOrNull()
+                    if (resetEntry == null) {
+                        Toast.makeText(this, "No reset entry found for this email.", Toast.LENGTH_SHORT).show()
+                        return@addOnSuccessListener
                     }
-                } else {
-                    Toast.makeText(this, "Failed to validate reset code: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
 
-    private fun manuallyResetPassword(email: String, newPassword: String, resetRef: String, databaseRef: DatabaseReference) {
-        // Authenticate the user with their email and a temporary password (if applicable)
-        val tempPassword = "temporaryPassword123" // Replace with actual logic if necessary
-        auth.signInWithEmailAndPassword(email, tempPassword)
-            .addOnCompleteListener { signInTask ->
-                if (signInTask.isSuccessful) {
-                    val currentUser = auth.currentUser
-                    currentUser?.updatePassword(newPassword)
-                        ?.addOnCompleteListener { updateTask ->
-                            if (updateTask.isSuccessful) {
-                                // Only delete the reset code after successful password update
-                                databaseRef.child(resetRef).removeValue()
-                                    .addOnSuccessListener {
-                                        Toast.makeText(this, "Password reset successfully!", Toast.LENGTH_SHORT).show()
+                    val savedCode = resetEntry.child("code").value.toString()
+                    Log.d("ChangePasswordActivity", "Saved Code from Firebase: $savedCode")
+
+                    if (verificationCode.trim() == savedCode.trim()) {
+                        // Code matches, reset the password
+                        val auth = FirebaseAuth.getInstance()
+                        val user = auth.currentUser
+
+                        if (user != null) {
+                            user.updatePassword(newPassword)
+                                .addOnCompleteListener { updateTask ->
+                                    if (updateTask.isSuccessful) {
+                                        Toast.makeText(this, "Password reset successfully.", Toast.LENGTH_SHORT).show()
+
+                                        // Remove the reset code from the database
+                                        resetEntry.ref.removeValue()
+
+                                        // Redirect to login
                                         startActivity(Intent(this, LoginActivity::class.java))
                                         finish()
+                                    } else {
+                                        Toast.makeText(this, "Failed to reset password: ${updateTask.exception?.message}", Toast.LENGTH_SHORT).show()
                                     }
-                                    .addOnFailureListener { deleteError: Exception ->
-                                        Toast.makeText(this, "Password updated, but failed to clean up reset code: ${deleteError.message}", Toast.LENGTH_LONG).show()
-                                    }
-                            } else {
-                                Toast.makeText(this, "Error updating password: ${updateTask.exception?.message}", Toast.LENGTH_SHORT).show()
-                            }
+                                }
+                        } else {
+                            Toast.makeText(this, "User not logged in. Cannot reset password.", Toast.LENGTH_SHORT).show()
                         }
-                } else {
-                    Toast.makeText(this, "Failed to authenticate: ${signInTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Invalid verification code.", Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
-    }
-
-    private fun togglePasswordVisibility(editText: EditText, toggleTextView: TextView) {
-        if (editText.transformationMethod is PasswordTransformationMethod) {
-            // Show the password
-            editText.transformationMethod = HideReturnsTransformationMethod.getInstance()
-            toggleTextView.text = "Hide"
-        } else {
-            // Hide the password
-            editText.transformationMethod = PasswordTransformationMethod.getInstance()
-            toggleTextView.text = "Show"
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Error verifying reset code: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
         }
-        // Move the cursor to the end of the text
-        editText.setSelection(editText.text.length)
     }
 }

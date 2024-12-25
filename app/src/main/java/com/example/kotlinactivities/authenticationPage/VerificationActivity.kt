@@ -2,6 +2,7 @@ package com.example.kotlinactivities.authenticationPage
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -30,6 +31,8 @@ class VerificationActivity : AppCompatActivity() {
         verificationCode = intent.getStringExtra("VERIFICATION_CODE") ?: ""
         source = intent.getStringExtra("SOURCE") ?: ""
 
+        Log.d("VerificationActivity", "Verification Code from Intent: $verificationCode")
+
         // UI references
         val verificationCodeEditText = findViewById<EditText>(R.id.verificationCodeEditText)
         val verifyButton = findViewById<Button>(R.id.verifyButton)
@@ -51,25 +54,49 @@ class VerificationActivity : AppCompatActivity() {
                 ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
+                        var codeMatched = false
+                        val currentTime = System.currentTimeMillis()
+                        val expirationTime = 2 * 60 * 1000 // 2 minutes in milliseconds
+
                         for (child in snapshot.children) {
-                            val storedCode = child.child("code").value.toString()
-                            if (storedCode == enteredCode) {
+                            val storedCode = child.child("code").value.toString().trim()
+                            val timestamp = child.child("timestamp").value as? Long ?: 0L // Retrieve the timestamp
+
+                            if (currentTime - timestamp > expirationTime) {
+                                // Code is expired, delete it from the database
+                                child.ref.removeValue()
+                                Log.d("VerificationActivity", "Expired code deleted for email: $email")
+                                continue
+                            }
+
+                            Log.d("VerificationActivity", "Stored Code from Firebase: $storedCode")
+                            Log.d("VerificationActivity", "Entered Code: $enteredCode")
+                            if (storedCode == enteredCode.trim()) {
+                                codeMatched = true
                                 Toast.makeText(this@VerificationActivity, "Code verified successfully!", Toast.LENGTH_SHORT).show()
 
-                                // Handle the flow based on the source
+                                // Delete the code after successful verification
+                                child.ref.removeValue()
+
+                                // Proceed based on the source
                                 if (source == "register") {
                                     markEmailAsVerified()
                                 } else if (source == "forget_password") {
-                                    redirectToChangePassword(storedCode) // Pass the reset code to ChangePasswordActivity
+                                    sendResetLinkToEmail(email)
+                                    finish()
                                 }
-                                return
+                                break
                             }
                         }
-                        Toast.makeText(this@VerificationActivity, "Invalid code. Please try again.", Toast.LENGTH_SHORT).show()
+                        if (!codeMatched) {
+                            Toast.makeText(this@VerificationActivity, "Invalid or expired code. Please try again.", Toast.LENGTH_SHORT).show()
+                        }
                     } else {
                         Toast.makeText(this@VerificationActivity, "No reset code found for this email.", Toast.LENGTH_SHORT).show()
                     }
                 }
+
+
 
                 override fun onCancelled(error: DatabaseError) {
                     Toast.makeText(this@VerificationActivity, "Database error: ${error.message}", Toast.LENGTH_SHORT).show()
@@ -79,43 +106,64 @@ class VerificationActivity : AppCompatActivity() {
 
         // Resend code action
         resendCodeTextView.setOnClickListener {
-            verificationCode = generateVerificationCode()
-            sendVerificationCodeToEmail(email, verificationCode)
-            Toast.makeText(this, "New verification code sent to $email", Toast.LENGTH_SHORT).show()
+            val database = FirebaseDatabase.getInstance().getReference("password_reset_codes")
+            val currentTime = System.currentTimeMillis()
+            val expirationTime = 2 * 60 * 1000 // 2 minutes in milliseconds
+
+            database.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object :
+                ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    snapshot.children.forEach { child ->
+                        val timestamp = child.child("timestamp").value as? Long ?: 0L
+                        if (currentTime - timestamp > expirationTime) {
+                            // Delete expired code
+                            child.ref.removeValue()
+                        }
+                    }
+
+                    // Generate and send a new code
+                    verificationCode = generateVerificationCode()
+                    val newCodeData = mapOf(
+                        "code" to verificationCode,
+                        "email" to email,
+                        "timestamp" to System.currentTimeMillis()
+                    )
+
+                    database.push().setValue(newCodeData)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                sendVerificationCodeToEmail(email, verificationCode)
+                                Toast.makeText(this@VerificationActivity, "New verification code sent to $email", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(this@VerificationActivity, "Failed to generate new code: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(this@VerificationActivity, "Database error: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
         }
+
 
         // Back to login action
         backToLoginTextView.setOnClickListener {
-            startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
     }
 
-    private fun markEmailAsVerified() {
-        val database = FirebaseDatabase.getInstance()
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val usersRef = database.getReference("users").child(userId)
-
-        usersRef.child("emailVerified").setValue(true)
+    private fun sendResetLinkToEmail(email: String) {
+        val auth = FirebaseAuth.getInstance()
+        auth.sendPasswordResetEmail(email)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "Email verification status updated.", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finish()
+                    Toast.makeText(this, "Password reset link sent to $email", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this, "Failed to update verification status: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Failed to send reset link: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
     }
-
-    private fun redirectToChangePassword(resetCode: String) { // Accept resetCode as a parameter
-        val intent = Intent(this, ChangePasswordActivity::class.java)
-        intent.putExtra("EMAIL", email)
-        intent.putExtra("RESET_CODE", resetCode) // Pass the verified reset code
-        startActivity(intent)
-        finish()
-    }
-
 
     private fun generateVerificationCode(): String {
         return Random.nextInt(100000, 999999).toString()
@@ -134,4 +182,38 @@ class VerificationActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun markEmailAsVerified() {
+        val database = FirebaseDatabase.getInstance()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userId != null) {
+            val usersRef = database.getReference("users").child(userId)
+
+            usersRef.child("emailVerified").setValue(true)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(this, "Email verification status updated.", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this, LoginActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(this, "Failed to update verification status: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+        } else {
+            Toast.makeText(this, "User is not logged in. Cannot update email verification status.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Uncomment this method to enable redirecting to ChangePasswordActivity
+    /*
+    private fun redirectToChangePassword(resetCode: String) {
+        val intent = Intent(this, ChangePasswordActivity::class.java)
+        intent.putExtra("EMAIL", email)
+        intent.putExtra("RESET_CODE", resetCode) // Pass the verified reset code
+        startActivity(intent)
+        finish()
+    }
+    */
 }

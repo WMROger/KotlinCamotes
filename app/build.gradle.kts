@@ -57,6 +57,8 @@ dependencies {
     implementation(libs.firebase.auth.v2130)
     implementation(libs.firebase.bom)
     implementation(libs.firebase.database.ktx)
+    implementation ("com.google.firebase:firebase-auth:21.3.0")
+    implementation ("com.google.firebase:firebase-database:20.0.5")
 
     // Android libraries
     implementation(libs.android.sdk)
