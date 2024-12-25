@@ -8,7 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinactivities.MainActivity
 import com.example.kotlinactivities.R
-import com.example.kotlinactivities.homePage.AdminMainActivity // Admin activity for admin users
+import com.example.kotlinactivities.adminPage.AdminMainActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -28,10 +28,17 @@ class LoginActivity : AppCompatActivity() {
 
         // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
+
+        // Check if user is already logged in and redirect based on role
+        checkUserSession()
+
+        // UI References
         val emailEditText = findViewById<EditText>(R.id.emailEditText)
         val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
         val loginButton = findViewById<Button>(R.id.loginButton)
         val forgotPassword = findViewById<TextView>(R.id.forgotPassword)
+        val registerTextView = findViewById<TextView>(R.id.RegisterAccount)
+        val googleSignInButton = findViewById<LinearLayout>(R.id.googleSignInButton)
 
         // Configure Google Sign-In
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -40,8 +47,7 @@ class LoginActivity : AppCompatActivity() {
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        // Set click listener for the custom Google Sign-In button
-        val googleSignInButton = findViewById<LinearLayout>(R.id.googleSignInButton)
+        // Google Sign-In Button
         googleSignInButton.setOnClickListener {
             googleSignInClient.signOut().addOnCompleteListener {
                 val signInIntent = googleSignInClient.signInIntent
@@ -49,17 +55,17 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        val registerTextView = findViewById<TextView>(R.id.RegisterAccount)
+        // Redirect to RegisterActivity
         registerTextView.setOnClickListener {
-            // Redirect to RegisterActivity
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
+        // Redirect to ForgetPasswordActivity
         forgotPassword.setOnClickListener {
-            // Redirect to ForgetPasswordActivity
             startActivity(Intent(this, ForgetPasswordActivity::class.java))
         }
 
+        // Handle Login Button
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
@@ -69,62 +75,35 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Sign in with email and password
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
-                        val database = FirebaseDatabase.getInstance()
-                        val usersRef = database.getReference("users").child(userId) // Updated to "users"
-
-                        // Check the role of the logged-in user
-                        usersRef.child("role").get().addOnCompleteListener { dbTask ->
-                            if (dbTask.isSuccessful) {
-                                val result = dbTask.result
-                                Log.d("FirebaseDebug", "Database result: $result")
-                                if (result.exists()) {
-                                    val role = result.value.toString()
-                                    Log.d("FirebaseDebug", "User role: $role")
-                                    if (role == "Admin") {
-                                        // Redirect to AdminMainActivity
-                                        val intent = Intent(this, AdminMainActivity::class.java)
-                                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                        startActivity(intent)
-                                        finish()
-                                    } else {
-                                        // Redirect to MainActivity
-                                        val intent = Intent(this, MainActivity::class.java)
-                                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                        startActivity(intent)
-                                        finish()
-                                    }
-                                } else {
-                                    Log.e("FirebaseDebug", "Role does not exist in database!")
-                                    Toast.makeText(this, "Error retrieving role. Try again later.", Toast.LENGTH_SHORT).show()
-                                }
-                            } else {
-                                Log.e("FirebaseDebug", "Database error: ${dbTask.exception?.message}")
-                                Toast.makeText(this, "Error retrieving role. Try again later.", Toast.LENGTH_SHORT).show()
-                            }
-                        }
+                        handleUserLogin()
                     } else {
                         Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
-
         }
     }
 
+    // Check if the user is already logged in and redirect accordingly
+    private fun checkUserSession() {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            handleUserLogin() // Automatically redirect based on role
+        }
+    }
+
+    // Handle User Login Based on Role
     private fun handleUserLogin() {
         val userId = auth.currentUser?.uid ?: return
         val database = FirebaseDatabase.getInstance()
-        val usersRef = database.getReference("AdminAccount").child(userId)
+        val usersRef = database.getReference("users").child(userId)
 
         // Check the role of the logged-in user
         usersRef.child("role").get().addOnCompleteListener { dbTask ->
             if (dbTask.isSuccessful) {
                 val result = dbTask.result
-                Log.d("FirebaseDebug", "Database result: $result")
                 if (result.exists()) {
                     val role = result.value.toString()
                     Log.d("FirebaseDebug", "User role: $role")
@@ -142,17 +121,15 @@ class LoginActivity : AppCompatActivity() {
                         finish()
                     }
                 } else {
-                    Log.e("FirebaseDebug", "Role does not exist in the database!")
-                    Toast.makeText(this, "Error retrieving role. Try again later.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Error: Role does not exist. Please contact support.", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Log.e("FirebaseDebug", "Database error: ${dbTask.exception?.message}")
-                Toast.makeText(this, "Error retrieving role. Try again later.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error retrieving role: ${dbTask.exception?.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // Handle Google Sign-In
+    // Handle Google Sign-In Result
     private val googleSignInLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
