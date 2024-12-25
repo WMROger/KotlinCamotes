@@ -145,7 +145,8 @@ class RegisterActivity : AppCompatActivity() {
                         "name" to name,
                         "phoneNumber" to phoneNumber,
                         "email" to email,
-                        "emailVerified" to false
+                        "emailVerified" to false,
+                        "role" to "User" // Assign default role as "User"
                     )
                     val database = FirebaseDatabase.getInstance().getReference("users")
                     database.child(userId).setValue(userMap).addOnCompleteListener { dbTask ->
@@ -164,6 +165,8 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
     }
+
+
 
     private fun togglePasswordVisibility(editText: EditText, toggleTextView: TextView) {
         if (editText.transformationMethod is PasswordTransformationMethod) {

@@ -2,11 +2,13 @@ package com.example.kotlinactivities.authenticationPage
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinactivities.MainActivity
 import com.example.kotlinactivities.R
+import com.example.kotlinactivities.homePage.AdminMainActivity // Admin activity for admin users
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -41,7 +43,6 @@ class LoginActivity : AppCompatActivity() {
         // Set click listener for the custom Google Sign-In button
         val googleSignInButton = findViewById<LinearLayout>(R.id.googleSignInButton)
         googleSignInButton.setOnClickListener {
-            // Force user to select an account every time
             googleSignInClient.signOut().addOnCompleteListener {
                 val signInIntent = googleSignInClient.signInIntent
                 googleSignInLauncher.launch(signInIntent)
@@ -51,13 +52,14 @@ class LoginActivity : AppCompatActivity() {
         val registerTextView = findViewById<TextView>(R.id.RegisterAccount)
         registerTextView.setOnClickListener {
             // Redirect to RegisterActivity
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
-        forgotPassword.setOnClickListener{
-            val intent = Intent(this, ForgetPasswordActivity::class.java)
-            startActivity(intent)
+
+        forgotPassword.setOnClickListener {
+            // Redirect to ForgetPasswordActivity
+            startActivity(Intent(this, ForgetPasswordActivity::class.java))
         }
+
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
@@ -67,27 +69,42 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            // Sign in with email and password
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
                         val database = FirebaseDatabase.getInstance()
-                        val usersRef = database.getReference("users").child(userId)
+                        val usersRef = database.getReference("users").child(userId) // Updated to "users"
 
-                        // Check the emailVerified status in the database
-                        usersRef.child("emailVerified").get().addOnCompleteListener { dbTask ->
-                            if (dbTask.isSuccessful && dbTask.result.exists() && dbTask.result.value == true) {
-                                // Email is verified, allow login
-                                Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-
-                                val intent = Intent(this, MainActivity::class.java)
-                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                startActivity(intent)
-                                finish()
+                        // Check the role of the logged-in user
+                        usersRef.child("role").get().addOnCompleteListener { dbTask ->
+                            if (dbTask.isSuccessful) {
+                                val result = dbTask.result
+                                Log.d("FirebaseDebug", "Database result: $result")
+                                if (result.exists()) {
+                                    val role = result.value.toString()
+                                    Log.d("FirebaseDebug", "User role: $role")
+                                    if (role == "Admin") {
+                                        // Redirect to AdminMainActivity
+                                        val intent = Intent(this, AdminMainActivity::class.java)
+                                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                        startActivity(intent)
+                                        finish()
+                                    } else {
+                                        // Redirect to MainActivity
+                                        val intent = Intent(this, MainActivity::class.java)
+                                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                        startActivity(intent)
+                                        finish()
+                                    }
+                                } else {
+                                    Log.e("FirebaseDebug", "Role does not exist in database!")
+                                    Toast.makeText(this, "Error retrieving role. Try again later.", Toast.LENGTH_SHORT).show()
+                                }
                             } else {
-                                // Email is not verified
-                                auth.signOut()
-                                Toast.makeText(this, "Please verify your email before logging in.", Toast.LENGTH_LONG).show()
+                                Log.e("FirebaseDebug", "Database error: ${dbTask.exception?.message}")
+                                Toast.makeText(this, "Error retrieving role. Try again later.", Toast.LENGTH_SHORT).show()
                             }
                         }
                     } else {
@@ -98,15 +115,53 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // Use the Activity Result API for handling Google Sign-In
-    private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            handleSignInResult(task)
-        } else {
-            Toast.makeText(this, "Google Sign-In canceled", Toast.LENGTH_SHORT).show()
+    private fun handleUserLogin() {
+        val userId = auth.currentUser?.uid ?: return
+        val database = FirebaseDatabase.getInstance()
+        val usersRef = database.getReference("AdminAccount").child(userId)
+
+        // Check the role of the logged-in user
+        usersRef.child("role").get().addOnCompleteListener { dbTask ->
+            if (dbTask.isSuccessful) {
+                val result = dbTask.result
+                Log.d("FirebaseDebug", "Database result: $result")
+                if (result.exists()) {
+                    val role = result.value.toString()
+                    Log.d("FirebaseDebug", "User role: $role")
+                    if (role == "Admin") {
+                        // Redirect to AdminMainActivity
+                        val intent = Intent(this, AdminMainActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        // Redirect to MainActivity
+                        val intent = Intent(this, MainActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                        finish()
+                    }
+                } else {
+                    Log.e("FirebaseDebug", "Role does not exist in the database!")
+                    Toast.makeText(this, "Error retrieving role. Try again later.", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Log.e("FirebaseDebug", "Database error: ${dbTask.exception?.message}")
+                Toast.makeText(this, "Error retrieving role. Try again later.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
+    // Handle Google Sign-In
+    private val googleSignInLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                handleSignInResult(task)
+            } else {
+                Toast.makeText(this, "Google Sign-In canceled", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
@@ -124,12 +179,7 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "Google Sign-In Successful", Toast.LENGTH_SHORT).show()
-                    // Navigate to the MainActivity
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    finish() // Finish LoginActivity so the user cannot return to it
+                    handleUserLogin() // Handle user login after Google sign-in
                 } else {
                     Toast.makeText(this, "Authentication Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
