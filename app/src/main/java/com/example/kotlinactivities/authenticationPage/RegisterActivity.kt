@@ -7,11 +7,13 @@ import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.kotlinactivities.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kotlin.random.Random
 import com.example.kotlinactivities.network.sendEmail
+import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -111,7 +113,9 @@ class RegisterActivity : AppCompatActivity() {
                                 val intent = Intent(this, VerificationActivity::class.java)
                                 intent.putExtra("EMAIL", email)
                                 intent.putExtra("VERIFICATION_CODE", verificationCode)
+                                intent.putExtra("SOURCE", "register") // Indicate the source
                                 startActivity(intent)
+
                                 finish()
                             } else {
                                 Toast.makeText(
@@ -138,20 +142,21 @@ class RegisterActivity : AppCompatActivity() {
         val subject = "Your Verification Code"
         val messageBody = "Your verification code is: $verificationCode"
 
-        // Use a background thread to send the email
-        Thread {
+        // Launch a coroutine to send the email
+        lifecycleScope.launch {
             try {
                 sendEmail(email, subject, messageBody)
                 runOnUiThread {
-                    Toast.makeText(this, "Verification code sent to $email", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@RegisterActivity, "Verification code sent to $email", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
                 runOnUiThread {
-                    Toast.makeText(this, "Failed to send email: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@RegisterActivity, "Failed to send email: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
-        }.start()
+        }
     }
+
 
 
     private fun togglePasswordVisibility(editText: EditText, toggleTextView: TextView) {

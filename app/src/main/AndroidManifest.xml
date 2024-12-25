@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.kotlinactivities">
-
     <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -31,31 +30,30 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.KotlinActivites"
         tools:targetApi="31">
-
-        <!-- Splash Activity -->
+        <activity
+            android:name=".authenticationPage.ChangePasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".authenticationPage.ForgetPasswordActivity"
+            android:exported="false" /> <!-- Splash Activity -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.KotlinActivities.Splash"
-            android:label="">
+            android:label=""
+            android:theme="@style/Theme.KotlinActivities.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Main Activity -->
+        </activity> <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:usesCleartextTraffic="true" />
-
-        <!-- Onboarding Activity -->
+            android:usesCleartextTraffic="true" /> <!-- Onboarding Activity -->
         <activity
             android:name=".OnboardingActivity"
-            android:exported="false" />
-
-        <!-- Other Activities -->
+            android:exported="false" /> <!-- Other Activities -->
         <activity
             android:name=".homePage.BookingRoomActivity"
             android:exported="false" />
@@ -78,6 +76,6 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
     </application>
+
 </manifest>
