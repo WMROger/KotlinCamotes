@@ -48,24 +48,28 @@ class CalendarAdapter(
             // Reset styles
             dateText.setBackgroundColor(Color.TRANSPARENT)
             dateText.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
+            dateText.isEnabled = true
 
             // Highlight today's date
             if (isSameDay(date, today)) {
                 dateText.setTextColor(ContextCompat.getColor(itemView.context, R.color.green))
             }
 
-            // Use local copies of startDate and endDate
+            // Use local copies of startDate and endDate to prevent changes during binding
             val localStartDate = startDate
             val localEndDate = endDate
 
             // Highlight the selected range
             if (localStartDate != null && localEndDate != null && date in localStartDate..localEndDate) {
                 when {
-                    isSameDay(date, localStartDate) || isSameDay(date, localEndDate) -> {
-                        dateText.setBackgroundResource(R.drawable.bg_date)
+                    isSameDay(date, localStartDate) -> {
+                        dateText.setBackgroundResource(R.drawable.bg_date_start) // Start date
                     }
-                    else -> {
-                        dateText.setBackgroundResource(R.drawable.bg_date_range)
+                    isSameDay(date, localEndDate) -> {
+                        dateText.setBackgroundResource(R.drawable.bg_date_end) // End date
+                    }
+                    date.after(localStartDate) && date.before(localEndDate) -> {
+                        dateText.setBackgroundResource(R.drawable.bg_date_range) // In-between dates
                     }
                 }
                 dateText.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
@@ -74,14 +78,14 @@ class CalendarAdapter(
             // Disable past dates
             if (date.before(today)) {
                 dateText.setTextColor(ContextCompat.getColor(itemView.context, R.color.gray))
-                itemView.isEnabled = false
-            } else {
-                itemView.isEnabled = true
+                dateText.isEnabled = false
             }
 
             // Handle click events
             itemView.setOnClickListener {
-                onDateClick(date)
+                if (!date.before(today)) { // Allow only future dates to be selected
+                    onDateClick(date)
+                }
             }
         }
 
