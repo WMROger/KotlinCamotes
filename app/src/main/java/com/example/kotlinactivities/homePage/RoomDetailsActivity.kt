@@ -2,13 +2,13 @@ package com.example.kotlinactivities.homePage
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.databinding.ActivityRoomDetailsBinding
-import com.example.kotlinactivities.navBar.HomeFragment
 import com.example.kotlinactivities.model.Room
+import java.text.NumberFormat
+import java.util.*
 
 class RoomDetailsActivity : AppCompatActivity() {
 
@@ -26,14 +26,29 @@ class RoomDetailsActivity : AppCompatActivity() {
         val room = intent.getParcelableExtra<Room>("room")
 
         // Populate Room Details
-        room?.let {
-            binding.roomImage.setImageResource(it.imageUrl)
-            binding.roomTitle.text = it.title
+        room?.let { roomData ->
+            binding.roomImage.setImageResource(roomData.imageUrl)
+            binding.roomTitle.text = roomData.title
             binding.roomLocation.text = "Himensulan Island, Camotes Cebu" // Static for now
-            binding.roomRating.text = it.rating
-            binding.roomPrice.text = it.price
+            binding.roomRating.text = roomData.rating
+            binding.roomPrice.text = formatPrice(removeNightSuffix(roomData.price)) // Format price
             binding.roomDescription.text =
-                "Indulge in luxury and comfort in our ${it.title}, featuring elegant interiors, plush bedding, a spacious seating area, and modern amenities."
+                "Indulge in luxury and comfort in our ${roomData.title}, featuring elegant interiors, plush bedding, a spacious seating area, and modern amenities."
+
+            // Book button action
+            binding.bookButton.setOnClickListener {
+                // Create an intent to navigate to BookingRoomActivity
+                val intent = Intent(this, BookingRoomActivity::class.java)
+
+                // Pass data to the BookingRoomActivity
+                intent.putExtra("roomTitle", roomData.title) // Pass room title
+                intent.putExtra("roomPrice", removeNightSuffix(roomData.price).toInt()) // Pass room price as integer
+                intent.putExtra("roomType", roomData.title) // Pass the room type dynamically
+                intent.putExtra("paxCount", roomData.people?.toInt() ?: 2) // Pass the number of people (converted to Int)
+
+                // Start the BookingRoomActivity
+                startActivity(intent)
+            }
         }
 
         // Back button action: Go back to HomeFragment
@@ -45,23 +60,6 @@ class RoomDetailsActivity : AppCompatActivity() {
         binding.heartButton.setOnClickListener {
             toggleFavorite()
         }
-
-        // Book button action
-        // Book button action
-        binding.bookButton.setOnClickListener {
-            // Create an intent to navigate to BookingRoomActivity
-            val intent = Intent(this, BookingRoomActivity::class.java)
-
-            // Pass data to the BookingRoomActivity
-            intent.putExtra("roomTitle", room?.title) // Pass room title
-            intent.putExtra("roomPrice", room?.price) // Pass room price
-            intent.putExtra("roomType", room?.title) // Pass the room type dynamically
-            intent.putExtra("paxCount", room?.people?.toInt() ?: 2) // Pass the number of people (converted to Int)
-
-            // Start the BookingRoomActivity
-            startActivity(intent)
-        }
-
     }
 
     // Function to toggle favorite state
@@ -74,5 +72,18 @@ class RoomDetailsActivity : AppCompatActivity() {
         }
 
         binding.heartButton.setImageDrawable(ContextCompat.getDrawable(this, heartDrawable))
+    }
+
+    // Helper function to remove `/night` and `₱` from the price
+    private fun removeNightSuffix(price: String?): String {
+        return price?.replace("/night", "")?.replace("₱", "")?.replace(",", "")?.trim() ?: "0"
+    }
+
+    // Helper function to format price with comma and peso sign
+    private fun formatPrice(price: String): String {
+        val priceValue = price.toIntOrNull() ?: 0
+        val formatter = NumberFormat.getNumberInstance(Locale.getDefault())
+        formatter.maximumFractionDigits = 0
+        return "₱${formatter.format(priceValue)}"
     }
 }

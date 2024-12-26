@@ -1,6 +1,5 @@
 package com.example.kotlinactivities.homePage
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
@@ -10,6 +9,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.CalendarAdapter
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -20,8 +20,11 @@ class BookingRoomActivity : AppCompatActivity() {
     private lateinit var calendarRecyclerView: RecyclerView
     private lateinit var prevMonthButton: Button
     private lateinit var nextMonthButton: Button
+    private lateinit var totalPriceTextView: TextView
     private lateinit var backButton: ImageView
-    private lateinit var bookingSubtitle: TextView
+    private lateinit var guestCountText: TextView
+    private lateinit var plusButton: Button
+    private lateinit var minusButton: Button
 
     private val calendar = Calendar.getInstance()
     private val today = Date()
@@ -30,6 +33,8 @@ class BookingRoomActivity : AppCompatActivity() {
 
     private var startDate: Date? = null
     private var endDate: Date? = null
+    private var roomPrice: Int = 0 // Room price as an integer
+    private var guestCount: Int = 1 // Default guest count
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,33 +46,16 @@ class BookingRoomActivity : AppCompatActivity() {
         calendarRecyclerView = findViewById(R.id.calendarRecyclerView)
         prevMonthButton = findViewById(R.id.previousMonthButton)
         nextMonthButton = findViewById(R.id.nextMonthButton)
+        totalPriceTextView = findViewById(R.id.roomPrice)
         backButton = findViewById(R.id.backButton)
-        bookingSubtitle = findViewById(R.id.bookingSubtitle)
-        val guestCountText = findViewById<TextView>(R.id.guestCount)
-        val minusButton = findViewById<Button>(R.id.minusButton)
-        val plusButton = findViewById<Button>(R.id.plusButton)
+        guestCountText = findViewById(R.id.guestCount)
+        plusButton = findViewById(R.id.plusButton)
+        minusButton = findViewById(R.id.minusButton)
 
         // Retrieve data from the previous activity
-        val roomType = intent.getStringExtra("roomType") ?: "Regular Room"
-        val paxCount = intent.getIntExtra("paxCount", 2)
-        bookingSubtitle.text = "$roomType | $paxCount pax"
-
-        // Set initial guest count
-        var guestCount = paxCount
-        guestCountText.text = guestCount.toString()
-
-        // Set up guest count buttons
-        minusButton.setOnClickListener {
-            if (guestCount > 1) {
-                guestCount--
-                guestCountText.text = guestCount.toString()
-            }
-        }
-
-        plusButton.setOnClickListener {
-            guestCount++
-            guestCountText.text = guestCount.toString()
-        }
+        val roomTitle = intent.getStringExtra("roomTitle") ?: "Room"
+        val priceValue = intent.getIntExtra("roomPrice", 0)
+        roomPrice = priceValue // Use parsed integer price
 
         // Set back button functionality
         backButton.setOnClickListener {
@@ -87,10 +75,23 @@ class BookingRoomActivity : AppCompatActivity() {
             updateCalendar()
         }
 
+        // Initialize plus and minus button functionality
+        plusButton.setOnClickListener {
+            if (guestCount < 10) { // Limit maximum guests to 10
+                guestCount++
+                updateGuestCount()
+            }
+        }
+        minusButton.setOnClickListener {
+            if (guestCount > 1) { // Minimum guests should be 1
+                guestCount--
+                updateGuestCount()
+            }
+        }
+
         // Initialize the calendar
         updateCalendar()
     }
-
 
     private fun updateCalendar() {
         // Set the current month and year
@@ -142,11 +143,35 @@ class BookingRoomActivity : AppCompatActivity() {
         // Update the selected date range text
         if (startDate != null && endDate != null) {
             selectedDateRange.text = "From: ${rangeFormatter.format(startDate!!)}\nTo: ${rangeFormatter.format(endDate!!)}"
+            updateTotalPrice()
         } else {
             selectedDateRange.text = "Start Date: ${rangeFormatter.format(startDate!!)}"
+            updateTotalPrice(singleDay = true)
         }
 
         // Update the adapter with the selected range
         (calendarRecyclerView.adapter as CalendarAdapter).updateSelectedRange(startDate, endDate)
+    }
+
+    private fun updateTotalPrice(singleDay: Boolean = false) {
+        val totalDays = if (singleDay || endDate == null) {
+            1
+        } else {
+            val diffInMillis = endDate!!.time - startDate!!.time
+            (diffInMillis / (1000 * 60 * 60 * 24)).toInt() + 1 // Include the start day
+        }
+
+        val totalPrice = roomPrice * totalDays
+        totalPriceTextView.text = formatPrice(totalPrice)
+    }
+
+    private fun updateGuestCount() {
+        guestCountText.text = guestCount.toString()
+    }
+
+    private fun formatPrice(price: Int): String {
+        val formatter = NumberFormat.getNumberInstance(Locale.getDefault())
+        formatter.maximumFractionDigits = 0
+        return "₱${formatter.format(price)}"
     }
 }

@@ -76,20 +76,9 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <!-- CalendarView -->
-            <!--            <CalendarView-->
-            <!--                android:id="@+id/calendarView"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:dateTextAppearance="?android:attr/textAppearanceMedium"-->
-            <!--                android:weekDayTextAppearance="?android:attr/textAppearanceSmall"-->
-            <!--                android:minDate="@{System.currentTimeMillis()}"-->
-            <!--                android:focusable="true"-->
-            <!--                android:layout_marginBottom="16dp"-->
-            <!--                />-->
             <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <!-- Month and Year Display -->
@@ -133,7 +122,6 @@
                     android:padding="8dp"
                     tools:listitem="@layout/item_calendar_date" />
 
-
                 <!-- Selected Date Range Display -->
                 <TextView
                     android:id="@+id/selectedDateRange"
@@ -145,22 +133,22 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
-
+            <!-- Guests Selector -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:gravity="center"
                 android:orientation="horizontal"
-                android:weightSum="4"> <!-- Total weight for the layout -->
-                <!-- Guests Selector -->
+                android:weightSum="4">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Guests"
                     android:textSize="16sp"
                     android:textStyle="bold" />
-                <!-- Minus Button -->
+
                 <Button
                     android:id="@+id/minusButton"
                     android:layout_width="0dp"
@@ -172,7 +160,6 @@
                     android:textColor="#FFFFFF"
                     android:textStyle="bold" />
 
-                <!-- Guest Count -->
                 <TextView
                     android:id="@+id/guestCount"
                     android:layout_width="0dp"
@@ -183,7 +170,6 @@
                     android:text="2"
                     android:textSize="18sp" />
 
-                <!-- Plus Button -->
                 <Button
                     android:id="@+id/plusButton"
                     android:layout_width="0dp"
@@ -195,7 +181,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-
+            <!-- Payment Options -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -224,6 +210,35 @@
                     android:text="GCash"
                     android:textSize="16sp" />
             </LinearLayout>
+
+            <!-- Added Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Note to the resort"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/noteToResort"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:background="@android:color/white"
+                    android:hint="Write a note..."
+                    android:gravity="top|start"
+                    android:padding="12dp"
+                    android:textColor="#000000"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="16dp" />
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 
@@ -237,6 +252,7 @@
         android:padding="16dp">
 
         <TextView
+            android:id="@+id/roomPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
