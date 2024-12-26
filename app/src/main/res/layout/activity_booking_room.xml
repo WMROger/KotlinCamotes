@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".homePage.BookingRoomActivity">
 
     <!-- Top AppBar with Back Button -->
@@ -35,6 +35,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Booking Room"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -51,6 +53,7 @@
 
     <!-- Main Scrollable Content -->
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="80dp"
@@ -66,34 +69,81 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
                 android:layout_marginBottom="8dp"
-                android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:text="Select Booking Dates"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
             <!-- CalendarView -->
-            <CalendarView
-                android:id="@+id/calendarView"
+            <!--            <CalendarView-->
+            <!--                android:id="@+id/calendarView"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:dateTextAppearance="?android:attr/textAppearanceMedium"-->
+            <!--                android:weekDayTextAppearance="?android:attr/textAppearanceSmall"-->
+            <!--                android:minDate="@{System.currentTimeMillis()}"-->
+            <!--                android:focusable="true"-->
+            <!--                android:layout_marginBottom="16dp"-->
+            <!--                />-->
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:backgroundTint="#E8F5E9"
-                android:dateTextAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:weekDayTextAppearance="@style/TextAppearance.AppCompat.Body1" />
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-            <!-- Selected Date Range -->
-            <TextView
-                android:id="@+id/selectedDateRange"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp"
-                android:gravity="center"
-                android:text="No dates selected"
-                android:textSize="16sp"
-                android:textStyle="italic" />
+                <!-- Month and Year Display -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <Button
+                        android:id="@+id/previousMonthButton"
+                        android:layout_width="30dp"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp"
+                        android:text="@string/back_button" />
+
+                    <TextView
+                        android:id="@+id/monthYearText"
+                        android:layout_width="50dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/nextMonthButton"
+                        android:layout_width="30dp"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp"
+                        android:text="@string/next_button" />
+                </LinearLayout>
+
+                <!-- Calendar Grid -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/calendarRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:layout_margin="16dp"
+                    android:padding="8dp"
+                    tools:listitem="@layout/item_calendar_date" />
+
+
+                <!-- Selected Date Range Display -->
+                <TextView
+                    android:id="@+id/selectedDateRange"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:gravity="center"
+                    android:text="No dates selected"
+                    android:textSize="16sp" />
+            </LinearLayout>
 
 
             <LinearLayout
@@ -149,10 +199,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="How would you like to pay?"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"

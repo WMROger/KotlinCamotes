@@ -51,14 +51,17 @@ class RoomDetailsActivity : AppCompatActivity() {
             // Create an intent to navigate to BookingRoomActivity
             val intent = Intent(this, BookingRoomActivity::class.java)
 
-            // Pass data to the BookingRoomActivity (if needed)
-            intent.putExtra("roomName", room?.title) // Pass room title
+            // Pass data to the BookingRoomActivity
+            intent.putExtra("roomTitle", room?.title) // Pass room title
             intent.putExtra("roomPrice", room?.price) // Pass room price
+            intent.putExtra("roomType", "Regular Room") // Pass room type
             intent.putExtra("maxGuests", room?.people) // Pass max guests
 
             // Start the BookingRoomActivity
             startActivity(intent)
         }
+
+
 
     }
 

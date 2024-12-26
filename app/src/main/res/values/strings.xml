@@ -8,6 +8,7 @@
     <string name="verification_sub_header">To continue, enter the code we just sent to your email.</string>
     <string name="verification_header">Check your email</string>
     <string name="resend_code">Didn’t get a code?Try again</string>
+    <string name="next_button"><![CDATA[>]]></string>
     <string-array name="payment_options">
         <item>PHP 1000</item>
         <item>PHP 3000</item>

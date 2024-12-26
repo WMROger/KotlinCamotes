@@ -2,104 +2,114 @@ package com.example.kotlinactivities.homePage
 
 import android.os.Bundle
 import android.widget.Button
-import android.widget.CalendarView
-import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
+import com.example.kotlinactivities.adapter.CalendarAdapter
 import java.text.SimpleDateFormat
 import java.util.*
 
 class BookingRoomActivity : AppCompatActivity() {
 
-    private var guestCount = 2 // Initial guest count
-    private var startDate: Long? = null // Start date
-    private var endDate: Long? = null // End date
+    private lateinit var monthYearText: TextView
+    private lateinit var selectedDateRange: TextView
+    private lateinit var calendarRecyclerView: RecyclerView
+    private lateinit var prevMonthButton: Button
+    private lateinit var nextMonthButton: Button
+
+    private val calendar = Calendar.getInstance()
+    private val today = Date()
+    private val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+    private val rangeFormatter = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+
+    private var startDate: Date? = null
+    private var endDate: Date? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_booking_room)
 
-        val calendarView = findViewById<CalendarView>(R.id.calendarView)
-        val selectedDateRange = findViewById<TextView>(R.id.selectedDateRange)
-        val minusButton = findViewById<Button>(R.id.minusButton)
-        val plusButton = findViewById<Button>(R.id.plusButton)
-        val guestCountText = findViewById<TextView>(R.id.guestCount)
-        val backButton = findViewById<ImageView>(R.id.backButton)
-        // Initialize guest count
-        guestCountText.text = guestCount.toString()
+        // Initialize views
+        monthYearText = findViewById(R.id.monthYearText)
+        selectedDateRange = findViewById(R.id.selectedDateRange)
+        calendarRecyclerView = findViewById(R.id.calendarRecyclerView)
+        prevMonthButton = findViewById(R.id.previousMonthButton)
+        nextMonthButton = findViewById(R.id.nextMonthButton)
 
-        // Block past dates in CalendarView
-        calendarView.minDate = System.currentTimeMillis()
+        // Initialize RecyclerView layout manager
+        calendarRecyclerView.layoutManager = GridLayoutManager(this, 7)
 
-        backButton.setOnClickListener{
-            finish()
+        // Set button listeners
+        prevMonthButton.setOnClickListener {
+            calendar.add(Calendar.MONTH, -1)
+            updateCalendar()
         }
-        // Handle CalendarView date selection
-        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            val selectedCalendar = Calendar.getInstance()
-            selectedCalendar.set(year, month, dayOfMonth)
-            val selectedDate = selectedCalendar.timeInMillis
-
-            if (startDate == null || (startDate != null && endDate != null)) {
-                // Set the start date
-                startDate = selectedDate
-                endDate = null
-                selectedDateRange.text = "Start Date: ${formatDate(selectedDate)}"
-            } else {
-                // Set the end date
-                endDate = selectedDate
-                if (endDate!! < startDate!!) {
-                    // If the end date is earlier than the start date, swap them
-                    val temp = startDate
-                    startDate = endDate
-                    endDate = temp
-                }
-                selectedDateRange.text =
-                    "From: ${formatDate(startDate!!)}\nTo: ${formatDate(endDate!!)}"
-            }
-
-            // Highlight the selected date range
-            highlightDateRange(calendarView, startDate, endDate)
+        nextMonthButton.setOnClickListener {
+            calendar.add(Calendar.MONTH, 1)
+            updateCalendar()
         }
 
-        // Handle minus button click
-        minusButton.setOnClickListener {
-            if (guestCount > 1) {
-                guestCount--
-                guestCountText.text = guestCount.toString()
-            } else {
-                Toast.makeText(this, "Guests cannot be less than 1", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // Handle plus button click
-        plusButton.setOnClickListener {
-            guestCount++
-            guestCountText.text = guestCount.toString()
-        }
+        // Initialize the calendar
+        updateCalendar()
     }
 
-    private fun formatDate(dateInMillis: Long): String {
-        val sdf = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
-        return sdf.format(Date(dateInMillis))
+    private fun updateCalendar() {
+        // Set the current month and year
+        monthYearText.text = dateFormat.format(calendar.time)
+
+        // Generate the dates for the current month
+        val dates = generateCalendarDates()
+
+        // Update the adapter
+        val calendarAdapter = CalendarAdapter(dates, today, startDate, endDate) { date ->
+            handleDateSelection(date)
+        }
+        calendarRecyclerView.adapter = calendarAdapter
     }
 
-    private fun highlightDateRange(
-        calendarView: CalendarView,
-        startDate: Long?,
-        endDate: Long?
-    ) {
-        // Refresh the CalendarView with custom decorations if needed (This is just conceptual)
+    private fun generateCalendarDates(): List<Date> {
+        val dates = mutableListOf<Date>()
+        val calendarStart = calendar.clone() as Calendar
+        calendarStart.set(Calendar.DAY_OF_MONTH, 1)
+
+        // Move to the start of the week
+        val firstDayOfWeek = calendarStart.get(Calendar.DAY_OF_WEEK) - 1
+        calendarStart.add(Calendar.DAY_OF_MONTH, -firstDayOfWeek)
+
+        // Add 4 weeks of dates (7 * 4 = 28 days)
+        for (i in 0 until 35) {
+            dates.add(calendarStart.time)
+            calendarStart.add(Calendar.DAY_OF_MONTH, 1)
+        }
+
+        return dates
+    }
+
+    private fun handleDateSelection(date: Date) {
+        if (startDate == null || endDate != null) {
+            // Reset selection
+            startDate = date
+            endDate = null
+        } else {
+            // Set end date
+            if (date.before(startDate)) {
+                endDate = startDate
+                startDate = date
+            } else {
+                endDate = date
+            }
+        }
+
+        // Update the selected date range text
         if (startDate != null && endDate != null) {
-            // Ideally, you would implement a custom view or third-party library like `MaterialCalendarView`
-            // to visually highlight date ranges. Native CalendarView does not support direct customization.
-            Toast.makeText(
-                this,
-                "Date Range Highlighted:\n${formatDate(startDate)} - ${formatDate(endDate)}",
-                Toast.LENGTH_SHORT
-            ).show()
+            selectedDateRange.text = "From: ${rangeFormatter.format(startDate!!)}\nTo: ${rangeFormatter.format(endDate!!)}"
+        } else {
+            selectedDateRange.text = "Start Date: ${rangeFormatter.format(startDate!!)}"
         }
+
+        // Update the adapter with the selected range
+        (calendarRecyclerView.adapter as CalendarAdapter).updateSelectedRange(startDate, endDate)
     }
 }

@@ -59,7 +59,7 @@
             android:exported="false" /> <!-- Other Activities -->
         <activity
             android:name=".homePage.BookingRoomActivity"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".authenticationPage.VerificationActivity"
             android:exported="false" />
