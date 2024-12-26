@@ -33,7 +33,7 @@ class RoomDetailsActivity : AppCompatActivity() {
             binding.roomRating.text = it.rating
             binding.roomPrice.text = it.price
             binding.roomDescription.text =
-                "Indulge in luxury and comfort in our Deluxe Room, featuring elegant interiors, plush bedding, a spacious seating area, and modern amenities."
+                "Indulge in luxury and comfort in our ${it.title}, featuring elegant interiors, plush bedding, a spacious seating area, and modern amenities."
         }
 
         // Back button action: Go back to HomeFragment
@@ -47,6 +47,7 @@ class RoomDetailsActivity : AppCompatActivity() {
         }
 
         // Book button action
+        // Book button action
         binding.bookButton.setOnClickListener {
             // Create an intent to navigate to BookingRoomActivity
             val intent = Intent(this, BookingRoomActivity::class.java)
@@ -54,14 +55,12 @@ class RoomDetailsActivity : AppCompatActivity() {
             // Pass data to the BookingRoomActivity
             intent.putExtra("roomTitle", room?.title) // Pass room title
             intent.putExtra("roomPrice", room?.price) // Pass room price
-            intent.putExtra("roomType", "Regular Room") // Pass room type
-            intent.putExtra("maxGuests", room?.people) // Pass max guests
+            intent.putExtra("roomType", room?.title) // Pass the room type dynamically
+            intent.putExtra("paxCount", room?.people?.toInt() ?: 2) // Pass the number of people (converted to Int)
 
             // Start the BookingRoomActivity
             startActivity(intent)
         }
-
-
 
     }
 

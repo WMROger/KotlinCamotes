@@ -1,5 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <solid android:color="#AAD4F9" /> <!-- Range color -->
+    <solid android:color="#1F4543" /> <!-- Range color -->
+
+
+
+
 </shape>

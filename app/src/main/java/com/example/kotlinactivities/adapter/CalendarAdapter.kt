@@ -60,19 +60,27 @@ class CalendarAdapter(
             val localEndDate = endDate
 
             // Highlight the selected range
-            if (localStartDate != null && localEndDate != null && date in localStartDate..localEndDate) {
-                when {
-                    isSameDay(date, localStartDate) -> {
-                        dateText.setBackgroundResource(R.drawable.bg_date_start) // Start date
+            if (localStartDate != null) {
+                if (localEndDate == null) {
+                    // Only one date selected, highlight as a single date
+                    if (isSameDay(date, localStartDate)) {
+                        dateText.setBackgroundResource(R.drawable.bg_date_start) // Highlight start date
+                        dateText.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
                     }
-                    isSameDay(date, localEndDate) -> {
-                        dateText.setBackgroundResource(R.drawable.bg_date_end) // End date
+                } else if (date in localStartDate..localEndDate) {
+                    when {
+                        isSameDay(date, localStartDate) -> {
+                            dateText.setBackgroundResource(R.drawable.bg_date_start) // Start date
+                        }
+                        isSameDay(date, localEndDate) -> {
+                            dateText.setBackgroundResource(R.drawable.bg_date_end) // End date
+                        }
+                        date.after(localStartDate) && date.before(localEndDate) -> {
+                            dateText.setBackgroundResource(R.drawable.bg_date_range) // In-between dates
+                        }
                     }
-                    date.after(localStartDate) && date.before(localEndDate) -> {
-                        dateText.setBackgroundResource(R.drawable.bg_date_range) // In-between dates
-                    }
+                    dateText.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
                 }
-                dateText.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
             }
 
             // Disable past dates

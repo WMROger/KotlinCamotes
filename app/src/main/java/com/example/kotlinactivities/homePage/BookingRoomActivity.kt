@@ -1,7 +1,9 @@
 package com.example.kotlinactivities.homePage
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
@@ -18,6 +20,8 @@ class BookingRoomActivity : AppCompatActivity() {
     private lateinit var calendarRecyclerView: RecyclerView
     private lateinit var prevMonthButton: Button
     private lateinit var nextMonthButton: Button
+    private lateinit var backButton: ImageView
+    private lateinit var bookingSubtitle: TextView
 
     private val calendar = Calendar.getInstance()
     private val today = Date()
@@ -37,6 +41,38 @@ class BookingRoomActivity : AppCompatActivity() {
         calendarRecyclerView = findViewById(R.id.calendarRecyclerView)
         prevMonthButton = findViewById(R.id.previousMonthButton)
         nextMonthButton = findViewById(R.id.nextMonthButton)
+        backButton = findViewById(R.id.backButton)
+        bookingSubtitle = findViewById(R.id.bookingSubtitle)
+        val guestCountText = findViewById<TextView>(R.id.guestCount)
+        val minusButton = findViewById<Button>(R.id.minusButton)
+        val plusButton = findViewById<Button>(R.id.plusButton)
+
+        // Retrieve data from the previous activity
+        val roomType = intent.getStringExtra("roomType") ?: "Regular Room"
+        val paxCount = intent.getIntExtra("paxCount", 2)
+        bookingSubtitle.text = "$roomType | $paxCount pax"
+
+        // Set initial guest count
+        var guestCount = paxCount
+        guestCountText.text = guestCount.toString()
+
+        // Set up guest count buttons
+        minusButton.setOnClickListener {
+            if (guestCount > 1) {
+                guestCount--
+                guestCountText.text = guestCount.toString()
+            }
+        }
+
+        plusButton.setOnClickListener {
+            guestCount++
+            guestCountText.text = guestCount.toString()
+        }
+
+        // Set back button functionality
+        backButton.setOnClickListener {
+            finish() // Close this activity and return to the previous one
+        }
 
         // Initialize RecyclerView layout manager
         calendarRecyclerView.layoutManager = GridLayoutManager(this, 7)
@@ -54,6 +90,7 @@ class BookingRoomActivity : AppCompatActivity() {
         // Initialize the calendar
         updateCalendar()
     }
+
 
     private fun updateCalendar() {
         // Set the current month and year
