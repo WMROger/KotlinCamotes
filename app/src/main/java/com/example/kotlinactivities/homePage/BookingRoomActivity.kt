@@ -1,14 +1,19 @@
 package com.example.kotlinactivities.homePage
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.RadioButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.kotlinactivities.MainActivity
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.CalendarAdapter
+import com.example.kotlinactivities.navBar.PaymentNotImplementedActivity
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,6 +40,7 @@ class BookingRoomActivity : AppCompatActivity() {
     private var endDate: Date? = null
     private var roomPrice: Int = 0 // Room price as an integer
     private var guestCount: Int = 1 // Default guest count
+    private var totalPrice: Int = 0 // Total price for the booking
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +57,9 @@ class BookingRoomActivity : AppCompatActivity() {
         guestCountText = findViewById(R.id.guestCount)
         plusButton = findViewById(R.id.plusButton)
         minusButton = findViewById(R.id.minusButton)
+        val rbGcash = findViewById<RadioButton>(R.id.rb_gcash)
+        val rbCash = findViewById<RadioButton>(R.id.rb_cash)
+        val bookNowButton = findViewById<Button>(R.id.bookNowButton)
 
         // Retrieve data from the previous activity
         val roomTitle = intent.getStringExtra("roomTitle") ?: "Room"
@@ -60,6 +69,40 @@ class BookingRoomActivity : AppCompatActivity() {
         // Set back button functionality
         backButton.setOnClickListener {
             finish() // Close this activity and return to the previous one
+        }
+
+        bookNowButton.setOnClickListener {
+            when {
+                rbGcash.isChecked -> {
+                    // Redirect to paymentNotImplementedActivity
+                    val intent = Intent(this, PaymentNotImplementedActivity::class.java)
+                    intent.putExtra("totalPrice", totalPrice * 100) // Pass price in centavos
+                    startActivity(intent)
+                }
+
+                rbCash.isChecked -> {
+                    // Redirect to HomeFragment with a toast
+                    val intent = Intent(this, MainActivity::class.java) // Assuming MainActivity hosts HomeFragment
+                    intent.putExtra("navigateTo", "HomeFragment") // Pass data to navigate to the fragment
+                    startActivity(intent)
+
+                    // Show a toast message
+                    Toast.makeText(
+                        this,
+                        "Booking submitted. Please wait for approval.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                else -> {
+                    // Show an error if no payment method is selected
+                    Toast.makeText(
+                        this,
+                        "Please select a payment method to proceed.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
 
         // Initialize RecyclerView layout manager
@@ -74,7 +117,17 @@ class BookingRoomActivity : AppCompatActivity() {
             calendar.add(Calendar.MONTH, 1)
             updateCalendar()
         }
+        rbGcash.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                rbCash.isChecked = false
+            }
+        }
 
+        rbCash.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                rbGcash.isChecked = false
+            }
+        }
         // Initialize plus and minus button functionality
         plusButton.setOnClickListener {
             if (guestCount < 10) { // Limit maximum guests to 10
@@ -142,7 +195,8 @@ class BookingRoomActivity : AppCompatActivity() {
 
         // Update the selected date range text
         if (startDate != null && endDate != null) {
-            selectedDateRange.text = "From: ${rangeFormatter.format(startDate!!)}\nTo: ${rangeFormatter.format(endDate!!)}"
+            selectedDateRange.text =
+                "From: ${rangeFormatter.format(startDate!!)}\nTo: ${rangeFormatter.format(endDate!!)}"
             updateTotalPrice()
         } else {
             selectedDateRange.text = "Start Date: ${rangeFormatter.format(startDate!!)}"
@@ -161,7 +215,7 @@ class BookingRoomActivity : AppCompatActivity() {
             (diffInMillis / (1000 * 60 * 60 * 24)).toInt() + 1 // Include the start day
         }
 
-        val totalPrice = roomPrice * totalDays
+        totalPrice = roomPrice * totalDays // Update the total price
         totalPriceTextView.text = formatPrice(totalPrice)
     }
 

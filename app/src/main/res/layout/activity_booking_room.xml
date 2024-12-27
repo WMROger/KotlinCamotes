@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#F4F5F7"
     tools:context=".homePage.BookingRoomActivity">
 
     <!-- Top AppBar with Back Button -->
@@ -34,9 +35,9 @@
                 android:id="@+id/bookingTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Booking Room"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="10dp"
+                android:text="Booking Room"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -63,6 +64,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
             android:orientation="vertical">
 
             <!-- Embedded Calendar Section -->
@@ -193,23 +195,82 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="8dp"
-                    android:contentDescription="GCash Icon"
-                    android:src="@drawable/ic_home" />
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="GCash"
+                    android:layout_marginBottom="16dp"
+                    android:text="How would you like to pay?"
+                    android:textColor="@android:color/black"
                     android:textSize="16sp" />
+
+                <!-- GCash Option -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/option_background_selected"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="8dp"
+                        android:contentDescription="GCash Icon"
+                        android:src="@drawable/ic_gcash" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="GCash"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp" />
+
+                    <RadioButton
+                        android:id="@+id/rb_gcash"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="@color/selected_tab_color" />
+                </LinearLayout>
+
+                <!-- Cash Option -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/option_background_selected"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="8dp"
+                        android:contentDescription="Cash Icon"
+                        android:src="@drawable/ic_cash" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Cash"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp" />
+
+                    <RadioButton
+                        android:id="@+id/rb_cash"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="@color/selected_tab_color" />
+                </LinearLayout>
+
             </LinearLayout>
+
 
             <!-- Added Section -->
             <LinearLayout
@@ -221,22 +282,22 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     android:text="Note to the resort"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
+                    android:textStyle="bold" />
 
                 <EditText
                     android:id="@+id/noteToResort"
                     android:layout_width="match_parent"
                     android:layout_height="120dp"
+                    android:layout_marginBottom="16dp"
                     android:background="@android:color/white"
-                    android:hint="Write a note..."
                     android:gravity="top|start"
+                    android:hint="Write a note..."
                     android:padding="12dp"
                     android:textColor="#000000"
-                    android:textSize="14sp"
-                    android:layout_marginBottom="16dp" />
+                    android:textSize="14sp" />
             </LinearLayout>
 
         </LinearLayout>

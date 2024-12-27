@@ -30,6 +30,12 @@ class MainActivity : AppCompatActivity() {
 
         // Check if a user is signed in
         val currentUser = auth.currentUser
+        val navigateTo = intent.getStringExtra("navigateTo")
+        if (navigateTo == "HomeFragment") {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, HomeFragment()) // Replace with the actual fragment container ID
+                .commit()
+        }
         if (currentUser == null) {
             // Redirect to LoginActivity if no user is logged in
             val loginIntent = Intent(this, LoginActivity::class.java)

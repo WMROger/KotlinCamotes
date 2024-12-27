@@ -7,48 +7,93 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
-import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinactivities.R
-import com.example.kotlinactivities.network.PaymentIntentAttributes
-import com.example.kotlinactivities.network.PaymentIntentData
-import com.example.kotlinactivities.network.PaymentIntentRequest
-import com.example.kotlinactivities.network.PaymentIntentResponse
-import com.example.kotlinactivities.network.Redirect
-import com.example.kotlinactivities.network.RetrofitClient
-import com.example.kotlinactivities.network.SourceAttributes
-import com.example.kotlinactivities.network.SourceData
-import com.example.kotlinactivities.network.SourceRequest
-import com.example.kotlinactivities.network.SourceResponse
+import com.example.kotlinactivities.network.*
 
-class paymentNotImplemented : AppCompatActivity() {
+class PaymentNotImplementedActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private lateinit var payButton: Button
-    private lateinit var amountSpinner: Spinner
+    private lateinit var priceTextView: TextView
+
+    private var totalPrice: Int = 0 // Total price to be displayed
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_payment_not_implemented)
 
-        // Initialize UI Components
-        payButton = findViewById(R.id.payButton)
-        amountSpinner = findViewById(R.id.amountSpinner)
+        // Initialize UI components
         webView = findViewById(R.id.paymentWebView)
+        payButton = findViewById(R.id.payButton)
+        priceTextView = findViewById(R.id.priceTextView)
 
-        // Set up the Pay Button click listener
+        // Retrieve total price from intent
+        totalPrice = intent.getIntExtra("totalPrice", 0)
+        updatePriceDisplay()
+
+        // Set up Pay Button click listener
         payButton.setOnClickListener {
-            val selectedAmount = when (amountSpinner.selectedItem.toString()) {
-                "PHP 1000" -> 1000 * 100 // Amount in centavos
-                "PHP 3000" -> 3000 * 100
-                else -> 0
+            if (totalPrice > 0) {
+                initiateGcashPayment(totalPrice, "09171234567") // Replace with actual phone
+            } else {
+                showToast("Error: Total price is not valid.")
+            }
+        }
+
+        // Configure WebView
+        configureWebView()
+    }
+
+    private fun updatePriceDisplay() {
+        // Format the price and display it in the TextView
+        priceTextView.text = "Total Price: ₱${totalPrice / 100}" // Divide by 100 if amount is in centavos
+    }
+
+    private fun configureWebView() {
+        webView.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            cacheMode = android.webkit.WebSettings.LOAD_NO_CACHE
+            mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+        }
+
+        // Set up WebViewClient to handle custom URLs
+        webView.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                val url = request.url.toString()
+                if (url.startsWith("myapp://home")) {
+                    // Show a toast message based on the referrer (success or failure)
+                    if (url.contains("success.html")) {
+                        showToast("Booking awaiting approval")
+                    } else if (url.contains("failure.html")) {
+                        showToast("Booking denied or an error occurred")
+                    }
+
+                    // Close the WebView and return to the app
+                    finish() // Ends the current activity
+                    return true // Indicate that the URL was handled
+                }
+                return false // Allow WebView to handle other URLs
             }
 
-            if (selectedAmount > 0) {
-                initiateGcashPayment(selectedAmount, "09171234567") // Replace with actual phone
-            } else {
-                showToast("Please select a valid amount.")
+            override fun onPageFinished(view: WebView, url: String) {
+                super.onPageFinished(view, url)
+                toggleUIVisibility(true)
+
+                // Optionally handle messages directly here for specific pages
+                if (url.contains("success.html")) {
+                    showToast("Booking awaiting approval")
+                } else if (url.contains("failure.html")) {
+                    showToast("Booking denied or an error occurred")
+                }
+            }
+
+            override fun onReceivedError(view: WebView, errorCode: Int, description: String?, failingUrl: String?) {
+                super.onReceivedError(view, errorCode, description, failingUrl)
+                showToast("Failed to load page: $description")
             }
         }
     }
@@ -104,8 +149,8 @@ class paymentNotImplemented : AppCompatActivity() {
                 attributes = SourceAttributes(
                     amount = amount,
                     redirect = Redirect(
-                        success = "https://httpbin.org/anything?status=success",
-                        failed = "https://httpbin.org/anything?status=failed"
+                        success = "https://waveaway.scarlet2.io/success.html",
+                        failed = "https://waveaway.scarlet2.io/failure.html"
                     ),
                     type = "gcash"
                 )
@@ -137,27 +182,6 @@ class paymentNotImplemented : AppCompatActivity() {
     }
 
     private fun openCheckoutPage(url: String) {
-        webView.settings.apply {
-            javaScriptEnabled = true
-            domStorageEnabled = true
-            cacheMode = android.webkit.WebSettings.LOAD_NO_CACHE
-            mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-        }
-
-        webView.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-                return false
-            }
-
-            override fun onPageFinished(view: WebView, url: String) {
-                toggleUIVisibility(true)
-            }
-
-            override fun onReceivedError(view: WebView, errorCode: Int, description: String?, failingUrl: String?) {
-                showToast("Failed to load page: $description")
-            }
-        }
-
         toggleUIVisibility(true)
         webView.loadUrl(url)
     }
@@ -165,7 +189,7 @@ class paymentNotImplemented : AppCompatActivity() {
     private fun toggleUIVisibility(showWebView: Boolean) {
         webView.visibility = if (showWebView) View.VISIBLE else View.GONE
         payButton.visibility = if (showWebView) View.GONE else View.VISIBLE
-        amountSpinner.visibility = if (showWebView) View.GONE else View.VISIBLE
+        priceTextView.visibility = if (showWebView) View.GONE else View.VISIBLE
     }
 
     private fun showToast(message: String) {
