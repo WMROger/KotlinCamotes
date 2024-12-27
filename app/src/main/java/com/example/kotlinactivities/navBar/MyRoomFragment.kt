@@ -1,60 +1,58 @@
 package com.example.kotlinactivities.navBar
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
+import com.example.kotlinactivities.adapter.MyRoomsAdapter
+import com.example.kotlinactivities.model.Room
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [MyRoomFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class MyRoomFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var myRoomsRecyclerView: RecyclerView
+    private lateinit var myRoomsAdapter: MyRoomsAdapter
+
+    private val myRoomsList = mutableListOf<Room>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_my_room, container, false)
+        val view = inflater.inflate(R.layout.fragment_my_room, container, false)
+
+        // Initialize RecyclerView
+        myRoomsRecyclerView = view.findViewById(R.id.myRoomsRecyclerView)
+        myRoomsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        myRoomsAdapter = MyRoomsAdapter(myRoomsList) { room ->
+            room.isFavorited = !room.isFavorited
+            myRoomsAdapter.notifyDataSetChanged()
+        }
+        myRoomsRecyclerView.adapter = myRoomsAdapter
+
+        // Retrieve arguments
+        val roomTitle = arguments?.getString("roomTitle")
+        val totalPrice = arguments?.getInt("totalPrice")
+
+        // Add the room to the list if arguments exist
+        if (roomTitle != null && totalPrice != null) {
+            myRoomsList.add(
+                Room(
+                    imageUrl = R.drawable.ic_cupids_deluxe, // Replace with actual drawable
+                    title = roomTitle,
+                    people = "2 People",
+                    price = "₱${totalPrice / 100}/night",
+                    rating = "4.9",
+                    isFavorited = false
+                )
+            )
+            myRoomsAdapter.notifyDataSetChanged()
+        }
+
+        return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment MyRoomFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            MyRoomFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
-    }
 }

@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.MainActivity
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.CalendarAdapter
-import com.example.kotlinactivities.navBar.PaymentNotImplementedActivity
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*

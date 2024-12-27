@@ -12,6 +12,7 @@ import com.example.kotlinactivities.navBar.MapFragment
 import com.example.kotlinactivities.navBar.MyRoomFragment
 import com.example.kotlinactivities.navBar.ProfileFragment
 import com.example.kotlinactivities.authenticationPage.LoginActivity
+import com.example.kotlinactivities.model.Room
 import com.google.firebase.auth.FirebaseAuth
 import io.ak1.BubbleTabBar
 
@@ -30,18 +31,12 @@ class MainActivity : AppCompatActivity() {
 
         // Check if a user is signed in
         val currentUser = auth.currentUser
-        val navigateTo = intent.getStringExtra("navigateTo")
-        if (navigateTo == "HomeFragment") {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, HomeFragment()) // Replace with the actual fragment container ID
-                .commit()
-        }
         if (currentUser == null) {
             // Redirect to LoginActivity if no user is logged in
             val loginIntent = Intent(this, LoginActivity::class.java)
             loginIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(loginIntent)
-            finish() // Close MainActivity
+            finish()
             return
         }
 
@@ -55,9 +50,28 @@ class MainActivity : AppCompatActivity() {
         // Initialize BubbleTabBar
         bubbleTabBar = findViewById(R.id.bubbleTabBar)
 
-        // Highlight the 'Home' tab and load HomeFragment by default
-        bubbleTabBar.setSelectedWithId(R.id.home, false) // Ensure animation is enabled
-        loadFragment(HomeFragment()) // Load HomeFragment by default
+        // Handle intent to navigate to specific fragments
+        val navigateTo = intent.getStringExtra("navigateTo")
+        if (navigateTo == "MyRoomFragment") {
+            // Handle data passed to MyRoomFragment
+            val roomTitle = intent.getStringExtra("roomTitle")
+            val totalPrice = intent.getIntExtra("totalPrice", 0)
+
+            val myRoomFragment = MyRoomFragment().apply {
+                arguments = Bundle().apply {
+                    putString("roomTitle", roomTitle)
+                    putInt("totalPrice", totalPrice)
+                }
+            }
+
+            // Navigate to MyRoomFragment
+            loadFragment(myRoomFragment)
+            bubbleTabBar.setSelectedWithId(R.id.myroom, false)
+        } else {
+            // Highlight the 'Home' tab and load HomeFragment by default
+            bubbleTabBar.setSelectedWithId(R.id.home, false)
+            loadFragment(HomeFragment())
+        }
 
         // Handle tab switching with BubbleTabBar
         bubbleTabBar.addBubbleListener { id ->

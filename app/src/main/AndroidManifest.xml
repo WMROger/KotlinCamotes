@@ -67,7 +67,7 @@
             android:name=".homePage.RoomDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".navBar.PaymentNotImplementedActivity"
+            android:name=".homePage.PaymentNotImplementedActivity"
             android:exported="true" />
         <activity
             android:name=".authenticationPage.RegisterActivity"
