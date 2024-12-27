@@ -1,5 +1,6 @@
 package com.example.kotlinactivities.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,18 +61,18 @@ class RoomAdapter(
         val favoriteButton: ImageView = itemView.findViewById(R.id.favoriteButton)
 
         fun bind(room: Room) {
+            Log.d("RoomAdapter", "Binding room: $room") // Log the room being bound
             roomImage.setImageResource(room.imageUrl)
             roomTitle.text = room.title
             roomPeople.text = "People: ${room.people}"
             roomPrice.text = room.price
             roomRating.text = room.rating
-
-            // Update the favorite button state
             if (room.isFavorited) {
-                favoriteButton.setImageResource(R.drawable.ic_heart) // Favorited
+                favoriteButton.setImageResource(R.drawable.ic_heart)
             } else {
-                favoriteButton.setImageResource(R.drawable.ic_heart_black) // Unfavorited
+                favoriteButton.setImageResource(R.drawable.ic_heart_black)
             }
         }
+
     }
 }

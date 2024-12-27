@@ -13,12 +13,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinactivities.MainActivity
 import com.example.kotlinactivities.R
+import com.example.kotlinactivities.model.Room
 import com.example.kotlinactivities.network.Redirect
 import com.example.kotlinactivities.network.RetrofitClient
 import com.example.kotlinactivities.network.SourceAttributes
 import com.example.kotlinactivities.network.SourceData
 import com.example.kotlinactivities.network.SourceRequest
 import com.example.kotlinactivities.network.SourceResponse
+import com.example.kotlinactivities.utils.RoomManager
+import com.google.firebase.database.FirebaseDatabase
 
 class PaymentNotImplementedActivity : AppCompatActivity() {
 
@@ -26,8 +29,10 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
     private lateinit var payButton: Button
     private lateinit var priceTextView: TextView
 
-    private var totalPrice: Int = 0 // Total price to be displayed
-    private var roomTitle: String? = null // Title of the room to be passed to home
+    private var totalPrice: Int = 0
+    private var roomTitle: String? = null
+    private var guestCount: Int = 0
+    private var roomPrice: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,13 +43,21 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
         payButton = findViewById(R.id.payButton)
         priceTextView = findViewById(R.id.priceTextView)
 
-        // Retrieve total price and room title from the intent
+        // Retrieve booking details from the intent
         totalPrice = intent.getIntExtra("totalPrice", 0)
         roomTitle = intent.getStringExtra("roomTitle")
+        guestCount = intent.getIntExtra("guestCount", 0)
+        roomPrice = intent.getIntExtra("roomPrice", 0)
 
+        Log.d("PaymentActivity", "RoomTitle: $roomTitle, TotalPrice: $totalPrice, GuestCount: $guestCount, RoomPrice: $roomPrice")
+
+        // Update price display
         updatePriceDisplay()
 
-        // Set up Pay Button click listener
+        // Configure WebView
+        configureWebView()
+
+        // Set Pay button action
         payButton.setOnClickListener {
             if (totalPrice > 0) {
                 createPayMongoSource(totalPrice)
@@ -52,13 +65,9 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
                 showToast("Error: Total price is not valid.")
             }
         }
-
-        // Configure WebView
-        configureWebView()
     }
 
     private fun updatePriceDisplay() {
-        // Format the price and display it in the TextView
         priceTextView.text = "Total Price: ₱${totalPrice / 100}" // Divide by 100 if amount is in centavos
     }
 
@@ -70,12 +79,10 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
             mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         }
 
-        // Set up WebViewClient to handle custom URLs
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val url = request.url.toString()
                 if (url.startsWith("https://waveaway.scarlet2.io/")) {
-                    // Handle success or failure
                     if (url.contains("success.html")) {
                         handlePaymentSuccess()
                     } else if (url.contains("failure.html")) {
@@ -88,9 +95,6 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
             }
 
             override fun onPageFinished(view: WebView, url: String) {
-                super.onPageFinished(view, url)
-
-                // Optionally handle messages directly here for specific pages
                 if (url.contains("success.html")) {
                     handlePaymentSuccess()
                 } else if (url.contains("failure.html")) {
@@ -99,28 +103,77 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
             }
 
             override fun onReceivedError(view: WebView, errorCode: Int, description: String?, failingUrl: String?) {
-                super.onReceivedError(view, errorCode, description, failingUrl)
                 showToast("Failed to load page: $description")
             }
         }
     }
 
     private fun handlePaymentSuccess() {
-        showToast("Payment successful. Booking awaiting approval.")
+        // Save room to RoomManager
+        RoomManager.addRoom(
+            Room(
+                imageUrl = R.drawable.ic_cupids_deluxe, // Replace with actual drawable
+                title = roomTitle ?: "Unknown Room",
+                people = "$guestCount People",
+                price = "₱${roomPrice * guestCount}/night",
+                rating = "4.9",
+                isFavorited = false
+            )
+        )
+        Log.d("PaymentActivity", "Payment successful. Room added to RoomManager.")
 
-        // Redirect back to home with the selected room's details
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("navigateTo", "MyRoomFragment")
-        intent.putExtra("roomTitle", roomTitle) // Example room title
-        intent.putExtra("totalPrice", totalPrice) // Total price
+        // Upload booking details to Firebase
+        uploadToFirebase()
+
+        // Navigate to MyRoomFragment
+        val intent = Intent(this, MainActivity::class.java).apply {
+            putExtra("navigateTo", "MyRoomFragment")
+        }
         startActivity(intent)
 
-        // Finish this activity
         finish()
     }
 
+    private fun uploadToFirebase() {
+        val database = FirebaseDatabase.getInstance()
+        val bookingsRef = database.getReference("bookings")
+
+        val bookingId = bookingsRef.push().key // Generate a unique key for this booking
+        if (bookingId != null) {
+            // Retrieve the details from the intent
+            val totalDays = intent.getIntExtra("totalDays", 1)
+            val guestCount = intent.getIntExtra("guestCount", 1)
+            val userEmail = intent.getStringExtra("userEmail") ?: "Unknown User"
+            val userId = intent.getStringExtra("userId") ?: "Unknown ID"
+
+            // Booking details to upload
+            val bookingDetails = mapOf(
+                "userEmail" to userEmail, // Include user email
+                "userId" to userId, // Include user ID
+                "roomTitle" to roomTitle,
+                "guestCount" to guestCount, // Include the number of guests
+                "roomPrice" to "₱${roomPrice}/night",
+                "totalDays" to totalDays, // Include the total days
+                "totalPrice" to "₱${totalPrice / 100}", // Divide by 100 if amount is in centavos
+                "paymentStatus" to "Success"
+            )
+
+            bookingsRef.child(bookingId).setValue(bookingDetails)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("Firebase", "Booking details uploaded successfully.")
+                    } else {
+                        Log.e("Firebase", "Failed to upload booking details: ${task.exception?.message}")
+                        showToast("Error uploading booking details to Firebase.")
+                    }
+                }
+        }
+    }
+
+
+
+
     private fun createPayMongoSource(amount: Int) {
-        // Create the SourceRequest object
         val sourceRequest = SourceRequest(
             data = SourceData(
                 attributes = SourceAttributes(
@@ -135,7 +188,6 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
             )
         )
 
-        // Make the API call to PayMongo
         RetrofitClient.instance.createSource(sourceRequest).enqueue(object : retrofit2.Callback<SourceResponse> {
             override fun onResponse(call: retrofit2.Call<SourceResponse>, response: retrofit2.Response<SourceResponse>) {
                 if (response.isSuccessful) {
@@ -157,7 +209,6 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
     }
 
     private fun openCheckoutPage(url: String) {
-        // Load the PayMongo checkout URL in WebView
         webView.visibility = View.VISIBLE
         webView.loadUrl(url)
     }

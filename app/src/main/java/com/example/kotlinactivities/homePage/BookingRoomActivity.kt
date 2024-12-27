@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.MainActivity
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.CalendarAdapter
+import com.google.firebase.auth.FirebaseAuth
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -41,9 +42,14 @@ class BookingRoomActivity : AppCompatActivity() {
     private var guestCount: Int = 1 // Default guest count
     private var totalPrice: Int = 0 // Total price for the booking
 
+    private lateinit var firebaseAuth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_booking_room)
+
+        // Initialize FirebaseAuth
+        firebaseAuth = FirebaseAuth.getInstance()
 
         // Initialize views
         monthYearText = findViewById(R.id.monthYearText)
@@ -65,6 +71,11 @@ class BookingRoomActivity : AppCompatActivity() {
         val priceValue = intent.getIntExtra("roomPrice", 0)
         roomPrice = priceValue // Use parsed integer price
 
+        // Retrieve logged-in user details
+        val currentUser = firebaseAuth.currentUser
+        val userEmail = currentUser?.email ?: "Unknown User" // Get user email
+        val userId = currentUser?.uid ?: "Unknown ID" // Get user UID
+
         // Set back button functionality
         backButton.setOnClickListener {
             finish() // Close this activity and return to the previous one
@@ -73,9 +84,16 @@ class BookingRoomActivity : AppCompatActivity() {
         bookNowButton.setOnClickListener {
             when {
                 rbGcash.isChecked -> {
-                    // Redirect to paymentNotImplementedActivity
+                    // Redirect to PaymentNotImplementedActivity
                     val intent = Intent(this, PaymentNotImplementedActivity::class.java)
                     intent.putExtra("totalPrice", totalPrice * 100) // Pass price in centavos
+                    intent.putExtra("roomTitle", roomTitle) // Pass room title
+                    intent.putExtra("guestCount", guestCount) // Pass the updated guest count
+                    intent.putExtra("roomPrice", roomPrice) // Pass the room price
+                    intent.putExtra("userEmail", userEmail) // Pass user email
+                    intent.putExtra("userId", userId) // Pass user ID
+                    val totalDays = calculateTotalDays() // Calculate the number of days
+                    intent.putExtra("totalDays", totalDays) // Pass the total number of days
                     startActivity(intent)
                 }
 
@@ -143,6 +161,15 @@ class BookingRoomActivity : AppCompatActivity() {
 
         // Initialize the calendar
         updateCalendar()
+    }
+
+    private fun calculateTotalDays(): Int {
+        return if (startDate != null && endDate != null) {
+            val diffInMillis = endDate!!.time - startDate!!.time
+            (diffInMillis / (1000 * 60 * 60 * 24)).toInt() + 1 // Include the start day
+        } else {
+            1 // Default to 1 day if no range is selected
+        }
     }
 
     private fun updateCalendar() {
@@ -214,12 +241,12 @@ class BookingRoomActivity : AppCompatActivity() {
             (diffInMillis / (1000 * 60 * 60 * 24)).toInt() + 1 // Include the start day
         }
 
-        totalPrice = roomPrice * totalDays // Update the total price
-        totalPriceTextView.text = formatPrice(totalPrice)
+        totalPrice = roomPrice * totalDays // Calculate total price based on room price per night and total days
+        totalPriceTextView.text = formatPrice(totalPrice) // Display the total price
     }
 
     private fun updateGuestCount() {
-        guestCountText.text = guestCount.toString()
+        guestCountText.text = "$guestCount" // Display the guest count
     }
 
     private fun formatPrice(price: Int): String {

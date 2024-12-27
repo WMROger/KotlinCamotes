@@ -71,7 +71,7 @@ class HomeFragment : Fragment() {
             )
             add(
                 Room(
-                    imageUrl = R.drawable.ic_cupids_deluxe,
+                    imageUrl = R.drawable.ic_cupids_deluxe2,
                     title = "Barkada Room",
                     people = "5",
                     price = "₱2,500/night",
