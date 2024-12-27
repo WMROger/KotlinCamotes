@@ -33,6 +33,7 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
     private var roomTitle: String? = null
     private var guestCount: Int = 0
     private var roomPrice: Int = 0
+    private var imageUrl: Int = R.drawable.ic_cupids_deluxe // Default image resource ID
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,8 +49,12 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
         roomTitle = intent.getStringExtra("roomTitle")
         guestCount = intent.getIntExtra("guestCount", 0)
         roomPrice = intent.getIntExtra("roomPrice", 0)
+        imageUrl = intent.getIntExtra("imageUrl", R.drawable.ic_cupids_deluxe) // Retrieve the image URL
 
-        Log.d("PaymentActivity", "RoomTitle: $roomTitle, TotalPrice: $totalPrice, GuestCount: $guestCount, RoomPrice: $roomPrice")
+        Log.d(
+            "PaymentActivity",
+            "RoomTitle: $roomTitle, TotalPrice: $totalPrice, GuestCount: $guestCount, RoomPrice: $roomPrice, ImageUrl: $imageUrl"
+        )
 
         // Update price display
         updatePriceDisplay()
@@ -112,10 +117,10 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
         // Save room to RoomManager
         RoomManager.addRoom(
             Room(
-                imageUrl = R.drawable.ic_cupids_deluxe, // Replace with actual drawable
+                imageUrl = imageUrl,
                 title = roomTitle ?: "Unknown Room",
                 people = "$guestCount People",
-                price = "₱${roomPrice * guestCount}/night",
+                price = "₱${roomPrice}/night",
                 rating = "4.9",
                 isFavorited = false
             )
@@ -142,19 +147,18 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
         if (bookingId != null) {
             // Retrieve the details from the intent
             val totalDays = intent.getIntExtra("totalDays", 1)
-            val guestCount = intent.getIntExtra("guestCount", 1)
             val userEmail = intent.getStringExtra("userEmail") ?: "Unknown User"
             val userId = intent.getStringExtra("userId") ?: "Unknown ID"
 
-            // Booking details to upload
             val bookingDetails = mapOf(
-                "userEmail" to userEmail, // Include user email
-                "userId" to userId, // Include user ID
                 "roomTitle" to roomTitle,
-                "guestCount" to guestCount, // Include the number of guests
+                "guestCount" to guestCount,
                 "roomPrice" to "₱${roomPrice}/night",
-                "totalDays" to totalDays, // Include the total days
                 "totalPrice" to "₱${totalPrice / 100}", // Divide by 100 if amount is in centavos
+                "totalDays" to totalDays,
+                "userEmail" to userEmail,
+                "userId" to userId,
+                "imageUrl" to imageUrl, // Pass the image URL
                 "paymentStatus" to "Success"
             )
 
@@ -169,9 +173,6 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
                 }
         }
     }
-
-
-
 
     private fun createPayMongoSource(amount: Int) {
         val sourceRequest = SourceRequest(

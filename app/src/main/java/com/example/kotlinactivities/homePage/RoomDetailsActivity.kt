@@ -45,6 +45,7 @@ class RoomDetailsActivity : AppCompatActivity() {
                 intent.putExtra("roomPrice", removeNightSuffix(roomData.price).toInt()) // Pass room price as integer
                 intent.putExtra("roomType", roomData.title) // Pass the room type dynamically
                 intent.putExtra("paxCount", roomData.people?.toInt() ?: 2) // Pass the number of people (converted to Int)
+                intent.putExtra("imageUrl", roomData.imageUrl) // Pass the image URL
 
                 // Start the BookingRoomActivity
                 startActivity(intent)

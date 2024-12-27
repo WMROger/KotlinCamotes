@@ -41,6 +41,7 @@ class BookingRoomActivity : AppCompatActivity() {
     private var roomPrice: Int = 0 // Room price as an integer
     private var guestCount: Int = 1 // Default guest count
     private var totalPrice: Int = 0 // Total price for the booking
+    private var imageUrl: Int = R.drawable.ic_cupids_deluxe // Default image resource ID
 
     private lateinit var firebaseAuth: FirebaseAuth
 
@@ -70,6 +71,7 @@ class BookingRoomActivity : AppCompatActivity() {
         val roomTitle = intent.getStringExtra("roomTitle") ?: "Room"
         val priceValue = intent.getIntExtra("roomPrice", 0)
         roomPrice = priceValue // Use parsed integer price
+        imageUrl = intent.getIntExtra("imageUrl", R.drawable.ic_cupids_deluxe) // Retrieve image URL
 
         // Retrieve logged-in user details
         val currentUser = firebaseAuth.currentUser
@@ -92,6 +94,7 @@ class BookingRoomActivity : AppCompatActivity() {
                     intent.putExtra("roomPrice", roomPrice) // Pass the room price
                     intent.putExtra("userEmail", userEmail) // Pass user email
                     intent.putExtra("userId", userId) // Pass user ID
+                    intent.putExtra("imageUrl", imageUrl) // Pass the image URL
                     val totalDays = calculateTotalDays() // Calculate the number of days
                     intent.putExtra("totalDays", totalDays) // Pass the total number of days
                     startActivity(intent)
@@ -99,8 +102,8 @@ class BookingRoomActivity : AppCompatActivity() {
 
                 rbCash.isChecked -> {
                     // Redirect to HomeFragment with a toast
-                    val intent = Intent(this, MainActivity::class.java) // Assuming MainActivity hosts HomeFragment
-                    intent.putExtra("navigateTo", "HomeFragment") // Pass data to navigate to the fragment
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.putExtra("navigateTo", "HomeFragment")
                     startActivity(intent)
 
                     // Show a toast message

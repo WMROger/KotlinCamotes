@@ -80,7 +80,11 @@ class LoginActivity : AppCompatActivity() {
                     if (task.isSuccessful) {
                         handleUserLogin()
                     } else {
-                        Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this,
+                            "Error: ${task.exception?.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
         }
@@ -110,21 +114,31 @@ class LoginActivity : AppCompatActivity() {
                     if (role == "Admin") {
                         // Redirect to AdminMainActivity
                         val intent = Intent(this, AdminMainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         startActivity(intent)
                         finish()
                     } else {
                         // Redirect to MainActivity
                         val intent = Intent(this, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         startActivity(intent)
                         finish()
                     }
                 } else {
-                    Toast.makeText(this, "Error: Role does not exist. Please contact support.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Error: Role does not exist. Please contact support.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             } else {
-                Toast.makeText(this, "Error retrieving role: ${dbTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "Error retrieving role: ${dbTask.exception?.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -156,10 +170,46 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    handleUserLogin() // Handle user login after Google sign-in
+                    val user = auth.currentUser
+                    if (user != null) {
+                        val database = FirebaseDatabase.getInstance()
+                        val usersRef = database.getReference("users").child(user.uid)
+
+                        // Check if the user already exists in the database
+                        usersRef.child("role").get().addOnCompleteListener { dbTask ->
+                            if (dbTask.isSuccessful) {
+                                if (!dbTask.result.exists()) {
+                                    // If user doesn't exist, redirect to RegisterGoogleActivity
+                                    val intent = Intent(this, RegisterGoogleActivity::class.java)
+                                    intent.putExtra(
+                                        "FROM_GOOGLE_SIGN_IN",
+                                        true
+                                    ) // Pass flag to identify source
+                                    startActivity(intent)
+                                    finish()
+
+
+                                } else {
+                                    // User exists, proceed with login
+                                    handleUserLogin()
+                                }
+                            } else {
+                                Log.e(
+                                    "FirebaseDebug",
+                                    "Error checking user role: ${dbTask.exception?.message}"
+                                )
+                            }
+                        }
+                    }
                 } else {
-                    Toast.makeText(this, "Authentication Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Authentication Failed: ${task.exception?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
     }
+
+
 }

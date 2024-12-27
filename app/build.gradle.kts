@@ -96,6 +96,8 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.15.1")
     implementation(libs.androidx.junit.ktx)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
     kapt("com.github.bumptech.glide:compiler:4.15.1")
     debugImplementation("com.github.bumptech.glide:okhttp3-integration:4.15.1")
     implementation ("com.google.android.material:material:1.11.0") // Update to the latest version
