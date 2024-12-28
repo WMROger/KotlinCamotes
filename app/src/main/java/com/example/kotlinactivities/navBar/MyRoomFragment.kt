@@ -1,5 +1,6 @@
 package com.example.kotlinactivities.navBar
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.RoomAdapter
+import com.example.kotlinactivities.homePage.RoomDetailsActivity
 import com.example.kotlinactivities.model.Room
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -37,10 +39,18 @@ class MyRoomFragment : Fragment() {
         // Initialize RecyclerView
         myRoomsRecyclerView = view.findViewById(R.id.myRoomsRecyclerView)
         myRoomsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        myRoomsAdapter = RoomAdapter(myRoomsList) { room ->
-            room.isFavorited = !room.isFavorited
-            myRoomsAdapter.notifyDataSetChanged()
-        }
+        myRoomsAdapter = RoomAdapter(
+            myRoomsList,
+            onDeleteClick = { room ->
+                deleteRoomFromFirebase(room) // Handle delete logic
+            },
+            onRoomClick = { room ->
+                // Handle room click here (e.g., navigate to details page)
+                navigateToRoomDetails(room)
+            },
+            isMyRoomsContext = true // Pass true for MyRoomFragment
+        )
+
         myRoomsRecyclerView.adapter = myRoomsAdapter
 
         // Load Rooms from Firebase
@@ -48,6 +58,14 @@ class MyRoomFragment : Fragment() {
 
         return view
     }
+    private fun navigateToRoomDetails(room: Room) {
+        val intent = Intent(requireContext(), RoomDetailsActivity::class.java).apply {
+            putExtra("room", room)
+            putExtra("isFromMyRoom", true) // Indicate that navigation is from My Room
+        }
+        startActivity(intent)
+    }
+
 
     private fun loadRoomsFromFirebase() {
         val currentUserId = firebaseAuth.currentUser?.uid
@@ -61,17 +79,19 @@ class MyRoomFragment : Fragment() {
                         myRoomsList.clear()
                         for (roomSnapshot in snapshot.children) {
                             Log.d("MyRoomFragment", "Room snapshot: ${roomSnapshot.value}") // Log each child node
+                            val roomId = roomSnapshot.key // Get the unique room ID (key)
                             val roomTitle = roomSnapshot.child("roomTitle").value as? String ?: "No Title"
-                            val totalDays = roomSnapshot.child("totalDays").value as? Long ?: 1L
-                            val roomPrice = roomSnapshot.child("roomPrice").value as? String ?: "₱0/night"
                             val totalPrice = roomSnapshot.child("totalPrice").value as? String ?: "₱0"
                             val guestCount = roomSnapshot.child("guestCount").value as? Long ?: 1L
+                            val imageUrl = roomSnapshot.child("imageUrl").value as? String
+                                ?: "https://example.com/placeholder.png" // Default placeholder image URL
                             val rating = "4.9" // Replace with dynamic rating if available
 
                             // Add the room to the list
                             myRoomsList.add(
                                 Room(
-                                    imageUrl = R.drawable.ic_cupids_deluxe,
+                                    id = roomId, // Save the room ID for deletion
+                                    imageUrl = imageUrl,
                                     title = roomTitle,
                                     people = "$guestCount People",
                                     price = totalPrice,
@@ -93,4 +113,23 @@ class MyRoomFragment : Fragment() {
             Log.e("MyRoomFragment", "User is not logged in.")
         }
     }
+
+    private fun deleteRoomFromFirebase(room: Room) {
+        val roomId = room.id
+        if (roomId != null) {
+            databaseReference.child(roomId).removeValue()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("MyRoomFragment", "Room deleted successfully: $roomId")
+                        myRoomsList.remove(room) // Remove the room from the list
+                        myRoomsAdapter.notifyDataSetChanged()
+                    } else {
+                        Log.e("MyRoomFragment", "Failed to delete room: ${task.exception?.message}")
+                    }
+                }
+        } else {
+            Log.e("MyRoomFragment", "Room ID is null, cannot delete.")
+        }
+    }
+
 }

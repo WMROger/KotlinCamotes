@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.databinding.ActivityRoomDetailsBinding
 import com.example.kotlinactivities.model.Room
@@ -25,9 +26,18 @@ class RoomDetailsActivity : AppCompatActivity() {
         // Get Room data from intent
         val room = intent.getParcelableExtra<Room>("room")
 
+        // Check if coming from My Room
+        val isFromMyRoom = intent.getBooleanExtra("isFromMyRoom", false)
+
         // Populate Room Details
         room?.let { roomData ->
-            binding.roomImage.setImageResource(roomData.imageUrl)
+            // Use Glide to load the image URL
+            Glide.with(this)
+                .load(roomData.imageUrl) // Load the image from the URL
+                .placeholder(R.drawable.ic_cupids_deluxe) // Placeholder image while loading
+                .error(R.drawable.ic_splash) // Fallback image in case of an error
+                .into(binding.roomImage) // Bind it to the ImageView
+
             binding.roomTitle.text = roomData.title
             binding.roomLocation.text = "Himensulan Island, Camotes Cebu" // Static for now
             binding.roomRating.text = roomData.rating
@@ -35,20 +45,29 @@ class RoomDetailsActivity : AppCompatActivity() {
             binding.roomDescription.text =
                 "Indulge in luxury and comfort in our ${roomData.title}, featuring elegant interiors, plush bedding, a spacious seating area, and modern amenities."
 
-            // Book button action
-            binding.bookButton.setOnClickListener {
-                // Create an intent to navigate to BookingRoomActivity
-                val intent = Intent(this, BookingRoomActivity::class.java)
+            // Update the button text dynamically
+            if (isFromMyRoom) {
+                binding.bookButton.text = "Pending"
+                binding.bookButton.isEnabled = false // Disable the button if coming from My Room
+            } else {
+                binding.bookButton.text = "Book Now"
+                binding.bookButton.isEnabled = true
 
-                // Pass data to the BookingRoomActivity
-                intent.putExtra("roomTitle", roomData.title) // Pass room title
-                intent.putExtra("roomPrice", removeNightSuffix(roomData.price).toInt()) // Pass room price as integer
-                intent.putExtra("roomType", roomData.title) // Pass the room type dynamically
-                intent.putExtra("paxCount", roomData.people?.toInt() ?: 2) // Pass the number of people (converted to Int)
-                intent.putExtra("imageUrl", roomData.imageUrl) // Pass the image URL
+                // Book button action
+                binding.bookButton.setOnClickListener {
+                    // Create an intent to navigate to BookingRoomActivity
+                    val intent = Intent(this, BookingRoomActivity::class.java)
 
-                // Start the BookingRoomActivity
-                startActivity(intent)
+                    // Pass data to the BookingRoomActivity
+                    intent.putExtra("roomTitle", roomData.title) // Pass room title
+                    intent.putExtra("roomPrice", removeNightSuffix(roomData.price).toInt()) // Pass room price as integer
+                    intent.putExtra("roomType", roomData.title) // Pass the room type dynamically
+                    intent.putExtra("paxCount", roomData.people?.toInt() ?: 2) // Pass the number of people (converted to Int)
+                    intent.putExtra("imageUrl", roomData.imageUrl) // Pass the image URL
+
+                    // Start the BookingRoomActivity
+                    startActivity(intent)
+                }
             }
         }
 

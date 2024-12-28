@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.model.Room
 
@@ -23,14 +24,18 @@ class MyRoomsAdapter(
     override fun onBindViewHolder(holder: MyRoomsViewHolder, position: Int) {
         val room = rooms[position]
 
-        // Bind data to views
-        holder.roomImageView.setImageResource(room.imageUrl)
+        // Use Glide to load the image from the URL
+        Glide.with(holder.itemView.context)
+            .load(room.imageUrl) // Image URL
+            .placeholder(R.drawable.ic_cupids_deluxe) // Optional placeholder image
+            .error(R.drawable.ic_splash) // Optional error image
+            .into(holder.roomImageView)
+
+        // Bind other data to views
         holder.roomTitleTextView.text = room.title
         holder.roomPeopleTextView.text = room.people
         holder.roomPriceTextView.text = room.price
         holder.roomRatingTextView.text = room.rating
-
-
 
         // Handle favorite button click
         holder.favoriteButton.setOnClickListener {

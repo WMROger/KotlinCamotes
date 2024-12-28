@@ -33,7 +33,7 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
     private var roomTitle: String? = null
     private var guestCount: Int = 0
     private var roomPrice: Int = 0
-    private var imageUrl: Int = R.drawable.ic_cupids_deluxe // Default image resource ID
+    private var imageUrl: String = "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png" // Default image URL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +49,7 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
         roomTitle = intent.getStringExtra("roomTitle")
         guestCount = intent.getIntExtra("guestCount", 0)
         roomPrice = intent.getIntExtra("roomPrice", 0)
-        imageUrl = intent.getIntExtra("imageUrl", R.drawable.ic_cupids_deluxe) // Retrieve the image URL
+        imageUrl = intent.getStringExtra("imageUrl") ?: "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png"
 
         Log.d(
             "PaymentActivity",
@@ -117,7 +117,7 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
         // Save room to RoomManager
         RoomManager.addRoom(
             Room(
-                imageUrl = imageUrl,
+                imageUrl = imageUrl, // Use the URL instead of a drawable resource ID
                 title = roomTitle ?: "Unknown Room",
                 people = "$guestCount People",
                 price = "₱${roomPrice}/night",

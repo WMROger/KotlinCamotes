@@ -44,9 +44,17 @@ class HomeFragment : Fragment() {
         roomsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // Initialize RoomAdapter with click handling
-        roomAdapter = RoomAdapter(roomList) { room ->
-            navigateToRoomDetails(room)
-        }
+        roomAdapter = RoomAdapter(
+            roomList,
+            onDeleteClick = { room ->
+                // Handle favorite logic or other functionality
+            },
+            onRoomClick = { room ->
+                navigateToRoomDetails(room) // Navigate to RoomDetailsActivity
+            },
+            isMyRoomsContext = false
+        )
+
         roomsRecyclerView.adapter = roomAdapter
 
         // Load room data
@@ -62,7 +70,7 @@ class HomeFragment : Fragment() {
         roomList.apply {
             add(
                 Room(
-                    imageUrl = R.drawable.ic_cupids_deluxe,
+                    imageUrl = "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png",
                     title = "Cupid's Deluxe Room",
                     people = "2",
                     price = "₱1,678/night",
@@ -71,7 +79,7 @@ class HomeFragment : Fragment() {
             )
             add(
                 Room(
-                    imageUrl = R.drawable.ic_cupids_deluxe2,
+                    imageUrl = "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe2.png",
                     title = "Barkada Room",
                     people = "5",
                     price = "₱2,500/night",
@@ -80,7 +88,7 @@ class HomeFragment : Fragment() {
             )
             add(
                 Room(
-                    imageUrl = R.drawable.ic_cupids_deluxe,
+                    imageUrl = "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png",
                     title = "Regular Room",
                     people = "3",
                     price = "₱1,200/night",
@@ -95,6 +103,7 @@ class HomeFragment : Fragment() {
         Log.d("HomeFragment", "Room data loaded: ${roomList.size} items")
         roomAdapter.notifyDataSetChanged()
     }
+
 
     private fun setupFilters() {
         // Group all filter buttons
@@ -164,10 +173,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun navigateToRoomDetails(room: Room) {
-        // Use an Intent to navigate to RoomDetailsActivity
         val intent = Intent(requireContext(), RoomDetailsActivity::class.java).apply {
             putExtra("room", room)
+            putExtra("isFromMyRoom", false) // Indicate that navigation is not from My Room
         }
         startActivity(intent)
     }
+
 }
