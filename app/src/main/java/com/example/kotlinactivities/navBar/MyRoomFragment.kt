@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
-import com.example.kotlinactivities.adapter.RoomAdapter
+import com.example.kotlinactivities.adapter.MyRoomsAdapter
 import com.example.kotlinactivities.homePage.RoomDetailsActivity
 import com.example.kotlinactivities.model.Room
 import com.google.firebase.auth.FirebaseAuth
@@ -19,8 +19,7 @@ import com.google.firebase.database.*
 class MyRoomFragment : Fragment() {
 
     private lateinit var myRoomsRecyclerView: RecyclerView
-    private lateinit var myRoomsAdapter: RoomAdapter
-
+    private lateinit var myRoomsAdapter: MyRoomsAdapter
     private val myRoomsList = mutableListOf<Room>()
 
     private lateinit var firebaseAuth: FirebaseAuth
@@ -39,16 +38,10 @@ class MyRoomFragment : Fragment() {
         // Initialize RecyclerView
         myRoomsRecyclerView = view.findViewById(R.id.myRoomsRecyclerView)
         myRoomsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        myRoomsAdapter = RoomAdapter(
+        myRoomsAdapter = MyRoomsAdapter(
             myRoomsList,
-            onDeleteClick = { room ->
-                deleteRoomFromFirebase(room) // Handle delete logic
-            },
-            onRoomClick = { room ->
-                // Handle room click here (e.g., navigate to details page)
-                navigateToRoomDetails(room)
-            },
-            isMyRoomsContext = true // Pass true for MyRoomFragment
+            onFavoriteClicked = { room -> handleFavoriteClick(room) },
+            onDeleteClicked = { room -> handleDeleteClick(room) } // Add delete click handler
         )
 
         myRoomsRecyclerView.adapter = myRoomsAdapter
@@ -58,14 +51,6 @@ class MyRoomFragment : Fragment() {
 
         return view
     }
-    private fun navigateToRoomDetails(room: Room) {
-        val intent = Intent(requireContext(), RoomDetailsActivity::class.java).apply {
-            putExtra("room", room)
-            putExtra("isFromMyRoom", true) // Indicate that navigation is from My Room
-        }
-        startActivity(intent)
-    }
-
 
     private fun loadRoomsFromFirebase() {
         val currentUserId = firebaseAuth.currentUser?.uid
@@ -84,7 +69,7 @@ class MyRoomFragment : Fragment() {
                             val totalPrice = roomSnapshot.child("totalPrice").value as? String ?: "₱0"
                             val guestCount = roomSnapshot.child("guestCount").value as? Long ?: 1L
                             val imageUrl = roomSnapshot.child("imageUrl").value as? String
-                                ?: "https://example.com/placeholder.png" // Default placeholder image URL
+                                ?: "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png" // Default placeholder image URL
                             val rating = "4.9" // Replace with dynamic rating if available
 
                             // Add the room to the list
@@ -114,15 +99,22 @@ class MyRoomFragment : Fragment() {
         }
     }
 
-    private fun deleteRoomFromFirebase(room: Room) {
+    private fun handleFavoriteClick(room: Room) {
+        room.isFavorited = !room.isFavorited // Toggle favorite state
+        myRoomsAdapter.notifyDataSetChanged() // Refresh the RecyclerView
+        // Add logic to update the favorite state in the database if necessary
+        Log.d("MyRoomFragment", "Favorite clicked for room: ${room.title}, state: ${room.isFavorited}")
+    }
+
+    private fun handleDeleteClick(room: Room) {
         val roomId = room.id
         if (roomId != null) {
+            // Delete the room from Firebase
             databaseReference.child(roomId).removeValue()
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         Log.d("MyRoomFragment", "Room deleted successfully: $roomId")
-                        myRoomsList.remove(room) // Remove the room from the list
-                        myRoomsAdapter.notifyDataSetChanged()
+                        myRoomsAdapter.removeRoom(room) // Remove the room from the list
                     } else {
                         Log.e("MyRoomFragment", "Failed to delete room: ${task.exception?.message}")
                     }
@@ -131,5 +123,4 @@ class MyRoomFragment : Fragment() {
             Log.e("MyRoomFragment", "Room ID is null, cannot delete.")
         }
     }
-
 }

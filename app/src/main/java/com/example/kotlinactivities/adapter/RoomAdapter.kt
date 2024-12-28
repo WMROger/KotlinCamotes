@@ -11,10 +11,10 @@ import com.example.kotlinactivities.R
 import com.example.kotlinactivities.model.Room
 
 class RoomAdapter(
-    private var roomList: MutableList<Room>, // Mutable list for data
-    private val onDeleteClick: (Room) -> Unit, // Callback for delete button click
-    private val onRoomClick: (Room) -> Unit, // Callback for room card click
-    private val isMyRoomsContext: Boolean // Indicates if adapter is for MyRoomFragment
+    private var roomList: MutableList<Room>,
+    private val onDeleteClick: (Room) -> Unit,
+    private val onRoomClick: (Room) -> Unit,
+    private val isMyRoomsContext: Boolean
 ) : RecyclerView.Adapter<RoomAdapter.RoomViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RoomViewHolder {
@@ -24,26 +24,27 @@ class RoomAdapter(
 
     override fun onBindViewHolder(holder: RoomViewHolder, position: Int) {
         val room = roomList[position]
-        holder.bind(room, isMyRoomsContext)
+        holder.bind(room)
 
         // Handle Delete Button Click (if in MyRoomFragment)
-        holder.deleteButton.setOnClickListener {
-            onDeleteClick(room) // Trigger the delete callback
+        holder.favoriteButton.setOnClickListener {
+            // Toggle the favorite state
+            room.isFavorited = !room.isFavorited
+            notifyItemChanged(position) // Refresh the specific item in the RecyclerView
         }
 
-        // Handle Item (Card) Click
+        // Handle Room Card Click
         holder.itemView.setOnClickListener {
-            onRoomClick(room) // Trigger the room click callback
+            onRoomClick(room)
         }
     }
 
     override fun getItemCount(): Int = roomList.size
 
-    // Function to update the list dynamically
     fun updateRooms(newRooms: List<Room>) {
-        roomList.clear() // Clear the current list
-        roomList.addAll(newRooms) // Add all new items to the list
-        notifyDataSetChanged() // Notify the adapter to refresh the RecyclerView
+        roomList.clear()
+        roomList.addAll(newRooms)
+        notifyDataSetChanged()
     }
 
     class RoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -52,15 +53,14 @@ class RoomAdapter(
         val roomPeople: TextView = itemView.findViewById(R.id.roomPeople)
         val roomPrice: TextView = itemView.findViewById(R.id.roomPrice)
         val roomRating: TextView = itemView.findViewById(R.id.roomRating)
-        val deleteButton: ImageView = itemView.findViewById(R.id.favoriteButton) // Reuse favoriteButton as deleteButton
+        val favoriteButton: ImageView = itemView.findViewById(R.id.favoriteButton) // Correct ID
 
-        // Update icon and data dynamically
-        fun bind(room: Room, isMyRoomsContext: Boolean) {
-            // Load image from URL using Glide
+        fun bind(room: Room) {
+            // Load image with Glide
             Glide.with(itemView.context)
                 .load(room.imageUrl)
-                .placeholder(R.drawable.ic_cupids_deluxe) // Optional placeholder image
-                .error(R.drawable.ic_splash) // Optional error image
+                .placeholder(R.drawable.ic_cupids_deluxe) // Placeholder image
+                .error(R.drawable.ic_splash) // Error fallback image
                 .into(roomImage)
 
             roomTitle.text = room.title
@@ -68,11 +68,11 @@ class RoomAdapter(
             roomPrice.text = room.price
             roomRating.text = room.rating
 
-            // Set the button icon based on the adapter context
-            if (isMyRoomsContext) {
-                deleteButton.setImageResource(R.drawable.ic_cash) // Show delete icon for MyRoomFragment
+            // Set the favorite button icon based on the favorite state
+            if (room.isFavorited) {
+                favoriteButton.setImageResource(R.drawable.ic_heart) // Favorited icon (Red Heart)
             } else {
-                deleteButton.setImageResource(R.drawable.ic_heart) // Show favorite icon otherwise
+                favoriteButton.setImageResource(R.drawable.ic_heart_black) // Unfavorited icon (Black Heart)
             }
         }
     }

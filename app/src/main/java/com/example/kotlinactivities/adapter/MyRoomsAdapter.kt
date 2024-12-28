@@ -11,13 +11,14 @@ import com.example.kotlinactivities.R
 import com.example.kotlinactivities.model.Room
 
 class MyRoomsAdapter(
-    private val rooms: List<Room>,
-    private val onFavoriteClicked: (Room) -> Unit
+    private val rooms: MutableList<Room>, // Mutable list for dynamic updates
+    private val onFavoriteClicked: (Room) -> Unit,
+    private val onDeleteClicked: (Room) -> Unit // Callback for delete button click
 ) : RecyclerView.Adapter<MyRoomsAdapter.MyRoomsViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyRoomsViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_my_room, parent, false)
+            .inflate(R.layout.item_my_room, parent, false) // Ensure this matches the layout file
         return MyRoomsViewHolder(view)
     }
 
@@ -26,7 +27,7 @@ class MyRoomsAdapter(
 
         // Use Glide to load the image from the URL
         Glide.with(holder.itemView.context)
-            .load(room.imageUrl) // Image URL
+            .load(room.imageUrl)
             .placeholder(R.drawable.ic_cupids_deluxe) // Optional placeholder image
             .error(R.drawable.ic_splash) // Optional error image
             .into(holder.roomImageView)
@@ -37,13 +38,23 @@ class MyRoomsAdapter(
         holder.roomPriceTextView.text = room.price
         holder.roomRatingTextView.text = room.rating
 
-        // Handle favorite button click
-        holder.favoriteButton.setOnClickListener {
-            onFavoriteClicked(room)
+
+
+        // Handle delete button click
+        holder.deleteButton.setOnClickListener {
+            onDeleteClicked(room)
         }
     }
 
     override fun getItemCount(): Int = rooms.size
+
+    fun removeRoom(room: Room) {
+        val position = rooms.indexOf(room)
+        if (position != -1) {
+            rooms.removeAt(position)
+            notifyItemRemoved(position)
+        }
+    }
 
     class MyRoomsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val roomImageView: ImageView = itemView.findViewById(R.id.roomImageView)
@@ -51,6 +62,6 @@ class MyRoomsAdapter(
         val roomPeopleTextView: TextView = itemView.findViewById(R.id.roomPeopleTextView)
         val roomPriceTextView: TextView = itemView.findViewById(R.id.roomPriceTextView)
         val roomRatingTextView: TextView = itemView.findViewById(R.id.roomRatingTextView)
-        val favoriteButton: ImageView = itemView.findViewById(R.id.favoriteButton)
+        val deleteButton: ImageView = itemView.findViewById(R.id.deleteButton) // Add a delete button in the layout
     }
 }

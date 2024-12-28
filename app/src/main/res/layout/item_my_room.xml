@@ -1,29 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="350dp"
     android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
+    app:cardCornerRadius="15dp"
     app:cardElevation="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:paddingLeft="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp">
 
         <!-- Room Image -->
         <ImageView
             android:id="@+id/roomImageView"
             android:layout_width="0dp"
-            android:layout_height="150dp"
+            android:layout_height="250dp"
+            android:layout_marginLeft="-10dp"
             android:scaleType="centerCrop"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
+            app:layout_constraintTop_toTopOf="parent" />
 
 
         <!-- Room Title -->
@@ -31,49 +29,62 @@
             android:id="@+id/roomTitleTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingLeft="10dp"
             android:text="Room Title"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/roomImageView"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/roomImageView" />
 
         <!-- Room Details (People) -->
         <TextView
             android:id="@+id/roomPeopleTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
             android:text="5 People"
-            android:textSize="14sp"
             android:textColor="@android:color/darker_gray"
-            app:layout_constraintTop_toBottomOf="@id/roomTitleTextView"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/roomTitleTextView" />
 
         <!-- Room Price -->
         <TextView
             android:id="@+id/roomPriceTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
             android:text="₱1,678/night"
-            android:textSize="14sp"
             android:textColor="@android:color/darker_gray"
-            app:layout_constraintTop_toBottomOf="@id/roomPeopleTextView"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/roomPeopleTextView" />
 
         <!-- Room Rating -->
         <TextView
             android:id="@+id/roomRatingTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
             android:text="4.9"
-            android:textSize="14sp"
             android:textColor="@android:color/darker_gray"
-            app:layout_constraintTop_toBottomOf="@id/roomPriceTextView"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
+            app:layout_constraintTop_toBottomOf="@id/roomPriceTextView" />
+        <!-- Favorite Button -->
+        <ImageView
+            android:id="@+id/deleteButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/ic_cash"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/roomImageView" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

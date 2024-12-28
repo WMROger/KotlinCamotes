@@ -41,7 +41,8 @@ class BookingRoomActivity : AppCompatActivity() {
     private var roomPrice: Int = 0 // Room price as an integer
     private var guestCount: Int = 1 // Default guest count
     private var totalPrice: Int = 0 // Total price for the booking
-    private var imageUrl: Int = R.drawable.ic_cupids_deluxe // Default image resource ID
+    // Change `imageUrl` from Int to String
+    private var imageUrl: String = "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png"
 
     private lateinit var firebaseAuth: FirebaseAuth
 
@@ -71,7 +72,7 @@ class BookingRoomActivity : AppCompatActivity() {
         val roomTitle = intent.getStringExtra("roomTitle") ?: "Room"
         val priceValue = intent.getIntExtra("roomPrice", 0)
         roomPrice = priceValue // Use parsed integer price
-        imageUrl = intent.getIntExtra("imageUrl", R.drawable.ic_cupids_deluxe) // Retrieve image URL
+        imageUrl = intent.getStringExtra("imageUrl").toString() // Retrieve image URL
 
         // Retrieve logged-in user details
         val currentUser = firebaseAuth.currentUser

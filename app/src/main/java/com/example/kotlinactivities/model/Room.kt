@@ -11,5 +11,5 @@ data class Room(
     val people: String = "",
     val price: String = "",
     val rating: String = "",
-    val isFavorited: Boolean = false
+    var isFavorited: Boolean = false
 ): Parcelable
