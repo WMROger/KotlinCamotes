@@ -25,53 +25,23 @@ class RoomDetailsActivity : AppCompatActivity() {
 
         // Get Room data from intent
         val room = intent.getParcelableExtra<Room>("room")
-
-        // Check if coming from My Room
         val isFromMyRoom = intent.getBooleanExtra("isFromMyRoom", false)
+        val bookingStatus = intent.getStringExtra("bookingStatus") ?: "Pending"
 
-        // Populate Room Details
-        room?.let { roomData ->
-            // Use Glide to load the image URL
-            Glide.with(this)
-                .load(roomData.imageUrl) // Load the image from the URL
-                .placeholder(R.drawable.ic_cupids_deluxe) // Placeholder image while loading
-                .error(R.drawable.ic_splash) // Fallback image in case of an error
-                .into(binding.roomImage) // Bind it to the ImageView
-
-            binding.roomTitle.text = roomData.title
-            binding.roomLocation.text = "Himensulan Island, Camotes Cebu" // Static for now
-            binding.roomRating.text = roomData.rating
-            binding.roomPrice.text = formatPrice(removeNightSuffix(roomData.price)) // Format price
-            binding.roomDescription.text =
-                "Indulge in luxury and comfort in our ${roomData.title}, featuring elegant interiors, plush bedding, a spacious seating area, and modern amenities."
-
-            // Update the button text dynamically
-            if (isFromMyRoom) {
-                binding.bookButton.text = "Pending"
-                binding.bookButton.isEnabled = false // Disable the button if coming from My Room
-            } else {
-                binding.bookButton.text = "Book Now"
-                binding.bookButton.isEnabled = true
-
-                // Book button action
-                binding.bookButton.setOnClickListener {
-                    // Create an intent to navigate to BookingRoomActivity
-                    val intent = Intent(this, BookingRoomActivity::class.java)
-
-                    // Pass data to the BookingRoomActivity
-                    intent.putExtra("roomTitle", roomData.title) // Pass room title
-                    intent.putExtra("roomPrice", removeNightSuffix(roomData.price).toInt()) // Pass room price as integer
-                    intent.putExtra("roomType", roomData.title) // Pass the room type dynamically
-                    intent.putExtra("paxCount", roomData.people?.toInt() ?: 2) // Pass the number of people (converted to Int)
-                    intent.putExtra("imageUrl", roomData.imageUrl) // Pass the image URL
-
-                    // Start the BookingRoomActivity
-                    startActivity(intent)
-                }
-            }
+        // Check for null room object
+        if (room == null) {
+            // Handle error if room is not passed correctly
+            finish()
+            return
         }
 
-        // Back button action: Go back to HomeFragment
+        // Populate Room Details
+        populateRoomDetails(room)
+
+        // Update the button text dynamically
+        updateBookingButton(isFromMyRoom, bookingStatus)
+
+        // Back button action: Go back to the previous fragment/activity
         binding.backButton.setOnClickListener {
             finish() // Ends the current activity and returns to the previous one
         }
@@ -80,6 +50,55 @@ class RoomDetailsActivity : AppCompatActivity() {
         binding.heartButton.setOnClickListener {
             toggleFavorite()
         }
+    }
+
+    // Function to populate room details
+    private fun populateRoomDetails(room: Room) {
+        // Use Glide to load the image URL
+        Glide.with(this)
+            .load(room.imageUrl) // Load the image from the URL
+            .placeholder(R.drawable.ic_cupids_deluxe) // Placeholder image while loading
+            .error(R.drawable.ic_splash) // Fallback image in case of an error
+            .into(binding.roomImage) // Bind it to the ImageView
+
+        binding.roomTitle.text = room.title
+        binding.roomLocation.text = "Himensulan Island, Camotes Cebu" // Static for now
+        binding.roomRating.text = room.rating
+        binding.roomPrice.text = formatPrice(removeNightSuffix(room.price)) // Format price
+        binding.roomDescription.text =
+            "Indulge in luxury and comfort in our ${room.title}, featuring elegant interiors, plush bedding, a spacious seating area, and modern amenities."
+    }
+
+    // Function to update the booking button text and behavior
+    private fun updateBookingButton(isFromMyRoom: Boolean, bookingStatus: String) {
+        if (isFromMyRoom) {
+            // If accessed from MyRoomFragment, show booking status and disable button
+            binding.bookButton.text = bookingStatus
+            binding.bookButton.isEnabled = false // Disable the button
+        } else {
+            // If accessed from HomeFragment, set Book Now functionality
+            binding.bookButton.text = "Book Now"
+            binding.bookButton.isEnabled = true
+
+            binding.bookButton.setOnClickListener {
+                // Navigate to BookingRoomActivity for booking
+                navigateToBookingActivity()
+            }
+        }
+    }
+
+    // Function to navigate to BookingRoomActivity
+    private fun navigateToBookingActivity() {
+        val room = intent.getParcelableExtra<Room>("room") ?: return
+
+        val intent = Intent(this, BookingRoomActivity::class.java).apply {
+            putExtra("roomTitle", room.title) // Pass room title
+            putExtra("roomPrice", removeNightSuffix(room.price).toInt()) // Pass room price as integer
+            putExtra("roomType", room.title) // Pass the room type dynamically
+            putExtra("paxCount", room.people?.toInt() ?: 2) // Pass the number of people (converted to Int)
+            putExtra("imageUrl", room.imageUrl) // Pass the image URL
+        }
+        startActivity(intent)
     }
 
     // Function to toggle favorite state

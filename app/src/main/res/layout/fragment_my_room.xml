@@ -39,7 +39,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/myRoomsRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="700dp"
+        android:layout_height="750dp"
         android:layout_marginTop="4dp"
         android:background="@android:color/white"
         android:padding="8dp"
@@ -48,7 +48,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/myRoomsSubtitle"
-        app:layout_constraintVertical_bias="0.75" />
+        app:layout_constraintVertical_bias="0.093" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

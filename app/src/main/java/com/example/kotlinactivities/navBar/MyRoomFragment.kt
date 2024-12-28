@@ -71,6 +71,7 @@ class MyRoomFragment : Fragment() {
                             val imageUrl = roomSnapshot.child("imageUrl").value as? String
                                 ?: "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png" // Default placeholder image URL
                             val rating = "4.9" // Replace with dynamic rating if available
+                            val bookingStatus = roomSnapshot.child("status").value as? String ?: "Pending" // Retrieve booking status
 
                             // Add the room to the list
                             myRoomsList.add(
@@ -84,6 +85,11 @@ class MyRoomFragment : Fragment() {
                                     isFavorited = false
                                 )
                             )
+
+                            // Navigate to room details on click
+                            myRoomsAdapter.setOnItemClickListener { room ->
+                                navigateToRoomDetails(room, bookingStatus) // Pass the booking status
+                            }
                         }
 
                         // Notify adapter about the data change
@@ -97,6 +103,15 @@ class MyRoomFragment : Fragment() {
         } else {
             Log.e("MyRoomFragment", "User is not logged in.")
         }
+    }
+
+    private fun navigateToRoomDetails(room: Room, bookingStatus: String) {
+        val intent = Intent(requireContext(), RoomDetailsActivity::class.java).apply {
+            putExtra("room", room)
+            putExtra("isFromMyRoom", true) // Indicate that navigation is from MyRoomFragment
+            putExtra("bookingStatus", bookingStatus) // Pass the booking status
+        }
+        startActivity(intent)
     }
 
     private fun handleFavoriteClick(room: Room) {

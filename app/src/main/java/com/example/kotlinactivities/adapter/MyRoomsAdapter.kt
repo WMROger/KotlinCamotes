@@ -13,7 +13,10 @@ import com.example.kotlinactivities.model.Room
 class MyRoomsAdapter(
     private val rooms: MutableList<Room>, // Mutable list for dynamic updates
     private val onFavoriteClicked: (Room) -> Unit,
-    private val onDeleteClicked: (Room) -> Unit // Callback for delete button click
+
+    private val onDeleteClicked: (Room) -> Unit, // Callback for delete button click
+    private var onItemClickListener: ((Room) -> Unit)? = null
+
 ) : RecyclerView.Adapter<MyRoomsAdapter.MyRoomsViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyRoomsViewHolder {
@@ -38,16 +41,22 @@ class MyRoomsAdapter(
         holder.roomPriceTextView.text = room.price
         holder.roomRatingTextView.text = room.rating
 
-
-
         // Handle delete button click
         holder.deleteButton.setOnClickListener {
             onDeleteClicked(room)
         }
+
+        // Handle item click
+        holder.itemView.setOnClickListener {
+            onItemClickListener?.invoke(room)
+        }
     }
 
-    override fun getItemCount(): Int = rooms.size
 
+    override fun getItemCount(): Int = rooms.size
+    fun setOnItemClickListener(listener: (Room) -> Unit) {
+        onItemClickListener = listener
+    }
     fun removeRoom(room: Room) {
         val position = rooms.indexOf(room)
         if (position != -1) {
