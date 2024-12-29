@@ -41,7 +41,8 @@ class MyRoomFragment : Fragment() {
         myRoomsAdapter = MyRoomsAdapter(
             myRoomsList,
             onFavoriteClicked = { room -> handleFavoriteClick(room) },
-            onDeleteClicked = { room -> handleDeleteClick(room) } // Add delete click handler
+            onDeleteClicked = { room -> handleDeleteClick(room) },
+            onItemClicked = { room, bookingStatus -> navigateToRoomDetails(room, bookingStatus) }
         )
 
         myRoomsRecyclerView.adapter = myRoomsAdapter
@@ -58,41 +59,39 @@ class MyRoomFragment : Fragment() {
         if (currentUserId != null) {
             // Query the bookings for the current user
             databaseReference.orderByChild("userId").equalTo(currentUserId)
-                .addListenerForSingleValueEvent(object : ValueEventListener {
+                .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        Log.d("MyRoomFragment", "Snapshot value: ${snapshot.value}") // Log the raw snapshot data
                         myRoomsList.clear()
                         for (roomSnapshot in snapshot.children) {
-                            Log.d("MyRoomFragment", "Room snapshot: ${roomSnapshot.value}") // Log each child node
-                            val roomId = roomSnapshot.key // Get the unique room ID (key)
+                            val roomId = roomSnapshot.key
                             val roomTitle = roomSnapshot.child("roomTitle").value as? String ?: "No Title"
-                            val totalPrice = roomSnapshot.child("totalPrice").value as? String ?: "₱0"
+
+                            // Correctly retrieve totalPrice as either a String or Long
+                            val totalPrice = when (val price = roomSnapshot.child("totalPrice").value) {
+                                is String -> price // If it's stored as a String, use it directly
+                                is Long -> "₱$price" // If it's a Long, convert it to a String with "₱"
+                                else -> "₱0" // Default to ₱0 if the value is null or unexpected
+                            }
+
                             val guestCount = roomSnapshot.child("guestCount").value as? Long ?: 1L
                             val imageUrl = roomSnapshot.child("imageUrl").value as? String
-                                ?: "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png" // Default placeholder image URL
-                            val rating = "4.9" // Replace with dynamic rating if available
-                            val bookingStatus = roomSnapshot.child("status").value as? String ?: "Pending" // Retrieve booking status
+                                ?: "https://waveaway.scarlet2.io/assets/ic_placeholder.png"
+                            val rating = roomSnapshot.child("rating").value as? String ?: "4.9"
+                            val bookingStatus = roomSnapshot.child("status").value as? String ?: "Pending"
 
-                            // Add the room to the list
                             myRoomsList.add(
                                 Room(
-                                    id = roomId, // Save the room ID for deletion
+                                    id = roomId,
                                     imageUrl = imageUrl,
                                     title = roomTitle,
                                     people = "$guestCount People",
-                                    price = totalPrice,
+                                    price = totalPrice, // Use the correctly retrieved totalPrice here
                                     rating = rating,
+                                    bookingStatus = bookingStatus,
                                     isFavorited = false
                                 )
                             )
-
-                            // Navigate to room details on click
-                            myRoomsAdapter.setOnItemClickListener { room ->
-                                navigateToRoomDetails(room, bookingStatus) // Pass the booking status
-                            }
                         }
-
-                        // Notify adapter about the data change
                         myRoomsAdapter.notifyDataSetChanged()
                     }
 
@@ -105,31 +104,34 @@ class MyRoomFragment : Fragment() {
         }
     }
 
+
+
+
     private fun navigateToRoomDetails(room: Room, bookingStatus: String) {
         val intent = Intent(requireContext(), RoomDetailsActivity::class.java).apply {
             putExtra("room", room)
             putExtra("isFromMyRoom", true) // Indicate that navigation is from MyRoomFragment
             putExtra("bookingStatus", bookingStatus) // Pass the booking status
+
         }
         startActivity(intent)
     }
 
+
     private fun handleFavoriteClick(room: Room) {
-        room.isFavorited = !room.isFavorited // Toggle favorite state
-        myRoomsAdapter.notifyDataSetChanged() // Refresh the RecyclerView
-        // Add logic to update the favorite state in the database if necessary
+        room.isFavorited = !room.isFavorited
+        myRoomsAdapter.notifyDataSetChanged()
         Log.d("MyRoomFragment", "Favorite clicked for room: ${room.title}, state: ${room.isFavorited}")
     }
 
     private fun handleDeleteClick(room: Room) {
         val roomId = room.id
         if (roomId != null) {
-            // Delete the room from Firebase
             databaseReference.child(roomId).removeValue()
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         Log.d("MyRoomFragment", "Room deleted successfully: $roomId")
-                        myRoomsAdapter.removeRoom(room) // Remove the room from the list
+                        myRoomsAdapter.removeRoom(room)
                     } else {
                         Log.e("MyRoomFragment", "Failed to delete room: ${task.exception?.message}")
                     }

@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:layout_marginBottom="120dp"
+        android:layout_marginBottom="105dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -421,17 +421,57 @@
         android:background="@drawable/circle_background"
         android:contentDescription="Favorite Button" />
 
-    <!-- Static Bottom Button -->
+    <LinearLayout
+        android:id="@+id/bookingActionsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <!-- Extend Stay Button -->
+        <Button
+            android:id="@+id/extendStayButton"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="26dp"
+            android:layout_weight="1"
+            android:background="@drawable/filter_button_background"
+            android:gravity="center"
+            android:text="Extend Stay"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <!-- Cancel Button -->
+        <TextView
+            android:id="@+id/cancelButton"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_marginEnd="20dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Cancel"
+            android:textColor="#FF0000"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- Book Button -->
     <Button
         android:id="@+id/bookButton"
         android:layout_width="336dp"
-        android:layout_height="76dp"
+        android:layout_height="66dp"
         android:layout_gravity="center_horizontal|bottom"
         android:layout_marginBottom="20dp"
         android:background="@drawable/filter_button_background"
         android:gravity="center"
-        android:text="Book"
+        android:text="Book Now"
         android:textColor="#FFFFFF"
         android:textSize="22sp"
         android:textStyle="bold" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
