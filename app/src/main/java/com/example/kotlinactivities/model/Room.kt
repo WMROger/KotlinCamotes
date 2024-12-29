@@ -11,5 +11,6 @@ data class Room(
     val people: String = "",
     val price: String = "",
     val rating: String = "",
+    val bookingStatus: String = "", // Add booking status
     var isFavorited: Boolean = false
-): Parcelable
+) : Parcelable
