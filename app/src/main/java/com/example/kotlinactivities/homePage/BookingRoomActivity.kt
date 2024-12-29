@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import com.google.firebase.database.FirebaseDatabase
 
 class BookingRoomActivity : AppCompatActivity() {
 
@@ -87,7 +88,17 @@ class BookingRoomActivity : AppCompatActivity() {
         bookNowButton.setOnClickListener {
             when {
                 rbGcash.isChecked -> {
-                    // Redirect to PaymentNotImplementedActivity
+                    // Validate that dates are selected
+                    if (startDate == null || endDate == null) {
+                        Toast.makeText(
+                            this,
+                            "Please select a valid date range before proceeding.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return@setOnClickListener
+                    }
+
+                    // Redirect to PaymentNotImplementedActivity for GCash
                     val intent = Intent(this, PaymentNotImplementedActivity::class.java)
                     intent.putExtra("totalPrice", totalPrice * 100) // Pass price in centavos
                     intent.putExtra("roomTitle", roomTitle) // Pass room title
@@ -96,23 +107,93 @@ class BookingRoomActivity : AppCompatActivity() {
                     intent.putExtra("userEmail", userEmail) // Pass user email
                     intent.putExtra("userId", userId) // Pass user ID
                     intent.putExtra("imageUrl", imageUrl) // Pass the image URL
-                    val totalDays = calculateTotalDays() // Calculate the number of days
-                    intent.putExtra("totalDays", totalDays) // Pass the total number of days
+                    intent.putExtra("startDate", startDate?.time) // Pass start date as timestamp
+                    intent.putExtra("endDate", endDate?.time) // Pass end date as timestamp
+                    intent.putExtra("totalDays", calculateTotalDays()) // Pass the total number of days
+                    intent.putExtra("paymentMethod", "Gcash") // Include payment method
+                    intent.putExtra("paymentStatus", "Pending") // Default status for Gcash
                     startActivity(intent)
                 }
 
                 rbCash.isChecked -> {
-                    // Redirect to HomeFragment with a toast
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.putExtra("navigateTo", "HomeFragment")
-                    startActivity(intent)
+                    // Validate that dates are selected
+                    if (startDate == null || endDate == null) {
+                        Toast.makeText(
+                            this,
+                            "Please select a valid date range before proceeding.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return@setOnClickListener
+                    }
 
-                    // Show a toast message
-                    Toast.makeText(
-                        this,
-                        "Booking submitted. Please wait for approval.",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    // Recalculate the total price before uploading
+                    updateTotalPrice()
+
+                    // Check if totalPrice is valid
+                    if (totalPrice <= 0) {
+                        Toast.makeText(
+                            this,
+                            "Error: Total price cannot be zero. Please try again.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return@setOnClickListener
+                    }
+
+                    // Upload booking details to Firebase for cash payment
+                    val database = FirebaseDatabase.getInstance()
+                    val bookingsRef = database.getReference("bookings")
+
+                    // Create a unique booking ID
+                    val bookingId = bookingsRef.push().key
+
+                    if (bookingId != null) {
+                        // Create booking data to upload
+                        val bookingData = mapOf(
+                            "userId" to userId,
+                            "userEmail" to userEmail,
+                            "roomTitle" to roomTitle,
+                            "roomPrice" to roomPrice,
+                            "guestCount" to guestCount,
+                            "totalPrice" to totalPrice, // Ensure this is updated
+                            "totalDays" to calculateTotalDays(),
+                            "startDate" to startDate?.time, // Store as timestamp
+                            "endDate" to endDate?.time,     // Store as timestamp
+                            "imageUrl" to imageUrl,         // Pass the image URL
+                            "paymentMethod" to "Cash",      // Include payment method
+                            "paymentStatus" to "Pending Approval" // Default status for cash payment
+                        )
+
+                        // Upload booking data to Firebase
+                        bookingsRef.child(bookingId).setValue(bookingData)
+                            .addOnSuccessListener {
+                                // Navigate to HomeFragment on success
+                                val intent = Intent(this, MainActivity::class.java)
+                                intent.putExtra("navigateTo", "HomeFragment")
+                                startActivity(intent)
+
+                                // Show a confirmation toast
+                                Toast.makeText(
+                                    this,
+                                    "Booking submitted. Please wait for approval.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                            .addOnFailureListener { error ->
+                                // Show an error message if the upload fails
+                                Toast.makeText(
+                                    this,
+                                    "Failed to submit booking: ${error.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                    } else {
+                        // Show an error if booking ID couldn't be generated
+                        Toast.makeText(
+                            this,
+                            "Failed to generate booking ID. Please try again.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
 
                 else -> {

@@ -77,7 +77,21 @@ class MyRoomFragment : Fragment() {
                             val imageUrl = roomSnapshot.child("imageUrl").value as? String
                                 ?: "https://waveaway.scarlet2.io/assets/ic_placeholder.png"
                             val rating = roomSnapshot.child("rating").value as? String ?: "4.9"
-                            val bookingStatus = roomSnapshot.child("status").value as? String ?: "Pending"
+
+                            // Retrieve both paymentStatus and status fields
+                            val paymentStatus = roomSnapshot.child("paymentStatus").value as? String ?: ""
+                            val status = roomSnapshot.child("status").value as? String ?: "Pending"
+
+                            // Log debugging information
+                            Log.d("MyRoomFragment", "Room ID: $roomId, paymentStatus: $paymentStatus, status: $status")
+
+                            // Determine the final booking status dynamically
+                            val bookingStatus = when {
+                                paymentStatus.equals("Success", ignoreCase = true) -> "Approved"
+                                status.equals("Pending Approval", ignoreCase = true) || status.equals("Pending", ignoreCase = true) -> "Pending Approval"
+                                status.equals("Rejected", ignoreCase = true) -> "Rejected"
+                                else -> "Unknown Status"
+                            }
 
                             myRoomsList.add(
                                 Room(
@@ -103,9 +117,6 @@ class MyRoomFragment : Fragment() {
             Log.e("MyRoomFragment", "User is not logged in.")
         }
     }
-
-
-
 
     private fun navigateToRoomDetails(room: Room, bookingStatus: String) {
         val intent = Intent(requireContext(), RoomDetailsActivity::class.java).apply {

@@ -2,12 +2,15 @@ package com.example.kotlinactivities.homePage
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.databinding.ActivityRoomDetailsBinding
 import com.example.kotlinactivities.model.Room
+import com.google.firebase.database.FirebaseDatabase
 import java.text.NumberFormat
 import java.util.*
 
@@ -72,13 +75,23 @@ class RoomDetailsActivity : AppCompatActivity() {
     // Function to update the booking button text and behavior
     private fun updateBookingButton(isFromMyRoom: Boolean, bookingStatus: String) {
         if (isFromMyRoom) {
-            // If accessed from MyRoomFragment, show booking status and disable button
-            binding.bookButton.text = bookingStatus
-            binding.bookButton.isEnabled = false // Disable the button
+            // If accessed from MyRoomFragment
+            binding.extendStayButton.visibility = View.VISIBLE // Show Extend Stay button
+            binding.cancelButton.visibility = View.VISIBLE // Show Cancel button
+            binding.bookButton.visibility = View.GONE // Hide the Book Now button
+
+            // Set click listeners for "Extend Stay" and "Cancel"
+            binding.extendStayButton.setOnClickListener {
+                extendStay() // Call Extend Stay functionality
+            }
+            binding.cancelButton.setOnClickListener {
+                cancelBooking() // Call Cancel Booking functionality
+            }
         } else {
-            // If accessed from HomeFragment, set Book Now functionality
-            binding.bookButton.text = "Book Now"
-            binding.bookButton.isEnabled = true
+            // If accessed from HomeFragment
+            binding.extendStayButton.visibility = View.GONE // Hide Extend Stay button
+            binding.cancelButton.visibility = View.GONE // Hide Cancel button
+            binding.bookButton.visibility = View.VISIBLE // Show the Book Now button
 
             binding.bookButton.setOnClickListener {
                 // Navigate to BookingRoomActivity for booking
@@ -86,6 +99,60 @@ class RoomDetailsActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun extendStay() {
+        val room = intent.getParcelableExtra<Room>("room") ?: return
+        val startDate = intent.getStringExtra("startDate")
+        val endDate = intent.getStringExtra("endDate")
+
+        val intent = Intent(this, BookingRoomActivity::class.java).apply {
+            putExtra("roomTitle", room.title)
+            putExtra("roomPrice", removeNightSuffix(room.price).toInt())
+            putExtra("imageUrl", room.imageUrl)
+            putExtra("startDate", startDate)
+            putExtra("endDate", endDate)
+            putExtra("isExtendable", true) // Set true when extending
+        }
+        startActivity(intent)
+
+        startActivity(intent)
+    }
+
+    private fun cancelBooking() {
+        val room = intent.getParcelableExtra<Room>("room") ?: return
+
+        // Show confirmation dialog before cancelling
+        showCancellationDialog(room.id)
+    }
+
+    private fun showCancellationDialog(roomId: String?) {
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Cancel Booking")
+            .setMessage("Are you sure you want to cancel this booking?")
+            .setPositiveButton("Yes") { _, _ ->
+                // Perform cancellation logic
+                roomId?.let {
+                    val databaseReference = FirebaseDatabase.getInstance().getReference("bookings")
+                    databaseReference.child(it).removeValue() // Remove the booking from the database
+                        .addOnSuccessListener {
+                            showToast("Booking canceled successfully.")
+                            finish() // Close the activity after cancellation
+                        }
+                        .addOnFailureListener { exception ->
+                            // Handle failure case
+                            showToast("Failed to cancel booking: ${exception.message}")
+                        }
+                }
+            }
+            .setNegativeButton("No", null) // Do nothing on "No"
+            .create()
+        dialog.show()
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
 
     // Function to navigate to BookingRoomActivity
     private fun navigateToBookingActivity() {

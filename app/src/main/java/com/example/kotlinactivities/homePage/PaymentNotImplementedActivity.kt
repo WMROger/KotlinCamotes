@@ -22,6 +22,8 @@ import com.example.kotlinactivities.network.SourceRequest
 import com.example.kotlinactivities.network.SourceResponse
 import com.example.kotlinactivities.utils.RoomManager
 import com.google.firebase.database.FirebaseDatabase
+import java.text.SimpleDateFormat
+import java.util.*
 
 class PaymentNotImplementedActivity : AppCompatActivity() {
 
@@ -34,6 +36,10 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
     private var guestCount: Int = 0
     private var roomPrice: Int = 0
     private var imageUrl: String = "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png" // Default image URL
+    private var startDate: Date? = null
+    private var endDate: Date? = null
+
+    private val dateFormatter = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,9 +57,14 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
         roomPrice = intent.getIntExtra("roomPrice", 0)
         imageUrl = intent.getStringExtra("imageUrl") ?: "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png"
 
+        val startDateMillis = intent.getLongExtra("startDate", 0L)
+        val endDateMillis = intent.getLongExtra("endDate", 0L)
+        if (startDateMillis != 0L) startDate = Date(startDateMillis)
+        if (endDateMillis != 0L) endDate = Date(endDateMillis)
+
         Log.d(
             "PaymentActivity",
-            "RoomTitle: $roomTitle, TotalPrice: $totalPrice, GuestCount: $guestCount, RoomPrice: $roomPrice, ImageUrl: $imageUrl"
+            "RoomTitle: $roomTitle, TotalPrice: $totalPrice, GuestCount: $guestCount, RoomPrice: $roomPrice, ImageUrl: $imageUrl, StartDate: $startDate, EndDate: $endDate"
         )
 
         // Update price display
@@ -73,7 +84,9 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
     }
 
     private fun updatePriceDisplay() {
-        priceTextView.text = "Total Price: ₱${totalPrice / 100}" // Divide by 100 if amount is in centavos
+        val startDateString = if (startDate != null) dateFormatter.format(startDate!!) else "N/A"
+        val endDateString = if (endDate != null) dateFormatter.format(endDate!!) else "N/A"
+        priceTextView.text = "Total Price: ₱${totalPrice / 100}\nStart Date: $startDateString\nEnd Date: $endDateString"
     }
 
     private fun configureWebView() {
@@ -113,6 +126,9 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
         }
     }
 
+
+
+
     private fun handlePaymentSuccess() {
         // Save room to RoomManager
         RoomManager.addRoom(
@@ -149,6 +165,11 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
             val totalDays = intent.getIntExtra("totalDays", 1)
             val userEmail = intent.getStringExtra("userEmail") ?: "Unknown User"
             val userId = intent.getStringExtra("userId") ?: "Unknown ID"
+            val startDateMillis = intent.getLongExtra("startDate", 0L)
+            val endDateMillis = intent.getLongExtra("endDate", 0L)
+
+            if (startDateMillis != 0L) startDate = Date(startDateMillis)
+            if (endDateMillis != 0L) endDate = Date(endDateMillis)
 
             val bookingDetails = mapOf(
                 "roomTitle" to roomTitle,
@@ -156,10 +177,13 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
                 "roomPrice" to "₱${roomPrice}/night",
                 "totalPrice" to "₱${totalPrice / 100}", // Divide by 100 if amount is in centavos
                 "totalDays" to totalDays,
+                "startDate" to startDate?.time, // Store as timestamp
+                "endDate" to endDate?.time,     // Store as timestamp
                 "userEmail" to userEmail,
                 "userId" to userId,
                 "imageUrl" to imageUrl, // Pass the image URL
-                "paymentStatus" to "Success"
+                "paymentMethod" to "Gcash", // Include payment method for Gcash
+                "paymentStatus" to "Success" // Mark as Success for Gcash payment
             )
 
             bookingsRef.child(bookingId).setValue(bookingDetails)
@@ -173,6 +197,8 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
                 }
         }
     }
+
+
 
     private fun createPayMongoSource(amount: Int) {
         val sourceRequest = SourceRequest(
