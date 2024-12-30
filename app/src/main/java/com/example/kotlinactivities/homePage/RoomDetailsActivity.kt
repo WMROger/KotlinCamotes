@@ -12,7 +12,6 @@
     import com.example.kotlinactivities.databinding.ActivityRoomDetailsBinding
     import com.example.kotlinactivities.model.Room
     import com.example.kotlinactivities.myRoom.CancelBookingFragment
-    import com.google.android.material.tabs.TabLayoutMediator
     import com.google.firebase.database.FirebaseDatabase
     import java.text.NumberFormat
     import java.util.*
@@ -64,9 +63,6 @@
             room.imageUrls?.let { images ->
                 val imageCarouselAdapter = ImageCarouselAdapter(images)
                 binding.roomImage.adapter = imageCarouselAdapter // Bind adapter to ViewPager2
-
-                // Link the TabLayout with ViewPager2 for carousel dots
-                TabLayoutMediator(binding.indicator, binding.roomImage) { _, _ -> }.attach()
             }
 
             // Populate other room details
@@ -77,7 +73,6 @@
             binding.roomDescription.text =
                 "Indulge in luxury and comfort in our ${room.title}, featuring elegant interiors, plush bedding, a spacious seating area, and modern amenities."
         }
-
 
         // Function to update the booking button text and behavior
         private fun updateBookingButton(isFromMyRoom: Boolean, bookingStatus: String) {
