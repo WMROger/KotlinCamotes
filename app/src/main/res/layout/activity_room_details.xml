@@ -24,12 +24,23 @@
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/roomImage"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="350dp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toTopOf="@+id/roomTitle" />
-
+            <!-- Dots Indicator -->
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="-8dp"
+                app:tabIndicatorColor="@color/black"
+                app:tabSelectedTextColor="@color/black"
+                app:tabIndicatorHeight="4dp"
+                app:tabIndicatorAnimationDuration="200"
+                app:tabIndicatorFullWidth="false" />
             <!-- Room Title -->
             <TextView
                 android:id="@+id/roomTitle"

@@ -6,10 +6,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.RoomAdapter
 import com.example.kotlinactivities.homePage.RoomDetailsActivity
@@ -26,6 +29,7 @@ class HomeFragment : Fragment() {
     private lateinit var barkadaRoomFilter: TextView
     private lateinit var regularRoomFilter: TextView
 
+    private lateinit var swipeRefreshLayout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout
     private var selectedFilter: String? = null // Tracks the currently selected filter
 
     override fun onCreateView(
@@ -34,28 +38,30 @@ class HomeFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
-        // Find filter buttons
+        // Find views
         deluxeRoomFilter = view.findViewById(R.id.deluxeRoomFilter)
         barkadaRoomFilter = view.findViewById(R.id.barkadaRoomFilter)
         regularRoomFilter = view.findViewById(R.id.regularRoomFilter)
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
+        roomsRecyclerView = view.findViewById(R.id.roomsRecyclerView)
 
         // Setup RecyclerView
-        roomsRecyclerView = view.findViewById(R.id.roomsRecyclerView)
         roomsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-
-        // Initialize RoomAdapter with click handling
         roomAdapter = RoomAdapter(
             roomList,
             onDeleteClick = { room ->
                 // Handle favorite logic or other functionality
+                Toast.makeText(requireContext(), "${room.title} deleted!", Toast.LENGTH_SHORT).show()
             },
             onRoomClick = { room ->
                 navigateToRoomDetails(room) // Navigate to RoomDetailsActivity
             },
             isMyRoomsContext = false
         )
-
         roomsRecyclerView.adapter = roomAdapter
+
+        // Setup SwipeRefreshLayout
+        setupSwipeRefresh()
 
         // Load room data
         loadRoomData()
@@ -66,9 +72,22 @@ class HomeFragment : Fragment() {
         return view
     }
 
+    private fun setupSwipeRefresh() {
+        swipeRefreshLayout.setOnRefreshListener {
+            Toast.makeText(requireContext(), "Refreshing rooms...", Toast.LENGTH_SHORT).show()
+            loadRoomData() // Reload room data
+            swipeRefreshLayout.isRefreshing = false // Stop refresh animation
+        }
+    }
+
     private fun loadRoomData() {
-        roomList.apply {
-            add(
+        // Clear existing data to reload
+        roomList.clear()
+        originalRoomList.clear()
+
+        // Add mock data (replace with real API data later)
+        roomList.addAll(
+            listOf(
                 Room(
                     imageUrls = listOf(
                         "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png",
@@ -80,9 +99,7 @@ class HomeFragment : Fragment() {
                     people = "2",
                     price = "₱1,678/night",
                     rating = "4.9 ★"
-                )
-            )
-            add(
+                ),
                 Room(
                     imageUrls = listOf(
                         "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe2.png",
@@ -94,13 +111,12 @@ class HomeFragment : Fragment() {
                     people = "5",
                     price = "₱2,500/night",
                     rating = "4.8 ★"
-                )
-            )
-            add(
+                ),
                 Room(
                     imageUrls = listOf(
                         "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png",
                         "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png",
+                        "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe2.png",
                         "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe2.png",
                         "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe2.png"
                     ),
@@ -110,13 +126,10 @@ class HomeFragment : Fragment() {
                     rating = "4.5 ★"
                 )
             )
-        }
-
-        originalRoomList.addAll(roomList)
+        )
+        originalRoomList.addAll(roomList) // Keep original data for filtering
         roomAdapter.notifyDataSetChanged()
     }
-
-
 
     private fun setupFilters() {
         // Group all filter buttons
@@ -134,13 +147,12 @@ class HomeFragment : Fragment() {
         // Set click listeners for each filter
         deluxeRoomFilter.setOnClickListener {
             if (selectedFilter == "Deluxe") {
-                // If already selected, reset to default state
                 resetFilters()
                 updateRoomList(null) // Show all rooms
             } else {
                 resetFilters()
                 deluxeRoomFilter.setBackgroundResource(R.drawable.filter_button_selected) // Highlight green
-                deluxeRoomFilter.setTextColor(resources.getColor(R.color.white, null)) // Keep text white for selected
+                deluxeRoomFilter.setTextColor(resources.getColor(R.color.white, null))
                 selectedFilter = "Deluxe"
                 updateRoomList("Deluxe") // Show only Deluxe Rooms
             }
@@ -153,7 +165,7 @@ class HomeFragment : Fragment() {
             } else {
                 resetFilters()
                 barkadaRoomFilter.setBackgroundResource(R.drawable.filter_button_selected)
-                barkadaRoomFilter.setTextColor(resources.getColor(R.color.white, null)) // White text for selected
+                barkadaRoomFilter.setTextColor(resources.getColor(R.color.white, null))
                 selectedFilter = "Barkada"
                 updateRoomList("Barkada")
             }
@@ -166,7 +178,7 @@ class HomeFragment : Fragment() {
             } else {
                 resetFilters()
                 regularRoomFilter.setBackgroundResource(R.drawable.filter_button_selected)
-                regularRoomFilter.setTextColor(resources.getColor(R.color.white, null)) // White text for selected
+                regularRoomFilter.setTextColor(resources.getColor(R.color.white, null))
                 selectedFilter = "Regular"
                 updateRoomList("Regular")
             }
@@ -174,7 +186,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateRoomList(filter: String?) {
-        // Reset to the original list if no filter is applied
         val filteredRooms = if (filter == null) {
             originalRoomList
         } else {
@@ -192,5 +203,4 @@ class HomeFragment : Fragment() {
         }
         startActivity(intent)
     }
-
 }

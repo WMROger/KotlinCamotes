@@ -30,10 +30,8 @@ class RoomAdapter(
 
         // Handle Room Card Click
         holder.itemView.setOnClickListener {
-            Log.d("RoomAdapter", "Room clicked: ${room.title}")
             onRoomClick(room) // Calls the lambda passed from HomeFragment
         }
-
     }
 
     override fun getItemCount(): Int = roomList.size
@@ -80,6 +78,5 @@ class RoomAdapter(
                 }
             }
         }
-
     }
 }
