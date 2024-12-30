@@ -7,6 +7,7 @@ import kotlinx.parcelize.Parcelize
 data class Room(
     val id: String? = null, // Room ID from Firebase
     val imageUrl: String = "",
+    val imageUrls: List<String>? = null, // Add this for multiple images
     val title: String = "",
     val people: String = "",
     val price: String = "",

@@ -20,15 +20,15 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Room Image -->
-            <com.google.android.material.imageview.ShapeableImageView
+            <!-- Carousel -->
+            <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/roomImage"
                 android:layout_width="match_parent"
-                android:layout_height="400dp"
-                android:layout_marginTop="-10dp"
-                android:contentDescription="Room Image"
-                android:scaleType="centerCrop"
-                app:shapeAppearanceOverlay="@style/CustomCornerShape" />
+                android:layout_height="250dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/roomTitle" />
 
             <!-- Room Title -->
             <TextView

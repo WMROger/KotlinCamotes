@@ -6,8 +6,9 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.bumptech.glide.Glide
+import androidx.viewpager2.widget.ViewPager2
 import com.example.kotlinactivities.R
+import com.example.kotlinactivities.adapter.ImageCarouselAdapter
 import com.example.kotlinactivities.databinding.ActivityRoomDetailsBinding
 import com.example.kotlinactivities.model.Room
 import com.example.kotlinactivities.myRoom.CancelBookingFragment
@@ -58,13 +59,13 @@ class RoomDetailsActivity : AppCompatActivity() {
 
     // Function to populate room details
     private fun populateRoomDetails(room: Room) {
-        // Use Glide to load the image URL
-        Glide.with(this)
-            .load(room.imageUrl) // Load the image from the URL
-            .placeholder(R.drawable.ic_cupids_deluxe) // Placeholder image while loading
-            .error(R.drawable.ic_splash) // Fallback image in case of an error
-            .into(binding.roomImage) // Bind it to the ImageView
+        // Set up the carousel for the room images
+        room.imageUrls?.let { images ->
+            val imageCarouselAdapter = ImageCarouselAdapter(images)
+            binding.roomImage.adapter = imageCarouselAdapter // Bind adapter to ViewPager2
+        }
 
+        // Populate other room details
         binding.roomTitle.text = room.title
         binding.roomLocation.text = "Himensulan Island, Camotes Cebu" // Static for now
         binding.roomRating.text = room.rating
@@ -113,7 +114,6 @@ class RoomDetailsActivity : AppCompatActivity() {
         }
     }
 
-
     private fun extendStay() {
         val room = intent.getParcelableExtra<Room>("room") ?: return
         val startDate = intent.getStringExtra("startDate")
@@ -128,8 +128,6 @@ class RoomDetailsActivity : AppCompatActivity() {
             putExtra("isExtendable", true) // Set true when extending
         }
         startActivity(intent)
-
-        startActivity(intent)
     }
 
     private fun cancelBooking() {
@@ -138,6 +136,7 @@ class RoomDetailsActivity : AppCompatActivity() {
         // Show confirmation dialog before cancelling
         showCancellationDialog(room.id)
     }
+
     private fun showCancellationDialog(roomId: String?, useBottomSheet: Boolean = true) {
         if (roomId == null) return
 
@@ -169,11 +168,9 @@ class RoomDetailsActivity : AppCompatActivity() {
         }
     }
 
-
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
-
 
     // Function to navigate to BookingRoomActivity
     private fun navigateToBookingActivity() {

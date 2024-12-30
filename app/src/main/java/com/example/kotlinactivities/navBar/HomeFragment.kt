@@ -70,7 +70,12 @@ class HomeFragment : Fragment() {
         roomList.apply {
             add(
                 Room(
-                    imageUrl = "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png",
+                    imageUrls = listOf(
+                        "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png",
+                        "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe2.png",
+                        "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png",
+                        "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe2.png"
+                    ),
                     title = "Cupid's Deluxe Room",
                     people = "2",
                     price = "₱1,678/night",
@@ -79,7 +84,12 @@ class HomeFragment : Fragment() {
             )
             add(
                 Room(
-                    imageUrl = "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe2.png",
+                    imageUrls = listOf(
+                        "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe2.png",
+                        "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png",
+                        "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe2.png",
+                        "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png"
+                    ),
                     title = "Barkada Room",
                     people = "5",
                     price = "₱2,500/night",
@@ -88,7 +98,12 @@ class HomeFragment : Fragment() {
             )
             add(
                 Room(
-                    imageUrl = "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png",
+                    imageUrls = listOf(
+                        "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png",
+                        "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png",
+                        "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe2.png",
+                        "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe2.png"
+                    ),
                     title = "Regular Room",
                     people = "3",
                     price = "₱1,200/night",
@@ -97,12 +112,10 @@ class HomeFragment : Fragment() {
             )
         }
 
-        // Copy all rooms to the original list
         originalRoomList.addAll(roomList)
-
-        Log.d("HomeFragment", "Room data loaded: ${roomList.size} items")
         roomAdapter.notifyDataSetChanged()
     }
+
 
 
     private fun setupFilters() {
