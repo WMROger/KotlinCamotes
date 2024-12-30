@@ -1,37 +1,76 @@
 package com.example.kotlinactivities.navBar
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.example.kotlinactivities.authenticationPage.LoginActivity
 import com.example.kotlinactivities.R
+import com.example.kotlinactivities.profilePage.SettingsFragment
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class ProfileFragment : Fragment() {
+
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
 
-        // Get the Logout button
-        val logoutButton = view.findViewById<Button>(R.id.logoutButton)
+        // Initialize FirebaseAuth
+        auth = FirebaseAuth.getInstance()
 
-        // Set a click listener for the Logout button
-        logoutButton.setOnClickListener {
-            // Sign out the user from Firebase
-            FirebaseAuth.getInstance().signOut()
+        // Get the currently logged-in user
+        val currentUser = auth.currentUser
+        val profileName = view.findViewById<TextView>(R.id.profile_name)
+        val profileContact = view.findViewById<TextView>(R.id.profile_contact)
+        val profileEmail = view.findViewById<TextView>(R.id.profile_email)
+        val settingsButton = view.findViewById<View>(R.id.settingsButton) // Settings button
 
-            // Redirect to LoginActivity
-            val intent = Intent(requireContext(), LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
+        // Check if the user is logged in
+        currentUser?.let { user ->
+            val uid = user.uid // Get the user ID
+            val databaseReference = FirebaseDatabase.getInstance().getReference("users").child(uid)
+
+            // Fetch data from the database
+            databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        // Get the user data from the database
+                        val fullName = snapshot.child("name").getValue(String::class.java) ?: "No Name Available"
+                        val email = snapshot.child("email").getValue(String::class.java) ?: "No Email Available"
+                        val phoneNumber = snapshot.child("phoneNumber").getValue(String::class.java) ?: "No Number Available"
+
+                        // Display the data in the UI
+                        val firstName = fullName.split(" ").getOrNull(0) ?: "No Name Available" // Get first name
+                        profileName.text = firstName
+                        profileEmail.text = email
+                        profileContact.text = phoneNumber
+                    } else {
+                        Toast.makeText(requireContext(), "User data not found.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(requireContext(), "Failed to fetch data: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+
+        // Navigate to SettingsFragment when the settings button is clicked
+        settingsButton.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, SettingsFragment()) // Replace with SettingsFragment
+                .addToBackStack(null) // Add to back stack for navigation
+                .commit()
         }
 
         return view

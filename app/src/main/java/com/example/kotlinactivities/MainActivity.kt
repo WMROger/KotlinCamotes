@@ -2,6 +2,7 @@ package com.example.kotlinactivities
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -96,5 +97,10 @@ class MainActivity : AppCompatActivity() {
             )
             .replace(R.id.fragment_container, fragment)
             .commit()
+    }
+
+    // Method to control bottom bar visibility
+    fun setNavbarVisibility(isVisible: Boolean) {
+        bubbleTabBar.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 }
