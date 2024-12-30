@@ -1,13 +1,15 @@
 package com.example.kotlinactivities.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import androidx.viewpager2.widget.ViewPager2
 import com.example.kotlinactivities.R
+import com.example.kotlinactivities.adapter.ImageCarouselAdapter
 import com.example.kotlinactivities.model.Room
 
 class RoomAdapter(
@@ -26,17 +28,12 @@ class RoomAdapter(
         val room = roomList[position]
         holder.bind(room)
 
-        // Handle Delete Button Click (if in MyRoomFragment)
-        holder.favoriteButton.setOnClickListener {
-            // Toggle the favorite state
-            room.isFavorited = !room.isFavorited
-            notifyItemChanged(position) // Refresh the specific item in the RecyclerView
-        }
-
         // Handle Room Card Click
         holder.itemView.setOnClickListener {
-            onRoomClick(room)
+            Log.d("RoomAdapter", "Room clicked: ${room.title}")
+            onRoomClick(room) // Calls the lambda passed from HomeFragment
         }
+
     }
 
     override fun getItemCount(): Int = roomList.size
@@ -48,20 +45,17 @@ class RoomAdapter(
     }
 
     class RoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val roomImage: ImageView = itemView.findViewById(R.id.roomImage)
-        val roomTitle: TextView = itemView.findViewById(R.id.roomTitle)
-        val roomPeople: TextView = itemView.findViewById(R.id.roomPeople)
-        val roomPrice: TextView = itemView.findViewById(R.id.roomPrice)
-        val roomRating: TextView = itemView.findViewById(R.id.roomRating)
-        val favoriteButton: ImageView = itemView.findViewById(R.id.favoriteButton) // Correct ID
+        private val roomCarousel: ViewPager2 = itemView.findViewById(R.id.roomCarousel) // Carousel for images
+        private val roomTitle: TextView = itemView.findViewById(R.id.roomTitle)
+        private val roomPeople: TextView = itemView.findViewById(R.id.roomPeople)
+        private val roomPrice: TextView = itemView.findViewById(R.id.roomPrice)
+        private val roomRating: TextView = itemView.findViewById(R.id.roomRating)
+        private val favoriteButton: ImageView = itemView.findViewById(R.id.favoriteButton)
 
         fun bind(room: Room) {
-            // Load image with Glide
-            Glide.with(itemView.context)
-                .load(room.imageUrl)
-                .placeholder(R.drawable.ic_cupids_deluxe) // Placeholder image
-                .error(R.drawable.ic_splash) // Error fallback image
-                .into(roomImage)
+            // Ensure imageUrls is never null
+            val images = room.imageUrls ?: emptyList()
+            roomCarousel.adapter = ImageCarouselAdapter(images) // Pass non-null list to adapter
 
             roomTitle.text = room.title
             roomPeople.text = "${room.people} People"
@@ -74,6 +68,18 @@ class RoomAdapter(
             } else {
                 favoriteButton.setImageResource(R.drawable.ic_heart_black) // Unfavorited icon (Black Heart)
             }
+
+            // Handle favorite button click
+            favoriteButton.setOnClickListener {
+                room.isFavorited = !room.isFavorited
+                // Change icon dynamically
+                if (room.isFavorited) {
+                    favoriteButton.setImageResource(R.drawable.ic_heart)
+                } else {
+                    favoriteButton.setImageResource(R.drawable.ic_heart_black)
+                }
+            }
         }
+
     }
 }
