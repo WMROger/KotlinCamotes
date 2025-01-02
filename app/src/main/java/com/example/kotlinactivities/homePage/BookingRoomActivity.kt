@@ -15,10 +15,10 @@ import com.example.kotlinactivities.MainActivity
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.CalendarAdapter
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
-import com.google.firebase.database.FirebaseDatabase
 
 class BookingRoomActivity : AppCompatActivity() {
 
@@ -43,8 +43,7 @@ class BookingRoomActivity : AppCompatActivity() {
     private var roomPrice: Int = 0 // Room price as an integer
     private var guestCount: Int = 1 // Default guest count
     private var totalPrice: Int = 0 // Total price for the booking
-    // Change `imageUrl` from Int to String
-    private var imageUrl: String = "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png"
+    private var imageUrl: String = "https://waveaway.scarlet2.io/assets/default_image.png" // Default image URL
 
     private lateinit var firebaseAuth: FirebaseAuth
 
@@ -73,13 +72,14 @@ class BookingRoomActivity : AppCompatActivity() {
         // Retrieve data from the previous activity
         val roomTitle = intent.getStringExtra("roomTitle") ?: "Room"
         val priceValue = intent.getIntExtra("roomPrice", 0)
-        roomPrice = priceValue // Use parsed integer price
-        imageUrl = intent.getStringExtra("imageUrl").toString() // Retrieve image URL
+        roomPrice = priceValue
+        imageUrl = intent.getStringExtra("imageUrl") ?: imageUrl // Retrieve the passed first image URL or fallback to default
+
 
         // Retrieve logged-in user details
         val currentUser = firebaseAuth.currentUser
-        val userEmail = currentUser?.email ?: "Unknown User" // Get user email
-        val userId = currentUser?.uid ?: "Unknown ID" // Get user UID
+        val userEmail = currentUser?.email ?: "Unknown User"
+        val userId = currentUser?.uid ?: "Unknown ID"
 
         // Set back button functionality
         backButton.setOnClickListener {
@@ -113,86 +113,14 @@ class BookingRoomActivity : AppCompatActivity() {
             // Handle the selected payment method
             when {
                 rbGcash.isChecked -> {
-                    // Redirect to PaymentNotImplementedActivity for GCash
-                    val intent = Intent(this, PaymentNotImplementedActivity::class.java)
-                    intent.putExtra("totalPrice", totalPrice * 100) // Pass price in centavos
-                    intent.putExtra("roomTitle", roomTitle) // Pass room title
-                    intent.putExtra("guestCount", guestCount) // Pass the updated guest count
-                    intent.putExtra("roomPrice", roomPrice) // Pass the room price
-                    intent.putExtra("userEmail", userEmail) // Pass user email
-                    intent.putExtra("userId", userId) // Pass user ID
-                    intent.putExtra("imageUrl", imageUrl) // Pass the image URL
-                    intent.putExtra("startDate", startDate?.time) // Pass start date as timestamp
-                    intent.putExtra("endDate", endDate?.time) // Pass end date as timestamp
-                    intent.putExtra("totalDays", calculateTotalDays()) // Pass the total number of days
-                    intent.putExtra("paymentMethod", "Gcash") // Include payment method
-                    intent.putExtra("paymentStatus", "Pending") // Default status for GCash
-                    Log.d("BookingRoomActivity", "GCash Booking - Image URL: $imageUrl")
-                    startActivity(intent)
+                    handleGcashBooking(roomTitle, totalPrice)
                 }
 
                 rbCash.isChecked -> {
-                    // Upload booking details to Firebase for Cash payment
-                    val database = FirebaseDatabase.getInstance()
-                    val bookingsRef = database.getReference("bookings")
-
-                    // Create a unique booking ID
-                    val bookingId = bookingsRef.push().key
-
-                    if (bookingId != null) {
-                        // Create booking data to upload
-                        val bookingData = mapOf(
-                            "userId" to userId,
-                            "userEmail" to userEmail,
-                            "roomTitle" to roomTitle,
-                            "roomPrice" to roomPrice,
-                            "guestCount" to guestCount,
-                            "totalPrice" to totalPrice,
-                            "totalDays" to calculateTotalDays(),
-                            "startDate" to startDate?.time,
-                            "endDate" to endDate?.time,
-                            "imageUrl" to imageUrl,         // Include image URL
-                            "paymentMethod" to "Cash",
-                            "paymentStatus" to "Pending Approval"
-                        )
-
-                        // Upload booking data to Firebase
-                        bookingsRef.child(bookingId).setValue(bookingData)
-                            .addOnSuccessListener {
-                                Log.d("BookingRoomActivity", "Booking uploaded successfully. Image URL: $imageUrl")
-                                // Navigate to HomeFragment on success
-                                val intent = Intent(this, MainActivity::class.java)
-                                intent.putExtra("navigateTo", "HomeFragment")
-                                startActivity(intent)
-
-                                // Show a confirmation toast
-                                Toast.makeText(
-                                    this,
-                                    "Booking submitted. Please wait for approval.",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                            .addOnFailureListener { error ->
-                                // Log and show an error message if the upload fails
-                                Log.e("BookingRoomActivity", "Failed to upload booking: ${error.message}")
-                                Toast.makeText(
-                                    this,
-                                    "Failed to submit booking: ${error.message}",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                    } else {
-                        // Show an error if booking ID couldn't be generated
-                        Toast.makeText(
-                            this,
-                            "Failed to generate booking ID. Please try again.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
+                    uploadBookingToFirebase(roomTitle, userId, userEmail, imageUrl)
                 }
 
                 else -> {
-                    // Show an error if no payment method is selected
                     Toast.makeText(
                         this,
                         "Please select a payment method to proceed.",
@@ -206,6 +134,83 @@ class BookingRoomActivity : AppCompatActivity() {
         calendarRecyclerView.layoutManager = GridLayoutManager(this, 7)
 
         // Set button listeners
+        setupButtonListeners(rbGcash, rbCash)
+        setupGuestCountListeners()
+        updateCalendar()
+    }
+
+    private fun handleGcashBooking(roomTitle: String, totalPrice: Int) {
+        val intent = Intent(this, PaymentNotImplementedActivity::class.java)
+        intent.putExtra("roomTitle", roomTitle)
+        intent.putExtra("totalPrice", totalPrice * 100) // Convert to centavos
+        intent.putExtra("imageUrl", imageUrl) // Pass the first image URL
+        startActivity(intent)
+    }
+
+    private fun uploadBookingToFirebase(
+        roomTitle: String,
+        userId: String,
+        userEmail: String,
+        firstImageUrl: String
+    ) {
+        val database = FirebaseDatabase.getInstance()
+        val bookingsRef = database.getReference("bookings")
+
+        // Create a unique booking ID
+        val bookingId = bookingsRef.push().key
+
+        if (bookingId != null) {
+            val bookingData = mapOf(
+                "userId" to userId,
+                "userEmail" to userEmail,
+                "roomTitle" to roomTitle,
+                "roomPrice" to roomPrice,
+                "guestCount" to guestCount,
+                "totalPrice" to totalPrice,
+                "totalDays" to calculateTotalDays(),
+                "startDate" to startDate?.time,
+                "endDate" to endDate?.time,
+                "imageUrl" to firstImageUrl, // Upload the first image URL
+                "paymentMethod" to "Cash",
+                "paymentStatus" to "Pending Approval"
+            )
+
+            // Upload booking data to Firebase
+            bookingsRef.child(bookingId).setValue(bookingData)
+                .addOnSuccessListener {
+                    Log.d("BookingRoomActivity", "Booking uploaded successfully.")
+                    Toast.makeText(
+                        this,
+                        "Booking submitted. Please wait for approval.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    navigateToHomeFragment()
+                }
+                .addOnFailureListener { error ->
+                    Log.e("BookingRoomActivity", "Failed to upload booking: ${error.message}")
+                    Toast.makeText(
+                        this,
+                        "Failed to submit booking: ${error.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+        } else {
+            Toast.makeText(
+                this,
+                "Failed to generate booking ID. Please try again.",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+
+    private fun navigateToHomeFragment() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("navigateTo", "HomeFragment")
+        startActivity(intent)
+    }
+
+    private fun setupButtonListeners(rbGcash: RadioButton, rbCash: RadioButton) {
         prevMonthButton.setOnClickListener {
             calendar.add(Calendar.MONTH, -1)
             updateCalendar()
@@ -214,33 +219,29 @@ class BookingRoomActivity : AppCompatActivity() {
             calendar.add(Calendar.MONTH, 1)
             updateCalendar()
         }
+
         rbGcash.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                rbCash.isChecked = false
-            }
+            if (isChecked) rbCash.isChecked = false
         }
 
         rbCash.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                rbGcash.isChecked = false
-            }
+            if (isChecked) rbGcash.isChecked = false
         }
-        // Initialize plus and minus button functionality
+    }
+
+    private fun setupGuestCountListeners() {
         plusButton.setOnClickListener {
-            if (guestCount < 10) { // Limit maximum guests to 10
+            if (guestCount < 10) {
                 guestCount++
                 updateGuestCount()
             }
         }
         minusButton.setOnClickListener {
-            if (guestCount > 1) { // Minimum guests should be 1
+            if (guestCount > 1) {
                 guestCount--
                 updateGuestCount()
             }
         }
-
-        // Initialize the calendar
-        updateCalendar()
     }
 
     private fun calculateTotalDays(): Int {
@@ -248,18 +249,13 @@ class BookingRoomActivity : AppCompatActivity() {
             val diffInMillis = endDate!!.time - startDate!!.time
             (diffInMillis / (1000 * 60 * 60 * 24)).toInt() + 1 // Include the start day
         } else {
-            1 // Default to 1 day if no range is selected
+            1
         }
     }
 
     private fun updateCalendar() {
-        // Set the current month and year
         monthYearText.text = dateFormat.format(calendar.time)
-
-        // Generate the dates for the current month
         val dates = generateCalendarDates()
-
-        // Update the adapter
         val calendarAdapter = CalendarAdapter(dates, today, startDate, endDate) { date ->
             handleDateSelection(date)
         }
@@ -271,11 +267,9 @@ class BookingRoomActivity : AppCompatActivity() {
         val calendarStart = calendar.clone() as Calendar
         calendarStart.set(Calendar.DAY_OF_MONTH, 1)
 
-        // Move to the start of the week
         val firstDayOfWeek = calendarStart.get(Calendar.DAY_OF_WEEK) - 1
         calendarStart.add(Calendar.DAY_OF_MONTH, -firstDayOfWeek)
 
-        // Add 4 weeks of dates (7 * 4 = 28 days)
         for (i in 0 until 35) {
             dates.add(calendarStart.time)
             calendarStart.add(Calendar.DAY_OF_MONTH, 1)
@@ -286,11 +280,9 @@ class BookingRoomActivity : AppCompatActivity() {
 
     private fun handleDateSelection(date: Date) {
         if (startDate == null || endDate != null) {
-            // Reset selection
             startDate = date
             endDate = null
         } else {
-            // Set end date
             if (date.before(startDate)) {
                 endDate = startDate
                 startDate = date
@@ -299,7 +291,6 @@ class BookingRoomActivity : AppCompatActivity() {
             }
         }
 
-        // Update the selected date range text
         if (startDate != null && endDate != null) {
             selectedDateRange.text =
                 "From: ${rangeFormatter.format(startDate!!)}\nTo: ${rangeFormatter.format(endDate!!)}"
@@ -309,7 +300,6 @@ class BookingRoomActivity : AppCompatActivity() {
             updateTotalPrice(singleDay = true)
         }
 
-        // Update the adapter with the selected range
         (calendarRecyclerView.adapter as CalendarAdapter).updateSelectedRange(startDate, endDate)
     }
 
@@ -318,15 +308,15 @@ class BookingRoomActivity : AppCompatActivity() {
             1
         } else {
             val diffInMillis = endDate!!.time - startDate!!.time
-            (diffInMillis / (1000 * 60 * 60 * 24)).toInt() + 1 // Include the start day
+            (diffInMillis / (1000 * 60 * 60 * 24)).toInt() + 1
         }
 
-        totalPrice = roomPrice * totalDays // Calculate total price based on room price per night and total days
-        totalPriceTextView.text = formatPrice(totalPrice) // Display the total price
+        totalPrice = roomPrice * totalDays
+        totalPriceTextView.text = formatPrice(totalPrice)
     }
 
     private fun updateGuestCount() {
-        guestCountText.text = "$guestCount" // Display the guest count
+        guestCountText.text = "$guestCount"
     }
 
     private fun formatPrice(price: Int): String {

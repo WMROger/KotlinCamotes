@@ -197,10 +197,15 @@ class HomeFragment : Fragment() {
     }
 
     private fun navigateToRoomDetails(room: Room) {
+        val firstImageUrl = room.imageUrls?.firstOrNull() // Get the first URL or null
+            ?: "https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png" // Default image if empty
+
         val intent = Intent(requireContext(), RoomDetailsActivity::class.java).apply {
-            putExtra("room", room)
+            putExtra("room", room) // Pass the entire Room object
+            putExtra("firstImageUrl", firstImageUrl) // Pass the first URL explicitly
             putExtra("isFromMyRoom", false) // Indicate that navigation is not from My Room
         }
         startActivity(intent)
     }
+
 }

@@ -2,6 +2,7 @@ package com.example.kotlinactivities.homePage
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -141,6 +142,7 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
                 }
             }
             binding.cancelButton.setOnClickListener {
+
                 cancelBooking() // Call Cancel Booking functionality
             }
         } else {
@@ -164,7 +166,7 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
         val intent = Intent(this, BookingRoomActivity::class.java).apply {
             putExtra("roomTitle", room.title)
             putExtra("roomPrice", removeNightSuffix(room.price).toInt())
-            putExtra("imageUrl", room.imageUrl)
+            putExtra("imageUrl", room.imageUrls?.firstOrNull()) // Pass the first URL explicitly
             putExtra("startDate", startDate)
             putExtra("endDate", endDate)
             putExtra("isExtendable", true) // Set true when extending
@@ -175,10 +177,24 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
     private fun cancelBooking() {
         val room = intent.getParcelableExtra<Room>("room") ?: return
 
-        // Show confirmation dialog before cancelling
+        // Perform cancellation logic and include the first image URL if necessary
         val roomId = room.id ?: return
+        val databaseReference = FirebaseDatabase.getInstance().getReference("bookings")
         showCancellationDialog(roomId)
+        databaseReference.child(roomId).removeValue()
+            .addOnSuccessListener {
+                Toast.makeText(
+                    this,
+                    "Booking canceled successfully.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                finish()
+            }
+            .addOnFailureListener { error ->
+                Log.e("RoomDetailsActivity", "Failed to cancel booking: ${error.message}")
+            }
     }
+
 
     private fun showCancellationDialog(roomId: String) {
         val cancelBookingFragment = CancelBookingFragment.newInstance(roomId)
@@ -199,7 +215,7 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
         val intent = Intent(this, BookingRoomActivity::class.java).apply {
             putExtra("roomTitle", room.title)
             putExtra("roomPrice", removeNightSuffix(room.price).toInt())
-            putExtra("imageUrl", room.imageUrl)
+            putExtra("imageUrl", room.imageUrls?.firstOrNull()) // Pass the first image URL
         }
         startActivity(intent)
     }
