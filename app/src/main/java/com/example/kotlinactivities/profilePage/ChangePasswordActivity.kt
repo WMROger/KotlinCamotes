@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.authenticationPage
+package com.example.kotlinactivities.profilePage
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinactivities.R
+import com.example.kotlinactivities.authenticationPage.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 

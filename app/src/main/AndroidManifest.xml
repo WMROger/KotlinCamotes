@@ -38,7 +38,7 @@
             android:name=".adminPage.AdminMainActivity"
             android:exported="false" />
         <activity
-            android:name=".authenticationPage.ChangePasswordActivity"
+            android:name=".profilePage.ChangePasswordActivity"
             android:exported="false" />
         <activity
             android:name=".authenticationPage.ForgetPasswordActivity"

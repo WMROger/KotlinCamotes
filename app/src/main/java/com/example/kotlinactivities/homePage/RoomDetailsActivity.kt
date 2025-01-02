@@ -92,10 +92,10 @@ class RoomDetailsActivity : AppCompatActivity() {
         for (i in 0 until count) {
             val dot = View(this).apply {
                 layoutParams = LinearLayout.LayoutParams(
-                    if (i == 0) 24 else 8,  // Wider width for the first (selected) dot
-                    8  // Height remains the same
+                    if (i == 0) 32 else 12,  // Wider and larger for active dots
+                    12  // Keep the height the same for all dots
                 ).apply {
-                    marginEnd = 8
+                    marginEnd = 12 // Increase spacing between dots
                 }
                 setBackgroundResource(if (i == 0) R.drawable.dot_active else R.drawable.dot_inactive)
             }
@@ -108,11 +108,13 @@ class RoomDetailsActivity : AppCompatActivity() {
         for (i in 0 until binding.indicatorLayout.childCount) {
             val dot = binding.indicatorLayout.getChildAt(i)
             val layoutParams = dot.layoutParams as LinearLayout.LayoutParams
-            layoutParams.width = if (i == position) 24 else 8 // Adjust width for active/inactive
+            layoutParams.width = if (i == position) 32 else 12 // Adjust width for active/inactive
+            layoutParams.height = 12 // Keep height consistent
             dot.layoutParams = layoutParams
             dot.setBackgroundResource(if (i == position) R.drawable.dot_active else R.drawable.dot_inactive)
         }
     }
+
 
 
     // Function to update the booking button text and behavior
