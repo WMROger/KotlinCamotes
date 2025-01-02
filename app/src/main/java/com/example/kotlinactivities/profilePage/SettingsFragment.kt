@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -89,17 +90,46 @@ class SettingsFragment : Fragment() {
     }
 
     private fun logoutUser() {
-        // Sign out the user from FirebaseAuth
-        auth.signOut()
+        // Inflate the custom dialog layout
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_logout_confirmation, null)
 
-        // Navigate to the LoginActivity after logout
-        val intent = Intent(requireContext(), LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
+        // Create the AlertDialog
+        val dialog = android.app.AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false) // Prevent dialog from closing when tapping outside
+            .create()
 
-        // Display a logout message
-        Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show()
+        // Access the dialog buttons
+        val btnYes = dialogView.findViewById<Button>(R.id.btnYes)
+        val btnNo = dialogView.findViewById<Button>(R.id.btnNo)
+
+        // Handle "Yes" button click
+        btnYes.setOnClickListener {
+            // Perform logout
+            auth.signOut()
+
+            // Navigate to the LoginActivity after logout
+            val intent = Intent(requireContext(), LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+
+            // Display a logout message
+            Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show()
+
+            dialog.dismiss() // Close the dialog
+        }
+
+        // Handle "No" button click
+        btnNo.setOnClickListener {
+            dialog.dismiss() // Close the dialog
+        }
+
+        // Show the dialog
+        dialog.show()
     }
+
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

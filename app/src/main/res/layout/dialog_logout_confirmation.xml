@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="150dp"
+    android:orientation="vertical"
+    android:layout_gravity="center_horizontal"
+    android:background="@drawable/dialog_background"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/dialogMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Are you sure you want to log out?"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:gravity="center"
+        android:padding="8dp"
+        android:textColor="@color/black"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnYes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="Yes"
+            android:textColor="@color/blue"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/btnNo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="No"
+            android:textColor="@color/red"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
+</LinearLayout>

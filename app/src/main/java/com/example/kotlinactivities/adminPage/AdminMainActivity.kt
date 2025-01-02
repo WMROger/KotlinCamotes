@@ -3,6 +3,7 @@ package com.example.kotlinactivities.adminPage
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.kotlinactivities.R
@@ -36,18 +37,51 @@ class AdminMainActivity : AppCompatActivity() {
             loadFragment(ManageSettingsFragment())
         }
 
-        // Logout functionality
+        // Logout functionality with confirmation dialog
         logoutButton.setOnClickListener {
-            // Sign out from Firebase
+            logoutUser() // Call the logout confirmation dialog
+        }
+    }
+
+    private fun logoutUser() {
+        // Inflate the custom dialog layout
+        val dialogView = layoutInflater.inflate(R.layout.dialog_logout_confirmation, null)
+
+        // Create the AlertDialog
+        val dialog = android.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false) // Prevent dialog from closing when tapping outside
+            .create()
+
+        // Access the dialog buttons
+        val btnYes = dialogView.findViewById<Button>(R.id.btnYes)
+        val btnNo = dialogView.findViewById<Button>(R.id.btnNo)
+
+        // Handle "Yes" button click
+        btnYes.setOnClickListener {
+            // Perform logout
             auth.signOut()
 
-            // Redirect to LoginActivity and clear activity stack
+            // Navigate to the LoginActivity after logout
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
-            finish()
+
+            // Display a logout message
+            Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
+
+            dialog.dismiss() // Close the dialog
         }
+
+        // Handle "No" button click
+        btnNo.setOnClickListener {
+            dialog.dismiss() // Close the dialog
+        }
+
+        // Show the dialog
+        dialog.show()
     }
+
 
     // Helper function to replace the fragment in the container
     private fun loadFragment(fragment: Fragment) {
