@@ -93,10 +93,41 @@ class LoginActivity : AppCompatActivity() {
     // Check if the user is already logged in and redirect accordingly
     private fun checkUserSession() {
         val currentUser = auth.currentUser
+
         if (currentUser != null) {
-            handleUserLogin() // Automatically redirect based on role
+            val userId = currentUser.uid
+            val database = FirebaseDatabase.getInstance()
+            val usersRef = database.getReference("users").child(userId)
+
+            // Fetch the user's role from the database
+            usersRef.child("role").get().addOnCompleteListener { dbTask ->
+                if (dbTask.isSuccessful) {
+                    val role = dbTask.result?.value?.toString()
+                    Log.d("FirebaseDebug", "Role retrieved: $role")
+
+                    if (role == "Admin") {
+                        // Redirect to AdminMainActivity
+                        val intent = Intent(this, AdminMainActivity::class.java)
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        // Redirect to MainActivity
+                        val intent = Intent(this, MainActivity::class.java)
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                        finish()
+                    }
+                } else {
+                    Log.e("FirebaseDebug", "Error retrieving user role: ${dbTask.exception?.message}")
+                    Toast.makeText(this, "Error retrieving user role", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
+
 
     // Handle User Login Based on Role
     private fun handleUserLogin() {
