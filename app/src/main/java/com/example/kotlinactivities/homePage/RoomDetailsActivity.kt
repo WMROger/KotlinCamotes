@@ -46,7 +46,7 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
         populateRoomDetails(room)
 
         // Update the button text dynamically
-        updateBookingButton(isFromMyRoom, bookingStatus)
+        updateBookingButton(isFromMyRoom, bookingStatus, room)
 
         // Back button action: Go back to the previous fragment/activity
         binding.backButton.setOnClickListener {
@@ -58,6 +58,7 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
             toggleFavorite()
         }
     }
+
 
     // Function to populate room details
     private fun populateRoomDetails(room: Room) {
@@ -118,7 +119,7 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
     }
 
     // Function to update the booking button text and behavior
-    private fun updateBookingButton(isFromMyRoom: Boolean, bookingStatus: String) {
+    private fun updateBookingButton(isFromMyRoom: Boolean, bookingStatus: String, room: Room) {
         if (isFromMyRoom) {
             binding.extendStayButton.visibility = View.VISIBLE // Show Extend Stay button
             binding.cancelButton.visibility = View.VISIBLE // Show Cancel button
@@ -138,12 +139,12 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
             // Set click listeners for "Extend Stay" and "Cancel"
             binding.extendStayButton.setOnClickListener {
                 if (binding.extendStayButton.isEnabled) { // Check if the button is enabled
-                    extendStay() // Call Extend Stay functionality
+                    extendStay()
                 }
             }
             binding.cancelButton.setOnClickListener {
-
-                cancelBooking() // Call Cancel Booking functionality
+                // Pass the room ID to showCancellationDialog
+                showCancellationDialog(room.id ?: "")
             }
         } else {
             // If accessed from HomeFragment
@@ -157,6 +158,7 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
             }
         }
     }
+
 
     private fun extendStay() {
         val room = intent.getParcelableExtra<Room>("room") ?: return
@@ -174,13 +176,16 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
         startActivity(intent)
     }
 
-    private fun cancelBooking() {
-        val room = intent.getParcelableExtra<Room>("room") ?: return
+    private fun showCancellationDialog(roomId: String) {
+        val cancelBookingFragment = CancelBookingFragment.newInstance(roomId)
+        cancelBookingFragment.show(supportFragmentManager, "CancelBookingFragment")
+    }
 
-        // Perform cancellation logic and include the first image URL if necessary
-        val roomId = room.id ?: return
+    override fun onDialogDismissed() {
+        // Perform the actual cancellation logic after the dialog is dismissed
+        val roomId = intent.getParcelableExtra<Room>("room")?.id ?: return
         val databaseReference = FirebaseDatabase.getInstance().getReference("bookings")
-        showCancellationDialog(roomId)
+
         databaseReference.child(roomId).removeValue()
             .addOnSuccessListener {
                 Toast.makeText(
@@ -188,25 +193,19 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
                     "Booking canceled successfully.",
                     Toast.LENGTH_SHORT
                 ).show()
+                val intent = Intent(this, MainActivity::class.java)
+                intent.putExtra("navigateTo", "MyRoomFragment") // Indicate navigation to "My Room" fragment
+                startActivity(intent)
                 finish()
             }
             .addOnFailureListener { error ->
                 Log.e("RoomDetailsActivity", "Failed to cancel booking: ${error.message}")
+                Toast.makeText(
+                    this,
+                    "Failed to cancel booking: ${error.message}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
-    }
-
-
-    private fun showCancellationDialog(roomId: String) {
-        val cancelBookingFragment = CancelBookingFragment.newInstance(roomId)
-        cancelBookingFragment.show(supportFragmentManager, "CancelBookingFragment")
-    }
-
-    override fun onDialogDismissed() {
-        // Navigate to My Room after cancellation
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("navigateTo", "MyRoomFragment") // Indicate navigation to the "My Room" fragment
-        startActivity(intent)
-        finish() // Close the RoomDetailsActivity
     }
 
     private fun navigateToBookingActivity() {

@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="#F4F5F7"
     android:layout_height="match_parent"
     tools:context=".navBar.MyRoomFragment">
 
@@ -43,6 +44,7 @@
         android:layout_marginTop="4dp"
         android:background="@android:color/white"
         android:padding="8dp"
+        android:backgroundTint="#F4F5F7"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
