@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
+import com.example.kotlinactivities.MainActivity
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.ImageCarouselAdapter
 import com.example.kotlinactivities.databinding.ActivityRoomDetailsBinding
@@ -17,7 +18,7 @@ import com.google.firebase.database.FirebaseDatabase
 import java.text.NumberFormat
 import java.util.*
 
-class RoomDetailsActivity : AppCompatActivity() {
+class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismissListener {
 
     private lateinit var binding: ActivityRoomDetailsBinding
     private var isFavorited = false // State to track if the heart is favorited
@@ -36,8 +37,7 @@ class RoomDetailsActivity : AppCompatActivity() {
 
         // Check for null room object
         if (room == null) {
-            // Handle error if room is not passed correctly
-            finish()
+            finish() // Handle error if room is not passed correctly
             return
         }
 
@@ -85,6 +85,7 @@ class RoomDetailsActivity : AppCompatActivity() {
         binding.roomDescription.text =
             "Indulge in luxury and comfort in our ${room.title}, featuring elegant interiors, plush bedding, a spacious seating area, and modern amenities."
     }
+
     // Function to setup dots for the image carousel
     private fun setupDots(count: Int) {
         binding.indicatorLayout.removeAllViews() // Clear previous dots
@@ -114,8 +115,6 @@ class RoomDetailsActivity : AppCompatActivity() {
             dot.setBackgroundResource(if (i == position) R.drawable.dot_active else R.drawable.dot_inactive)
         }
     }
-
-
 
     // Function to update the booking button text and behavior
     private fun updateBookingButton(isFromMyRoom: Boolean, bookingStatus: String) {
@@ -177,59 +176,34 @@ class RoomDetailsActivity : AppCompatActivity() {
         val room = intent.getParcelableExtra<Room>("room") ?: return
 
         // Show confirmation dialog before cancelling
-        showCancellationDialog(room.id)
+        val roomId = room.id ?: return
+        showCancellationDialog(roomId)
     }
 
-    private fun showCancellationDialog(roomId: String?, useBottomSheet: Boolean = true) {
-        if (roomId == null) return
-
-        if (useBottomSheet) {
-            // Use BottomSheetDialogFragment
-            val cancelBookingFragment = CancelBookingFragment.newInstance(roomId)
-            cancelBookingFragment.show(supportFragmentManager, "CancelBookingFragment")
-        } else {
-            // Use AlertDialog
-            val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Cancel Booking")
-                .setMessage("Are you sure you want to cancel this booking?")
-                .setPositiveButton("Yes") { _, _ ->
-                    // Perform cancellation logic
-                    val databaseReference = FirebaseDatabase.getInstance().getReference("bookings")
-                    databaseReference.child(roomId).removeValue() // Remove the booking from the database
-                        .addOnSuccessListener {
-                            showToast("Booking canceled successfully.")
-                            finish() // Close the activity after cancellation
-                        }
-                        .addOnFailureListener { exception ->
-                            // Handle failure case
-                            showToast("Failed to cancel booking: ${exception.message}")
-                        }
-                }
-                .setNegativeButton("No", null) // Do nothing on "No"
-                .create()
-            dialog.show()
-        }
+    private fun showCancellationDialog(roomId: String) {
+        val cancelBookingFragment = CancelBookingFragment.newInstance(roomId)
+        cancelBookingFragment.show(supportFragmentManager, "CancelBookingFragment")
     }
 
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    override fun onDialogDismissed() {
+        // Navigate to My Room after cancellation
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("navigateTo", "MyRoomFragment") // Indicate navigation to the "My Room" fragment
+        startActivity(intent)
+        finish() // Close the RoomDetailsActivity
     }
 
-    // Function to navigate to BookingRoomActivity
     private fun navigateToBookingActivity() {
         val room = intent.getParcelableExtra<Room>("room") ?: return
 
         val intent = Intent(this, BookingRoomActivity::class.java).apply {
-            putExtra("roomTitle", room.title) // Pass room title
-            putExtra("roomPrice", removeNightSuffix(room.price).toInt()) // Pass room price as integer
-            putExtra("roomType", room.title) // Pass the room type dynamically
-            putExtra("paxCount", room.people?.toInt() ?: 2) // Pass the number of people (converted to Int)
-            putExtra("imageUrl", room.imageUrl) // Pass the image URL
+            putExtra("roomTitle", room.title)
+            putExtra("roomPrice", removeNightSuffix(room.price).toInt())
+            putExtra("imageUrl", room.imageUrl)
         }
         startActivity(intent)
     }
 
-    // Function to toggle favorite state
     private fun toggleFavorite() {
         isFavorited = !isFavorited // Toggle the state
         val heartDrawable = if (isFavorited) {
@@ -241,12 +215,10 @@ class RoomDetailsActivity : AppCompatActivity() {
         binding.heartButton.setImageDrawable(ContextCompat.getDrawable(this, heartDrawable))
     }
 
-    // Helper function to remove `/night` and `₱` from the price
     private fun removeNightSuffix(price: String?): String {
         return price?.replace("/night", "")?.replace("₱", "")?.replace(",", "")?.trim() ?: "0"
     }
 
-    // Helper function to format price with comma and peso sign
     private fun formatPrice(price: String): String {
         val priceValue = price.toIntOrNull() ?: 0
         val formatter = NumberFormat.getNumberInstance(Locale.getDefault())

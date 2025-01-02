@@ -2,6 +2,7 @@ package com.example.kotlinactivities.homePage
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.RadioButton
@@ -86,18 +87,32 @@ class BookingRoomActivity : AppCompatActivity() {
         }
 
         bookNowButton.setOnClickListener {
+            // Validate that dates are selected
+            if (startDate == null || endDate == null) {
+                Toast.makeText(
+                    this,
+                    "Please select a valid date range before proceeding.",
+                    Toast.LENGTH_LONG
+                ).show()
+                return@setOnClickListener
+            }
+
+            // Recalculate the total price before processing
+            updateTotalPrice()
+
+            // Check if totalPrice is valid
+            if (totalPrice <= 0) {
+                Toast.makeText(
+                    this,
+                    "Error: Total price cannot be zero. Please try again.",
+                    Toast.LENGTH_LONG
+                ).show()
+                return@setOnClickListener
+            }
+
+            // Handle the selected payment method
             when {
                 rbGcash.isChecked -> {
-                    // Validate that dates are selected
-                    if (startDate == null || endDate == null) {
-                        Toast.makeText(
-                            this,
-                            "Please select a valid date range before proceeding.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        return@setOnClickListener
-                    }
-
                     // Redirect to PaymentNotImplementedActivity for GCash
                     val intent = Intent(this, PaymentNotImplementedActivity::class.java)
                     intent.putExtra("totalPrice", totalPrice * 100) // Pass price in centavos
@@ -111,35 +126,13 @@ class BookingRoomActivity : AppCompatActivity() {
                     intent.putExtra("endDate", endDate?.time) // Pass end date as timestamp
                     intent.putExtra("totalDays", calculateTotalDays()) // Pass the total number of days
                     intent.putExtra("paymentMethod", "Gcash") // Include payment method
-                    intent.putExtra("paymentStatus", "Pending") // Default status for Gcash
+                    intent.putExtra("paymentStatus", "Pending") // Default status for GCash
+                    Log.d("BookingRoomActivity", "GCash Booking - Image URL: $imageUrl")
                     startActivity(intent)
                 }
 
                 rbCash.isChecked -> {
-                    // Validate that dates are selected
-                    if (startDate == null || endDate == null) {
-                        Toast.makeText(
-                            this,
-                            "Please select a valid date range before proceeding.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        return@setOnClickListener
-                    }
-
-                    // Recalculate the total price before uploading
-                    updateTotalPrice()
-
-                    // Check if totalPrice is valid
-                    if (totalPrice <= 0) {
-                        Toast.makeText(
-                            this,
-                            "Error: Total price cannot be zero. Please try again.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        return@setOnClickListener
-                    }
-
-                    // Upload booking details to Firebase for cash payment
+                    // Upload booking details to Firebase for Cash payment
                     val database = FirebaseDatabase.getInstance()
                     val bookingsRef = database.getReference("bookings")
 
@@ -154,18 +147,19 @@ class BookingRoomActivity : AppCompatActivity() {
                             "roomTitle" to roomTitle,
                             "roomPrice" to roomPrice,
                             "guestCount" to guestCount,
-                            "totalPrice" to totalPrice, // Ensure this is updated
+                            "totalPrice" to totalPrice,
                             "totalDays" to calculateTotalDays(),
-                            "startDate" to startDate?.time, // Store as timestamp
-                            "endDate" to endDate?.time,     // Store as timestamp
-                            "imageUrl" to imageUrl,         // Pass the image URL
-                            "paymentMethod" to "Cash",      // Include payment method
-                            "paymentStatus" to "Pending Approval" // Default status for cash payment
+                            "startDate" to startDate?.time,
+                            "endDate" to endDate?.time,
+                            "imageUrl" to imageUrl,         // Include image URL
+                            "paymentMethod" to "Cash",
+                            "paymentStatus" to "Pending Approval"
                         )
 
                         // Upload booking data to Firebase
                         bookingsRef.child(bookingId).setValue(bookingData)
                             .addOnSuccessListener {
+                                Log.d("BookingRoomActivity", "Booking uploaded successfully. Image URL: $imageUrl")
                                 // Navigate to HomeFragment on success
                                 val intent = Intent(this, MainActivity::class.java)
                                 intent.putExtra("navigateTo", "HomeFragment")
@@ -179,7 +173,8 @@ class BookingRoomActivity : AppCompatActivity() {
                                 ).show()
                             }
                             .addOnFailureListener { error ->
-                                // Show an error message if the upload fails
+                                // Log and show an error message if the upload fails
+                                Log.e("BookingRoomActivity", "Failed to upload booking: ${error.message}")
                                 Toast.makeText(
                                     this,
                                     "Failed to submit booking: ${error.message}",

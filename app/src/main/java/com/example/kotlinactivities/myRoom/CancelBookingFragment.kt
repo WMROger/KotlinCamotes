@@ -1,5 +1,6 @@
 package com.example.kotlinactivities.myRoom
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,8 +8,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.databinding.FragmentCancelBookingBinding
-import com.google.firebase.database.FirebaseDatabase
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.firebase.database.FirebaseDatabase
 
 class CancelBookingFragment : BottomSheetDialogFragment() {
 
@@ -16,6 +17,18 @@ class CancelBookingFragment : BottomSheetDialogFragment() {
     private val binding get() = _binding!!
 
     private var roomId: String? = null
+    private var onDismissListener: OnDismissListener? = null
+
+    interface OnDismissListener {
+        fun onDialogDismissed()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnDismissListener) {
+            onDismissListener = context
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,13 +55,29 @@ class CancelBookingFragment : BottomSheetDialogFragment() {
             val databaseReference = FirebaseDatabase.getInstance().getReference("bookings")
             databaseReference.child(it).removeValue() // Remove booking from Firebase
                 .addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Booking canceled successfully.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Booking canceled successfully.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     dismiss() // Close the fragment after cancellation
                 }
                 .addOnFailureListener { exception ->
-                    Toast.makeText(requireContext(), "Failed to cancel booking: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to cancel booking: ${exception.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
+        } ?: run {
+            Toast.makeText(requireContext(), "Invalid room ID.", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    override fun onDismiss(dialog: android.content.DialogInterface) {
+        super.onDismiss(dialog)
+        // Notify parent activity/fragment about the dismissal
+        onDismissListener?.onDialogDismissed()
     }
 
     override fun onDestroyView() {
