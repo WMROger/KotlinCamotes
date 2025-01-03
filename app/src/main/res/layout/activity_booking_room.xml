@@ -57,8 +57,9 @@
         android:id="@+id/scrollView2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="105dp"
         android:layout_marginBottom="80dp"
+        android:background="#F4F5F7"
         android:padding="16dp">
 
         <LinearLayout
@@ -184,13 +185,13 @@
             </LinearLayout>
 
             <!-- Payment Options -->
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginBottom="8dp"-->
-<!--                android:text="How would you like to pay?"-->
-<!--                android:textSize="16sp"-->
-<!--                android:textStyle="bold" />-->
+            <!--            <TextView-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:layout_marginBottom="8dp"-->
+            <!--                android:text="How would you like to pay?"-->
+            <!--                android:textSize="16sp"-->
+            <!--                android:textStyle="bold" />-->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -308,7 +309,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="#FFFFFF"
+        android:background="#F4F5F7"
         android:orientation="horizontal"
         android:padding="16dp">
 

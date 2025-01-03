@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".homePage.RoomDetailsActivity">
+    tools:context=".homePage.RoomDetailsActivity"
+    android:background="#F4F5F7">
 
     <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
