@@ -117,7 +117,13 @@ class BookingRoomActivity : AppCompatActivity() {
                 }
 
                 rbCash.isChecked -> {
-                    uploadBookingToFirebase(roomTitle, userId, userEmail, imageUrl)
+                    uploadBookingToFirebase(
+                        roomTitle = roomTitle,
+                        userId = userId,
+                        userEmail = userEmail,
+                        firstImageUrl = imageUrl,
+                        paymentMethod = "Cash"
+                    )
                 }
 
                 else -> {
@@ -129,6 +135,7 @@ class BookingRoomActivity : AppCompatActivity() {
                 }
             }
         }
+
 
         // Initialize RecyclerView layout manager
         calendarRecyclerView.layoutManager = GridLayoutManager(this, 7)
@@ -143,15 +150,25 @@ class BookingRoomActivity : AppCompatActivity() {
         val intent = Intent(this, PaymentNotImplementedActivity::class.java)
         intent.putExtra("roomTitle", roomTitle)
         intent.putExtra("totalPrice", totalPrice * 100) // Convert to centavos
-        intent.putExtra("imageUrl", imageUrl) // Pass the first image URL
+        intent.putExtra("roomPrice", roomPrice)
+        intent.putExtra("guestCount", guestCount)
+        intent.putExtra("imageUrl", imageUrl)
+        intent.putExtra("startDate", startDate?.time) // Pass start date as timestamp
+        intent.putExtra("endDate", endDate?.time) // Pass end date as timestamp
+        intent.putExtra("userId", firebaseAuth.currentUser?.uid ?: "Unknown ID")
+        intent.putExtra("userEmail", firebaseAuth.currentUser?.email ?: "Unknown User")
+        intent.putExtra("paymentMethod", "Gcash")
         startActivity(intent)
     }
+
+
 
     private fun uploadBookingToFirebase(
         roomTitle: String,
         userId: String,
         userEmail: String,
-        firstImageUrl: String
+        firstImageUrl: String,
+        paymentMethod: String // Add payment method parameter
     ) {
         val database = FirebaseDatabase.getInstance()
         val bookingsRef = database.getReference("bookings")
@@ -159,7 +176,7 @@ class BookingRoomActivity : AppCompatActivity() {
         // Create a unique booking ID
         val bookingId = bookingsRef.push().key
 
-        if (bookingId != null) {
+        if (bookingId != null && startDate != null && endDate != null) { // Ensure dates are not null
             val bookingData = mapOf(
                 "userId" to userId,
                 "userEmail" to userEmail,
@@ -168,10 +185,10 @@ class BookingRoomActivity : AppCompatActivity() {
                 "guestCount" to guestCount,
                 "totalPrice" to totalPrice,
                 "totalDays" to calculateTotalDays(),
-                "startDate" to startDate?.time,
-                "endDate" to endDate?.time,
-                "imageUrl" to firstImageUrl, // Upload the first image URL
-                "paymentMethod" to "Cash",
+                "startDate" to startDate!!.time, // Ensure dates are not null
+                "endDate" to endDate!!.time,
+                "imageUrl" to firstImageUrl,
+                "paymentMethod" to paymentMethod, // Use the passed payment method
                 "paymentStatus" to "Pending Approval"
             )
 
@@ -197,11 +214,13 @@ class BookingRoomActivity : AppCompatActivity() {
         } else {
             Toast.makeText(
                 this,
-                "Failed to generate booking ID. Please try again.",
+                "Failed to upload booking. Ensure all fields are selected.",
                 Toast.LENGTH_LONG
             ).show()
         }
     }
+
+
 
 
     private fun navigateToHomeFragment() {
@@ -280,9 +299,11 @@ class BookingRoomActivity : AppCompatActivity() {
 
     private fun handleDateSelection(date: Date) {
         if (startDate == null || endDate != null) {
+            // If no dates are selected or both are selected, reset the range
             startDate = date
             endDate = null
         } else {
+            // If startDate is already selected, determine the range
             if (date.before(startDate)) {
                 endDate = startDate
                 startDate = date
@@ -291,17 +312,18 @@ class BookingRoomActivity : AppCompatActivity() {
             }
         }
 
+        // Update the selected date range text
         if (startDate != null && endDate != null) {
             selectedDateRange.text =
                 "From: ${rangeFormatter.format(startDate!!)}\nTo: ${rangeFormatter.format(endDate!!)}"
-            updateTotalPrice()
-        } else {
+        } else if (startDate != null) {
             selectedDateRange.text = "Start Date: ${rangeFormatter.format(startDate!!)}"
-            updateTotalPrice(singleDay = true)
         }
 
+        // Notify the adapter to refresh the calendar selection
         (calendarRecyclerView.adapter as CalendarAdapter).updateSelectedRange(startDate, endDate)
     }
+
 
     private fun updateTotalPrice(singleDay: Boolean = false) {
         val totalDays = if (singleDay || endDate == null) {
