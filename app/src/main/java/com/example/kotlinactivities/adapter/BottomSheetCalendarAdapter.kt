@@ -12,7 +12,9 @@ import java.util.*
 
 class BottomSheetCalendarAdapter(
     private val dates: List<Date>, // List of dates for the calendar
-    private val selectedDate: Date?, // The currently selected date
+    private var selectedDate: Date?, // The currently selected date
+    private val occupiedDates: List<Date>, // The list of occupied dates
+    private val latestEndDate: Date?, // The latest end date from Firebase
     private val onDateClick: (Date) -> Unit // Callback when a date is clicked
 ) : RecyclerView.Adapter<BottomSheetCalendarAdapter.CalendarViewHolder>() {
 
@@ -31,6 +33,11 @@ class BottomSheetCalendarAdapter(
 
     override fun getItemCount(): Int = dates.size
 
+    fun updateSelectedDate(newSelectedDate: Date?) {
+        selectedDate = newSelectedDate
+        notifyDataSetChanged() // Refresh the calendar
+    }
+
     inner class CalendarViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val dateText: TextView = itemView.findViewById(R.id.dateText)
 
@@ -42,9 +49,25 @@ class BottomSheetCalendarAdapter(
             dateText.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
 
             // Highlight the selected date
-            if (selectedDate != null && isSameDay(date, selectedDate)) {
+            if (selectedDate != null && isSameDay(date, selectedDate!!)) {
                 dateText.setBackgroundResource(R.drawable.filter_button_selected) // Highlight selected date
                 dateText.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
+            }
+
+            // Disable and highlight occupied dates
+            if (occupiedDates.any { isSameDay(it, date) }) {
+                dateText.setBackgroundResource(R.drawable.bg_date_occupied) // Occupied date background
+                dateText.setTextColor(ContextCompat.getColor(itemView.context, R.color.gray))
+                itemView.isEnabled = false
+                return
+            }
+
+            // Disable dates before or equal to latestEndDate
+            if (latestEndDate != null && !date.after(latestEndDate)) {
+                dateText.setBackgroundResource(R.drawable.bg_date_range) // Disabled date background
+                dateText.setTextColor(ContextCompat.getColor(itemView.context, R.color.gray))
+                itemView.isEnabled = false
+                return
             }
 
             // Disable past dates
@@ -58,7 +81,7 @@ class BottomSheetCalendarAdapter(
 
             // Handle click events
             itemView.setOnClickListener {
-                if (!date.before(today)) { // Allow only future dates to be selected
+                if (!date.before(today) && !occupiedDates.contains(date)) {
                     onDateClick(date)
                 }
             }
