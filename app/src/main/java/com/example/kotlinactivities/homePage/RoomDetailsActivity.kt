@@ -14,6 +14,7 @@ import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.ImageCarouselAdapter
 import com.example.kotlinactivities.databinding.ActivityRoomDetailsBinding
 import com.example.kotlinactivities.model.Room
+import com.example.kotlinactivities.myRoom.CalendarBottomSheet
 import com.example.kotlinactivities.myRoom.CancelBookingFragment
 import com.google.firebase.database.FirebaseDatabase
 import java.text.NumberFormat
@@ -146,7 +147,7 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
             // Set click listeners for "Extend Stay" and "Cancel"
             binding.extendStayButton.setOnClickListener {
                 if (binding.extendStayButton.isEnabled) { // Check if the button is enabled
-                    extendStay()
+                    showCalendarBottomSheet(room)
                 }
             }
             binding.cancelButton.setOnClickListener {
@@ -166,20 +167,15 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
         }
     }
 
-    private fun extendStay() {
-        val room = intent.getParcelableExtra<Room>("room") ?: return
-        val startDate = intent.getStringExtra("startDate")
-        val endDate = intent.getStringExtra("endDate")
+    private fun showCalendarBottomSheet(room: Room) {
+        val calendarBottomSheet = CalendarBottomSheet()
+        calendarBottomSheet.setOnExtendStayListener { selectedDate ->
+            Toast.makeText(this, "Extend stay confirmed for $selectedDate", Toast.LENGTH_SHORT).show()
 
-        val intent = Intent(this, BookingRoomActivity::class.java).apply {
-            putExtra("roomTitle", room.title)
-            putExtra("roomPrice", removeNightSuffix(room.price).toInt())
-            putExtra("imageUrl", room.imageUrls?.firstOrNull()) // Pass the first URL explicitly
-            putExtra("startDate", startDate)
-            putExtra("endDate", endDate)
-            putExtra("isExtendable", true) // Set true when extending
+            // Perform any action (e.g., save new booking dates or extend the current booking)
+            Log.d("RoomDetailsActivity", "Extended stay for room: ${room.title} on $selectedDate")
         }
-        startActivity(intent)
+        calendarBottomSheet.show(supportFragmentManager, "CalendarBottomSheet")
     }
 
     private fun showCancellationDialog(roomId: String) {

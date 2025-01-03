@@ -1,0 +1,48 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+    <!-- Drag handle to indicate swiping -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center"
+        android:background="@drawable/drag_handle_background"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/selectedDateTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Select a date"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:layout_marginBottom="16dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/calendarRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginBottom="16dp" />
+    <!-- Note Section -->
+    <TextView
+        android:id="@+id/calendarNote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Note: Would you like to extend your stay? Extension is possible if there are no upcoming reservations for your room."
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp" />
+    <Button
+        android:id="@+id/extendStayButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Extend Stay"
+        android:background="@drawable/rounded_button"
+        android:textColor="@android:color/white" />
+
+</LinearLayout>
