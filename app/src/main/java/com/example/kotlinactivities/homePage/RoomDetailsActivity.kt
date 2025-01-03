@@ -59,11 +59,13 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
         }
     }
 
-
     // Function to populate room details
     private fun populateRoomDetails(room: Room) {
-        // Set up the carousel for the room images
-        room.imageUrls?.let { images ->
+        // Check if there are image URLs
+        val images = room.imageUrls ?: listOf() // Default to an empty list if null
+
+        if (images.isNotEmpty()) {
+            // Multiple images: Set up the carousel
             val imageCarouselAdapter = ImageCarouselAdapter(images)
             binding.roomImage.adapter = imageCarouselAdapter // Bind adapter to ViewPager2
 
@@ -77,6 +79,11 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
                     updateDots(position)
                 }
             })
+        } else {
+            // Single image case: Use a placeholder or the first image URL directly
+            binding.roomImage.visibility = View.VISIBLE
+            val singleImageAdapter = ImageCarouselAdapter(listOf(room.imageUrl ?: R.drawable.ic_splash3.toString()))
+            binding.roomImage.adapter = singleImageAdapter
         }
 
         // Populate other room details
@@ -158,7 +165,6 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
             }
         }
     }
-
 
     private fun extendStay() {
         val room = intent.getParcelableExtra<Room>("room") ?: return

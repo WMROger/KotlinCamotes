@@ -47,7 +47,12 @@ class ProfileFragment : Fragment() {
                         // Get the user data from the database
                         val fullName = snapshot.child("name").getValue(String::class.java) ?: "No Name Available"
                         val email = snapshot.child("email").getValue(String::class.java) ?: "No Email Available"
-                        val phoneNumber = snapshot.child("phoneNumber").getValue(String::class.java) ?: "No Number Available"
+                        var phoneNumber = snapshot.child("phoneNumber").getValue(String::class.java) ?: "No Number Available"
+
+                        // Prepend "0" to the phone number if it doesn't already start with "0"
+                        if (!phoneNumber.startsWith("0") && phoneNumber != "No Number Available") {
+                            phoneNumber = "0$phoneNumber"
+                        }
 
                         // Display the data in the UI
                         val firstName = fullName.split(" ").getOrNull(0) ?: "No Name Available" // Get first name
