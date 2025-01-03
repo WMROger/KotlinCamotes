@@ -2,18 +2,23 @@ package com.example.kotlinactivities.adminPage
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.kotlinactivities.R
+import com.example.kotlinactivities.authenticationPage.LoginActivity
+import com.example.kotlinactivities.admin.AdminDashboardFragment
 import com.example.kotlinactivities.admin.ViewUsersFragment
 import com.example.kotlinactivities.admin.ManageSettingsFragment
-import com.example.kotlinactivities.authenticationPage.LoginActivity
+import com.example.kotlinactivities.navBar.ProfileFragment
 import com.google.firebase.auth.FirebaseAuth
+import io.ak1.BubbleTabBar
 
 class AdminMainActivity : AppCompatActivity() {
 
+    private lateinit var bubbleTabBar: BubbleTabBar
     private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +28,28 @@ class AdminMainActivity : AppCompatActivity() {
         // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
 
+        // Initialize BubbleTabBar
+        bubbleTabBar = findViewById(R.id.adminBubbleTabBar)
+
+        // Load DashboardFragment by default
+        bubbleTabBar.setSelectedWithId(R.id.admin_dashboard, false)
+        loadFragment(AdminDashboardFragment())
+
+        // Handle tab switching using BubbleTabBar
+        bubbleTabBar.addBubbleListener { id ->
+            val fragment = when (id) {
+                R.id.admin_dashboard -> AdminDashboardFragment()
+                R.id.admin_users -> ViewUsersFragment()
+                R.id.admin_settings -> ManageSettingsFragment()
+                R.id.admin_profile -> ProfileFragment() // Use a generic profile fragment or an admin-specific one
+                else -> null
+            }
+            fragment?.let {
+                loadFragment(it)
+            }
+        }
+
+        // Button-based navigation setup
         val viewUsersButton = findViewById<Button>(R.id.viewUsersButton)
         val manageSettingsButton = findViewById<Button>(R.id.manageSettingsButton)
         val logoutButton = findViewById<Button>(R.id.logoutButton)
@@ -43,6 +70,18 @@ class AdminMainActivity : AppCompatActivity() {
         }
     }
 
+    // Load the selected fragment
+    private fun loadFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.fragment_enter, // Optional enter animation
+                R.anim.fragment_exit   // Optional exit animation
+            )
+            .replace(R.id.fragmentContainer, fragment)
+            .commit()
+    }
+
+    // Logout functionality with confirmation dialog
     private fun logoutUser() {
         // Inflate the custom dialog layout
         val dialogView = layoutInflater.inflate(R.layout.dialog_logout_confirmation, null)
@@ -66,11 +105,10 @@ class AdminMainActivity : AppCompatActivity() {
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
+            finish()
 
-            // Display a logout message
-            Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
-
-            dialog.dismiss() // Close the dialog
+            // Close the dialog
+            dialog.dismiss()
         }
 
         // Handle "No" button click
@@ -80,14 +118,5 @@ class AdminMainActivity : AppCompatActivity() {
 
         // Show the dialog
         dialog.show()
-    }
-
-
-    // Helper function to replace the fragment in the container
-    private fun loadFragment(fragment: Fragment) {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.fragmentContainer, fragment)
-        transaction.addToBackStack(null) // Optional: Add to back stack for navigation
-        transaction.commit()
     }
 }
