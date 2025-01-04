@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,12 +19,13 @@ import java.util.*
 class CalendarBottomSheet : BottomSheetDialogFragment() {
 
     private var onExtendStayListener: ((Date) -> Unit)? = null
-    private var selectedDate: Date? = null // Keep track of the selected date
+    private var selectedDate: Date? = null
     private val today = Date()
     private lateinit var calendarAdapter: BottomSheetCalendarAdapter
-    private val occupiedDates = mutableListOf<Date>() // List to hold occupied dates from Firebase
-    private var latestEndDate: Date? = null // Store the latest end date
-    private lateinit var databaseReference: DatabaseReference // Firebase Database reference
+    private val occupiedDates = mutableListOf<Date>()
+    private var latestEndDate: Date? = null
+    private lateinit var databaseReference: DatabaseReference
+    private val calendar = Calendar.getInstance() // Calendar instance to handle month navigation
 
     fun setOnExtendStayListener(listener: (Date) -> Unit) {
         onExtendStayListener = listener
@@ -39,24 +41,27 @@ class CalendarBottomSheet : BottomSheetDialogFragment() {
         // Initialize Firebase Database reference
         databaseReference = FirebaseDatabase.getInstance().getReference("bookings")
 
-        // Generate calendar dates
-        val dates = generateCalendarDates()
+        // Setup month navigation and week labels
+        setupMonthNavigation(view)
 
         // Setup Calendar RecyclerView
         val calendarRecyclerView = view.findViewById<RecyclerView>(R.id.calendarRecyclerView)
         calendarRecyclerView.layoutManager = GridLayoutManager(requireContext(), 7)
 
+        // Generate calendar dates
+        val dates = generateCalendarDates()
+
         // Initialize calendarAdapter
         calendarAdapter = BottomSheetCalendarAdapter(
             dates = dates,
             selectedDate = selectedDate,
-            occupiedDates = occupiedDates, // Pass the occupied dates
-            latestEndDate = latestEndDate, // Pass the latest end date
+            occupiedDates = occupiedDates,
+            latestEndDate = latestEndDate,
             onDateClick = { date ->
                 if (!occupiedDates.contains(date) && date.after(today) && (latestEndDate == null || date.after(latestEndDate))) {
                     selectedDate = date
                     updateSelectedDateText(view, date)
-                    calendarAdapter.updateSelectedDate(selectedDate) // Update the selected date
+                    calendarAdapter.updateSelectedDate(selectedDate)
                 }
             }
         )
@@ -65,26 +70,70 @@ class CalendarBottomSheet : BottomSheetDialogFragment() {
 
         // Fetch occupied dates from Firebase
         fetchOccupiedDates {
-            calendarAdapter.notifyDataSetChanged() // Refresh the adapter after fetching data
+            calendarAdapter.notifyDataSetChanged()
         }
 
         // Handle Extend Stay Button
         val extendStayButton = view.findViewById<Button>(R.id.extendStayButton)
         extendStayButton.setOnClickListener {
             selectedDate?.let {
-                onExtendStayListener?.invoke(it) // Pass the selected date
+                onExtendStayListener?.invoke(it)
             }
-            dismiss() // Close the bottom sheet
+            dismiss()
         }
 
         return view
     }
 
+    private fun setupMonthNavigation(view: View) {
+        val monthYearTextView = view.findViewById<TextView>(R.id.monthYearText)
+        val prevMonthButton = view.findViewById<ImageView>(R.id.previousMonthButton)
+        val nextMonthButton = view.findViewById<ImageView>(R.id.nextMonthButton)
+
+        // Update the displayed month and year
+        fun updateMonthYear() {
+            val dateFormatter = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+            monthYearTextView.text = dateFormatter.format(calendar.time)
+        }
+
+        // Set up the initial month and year
+        updateMonthYear()
+
+        // Handle previous month button
+        prevMonthButton.setOnClickListener {
+            calendar.add(Calendar.MONTH, -1)
+            refreshCalendar()
+            updateMonthYear()
+        }
+
+        // Handle next month button
+        nextMonthButton.setOnClickListener {
+            calendar.add(Calendar.MONTH, 1)
+            refreshCalendar()
+            updateMonthYear()
+        }
+
+        // Set up week labels (Mon-Sun)
+        val weekLabels = listOf(
+            view.findViewById<TextView>(R.id.weekLabelSun),
+            view.findViewById<TextView>(R.id.weekLabelMon),
+            view.findViewById<TextView>(R.id.weekLabelTue),
+            view.findViewById<TextView>(R.id.weekLabelWed),
+            view.findViewById<TextView>(R.id.weekLabelThu),
+            view.findViewById<TextView>(R.id.weekLabelFri),
+            view.findViewById<TextView>(R.id.weekLabelSat)
+        )
+        val weekDayNames = listOf("SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT")
+        weekLabels.forEachIndexed { index, label ->
+            label.text = weekDayNames[index]
+        }
+    }
+
     private fun fetchOccupiedDates(onComplete: () -> Unit) {
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                occupiedDates.clear() // Clear the list before adding new data
-                latestEndDate = null // Reset the latest end date
+                occupiedDates.clear()
+                latestEndDate = null
 
                 for (bookingSnapshot in snapshot.children) {
                     val startDateMillis = bookingSnapshot.child("startDate").getValue(Long::class.java)
@@ -94,12 +143,10 @@ class CalendarBottomSheet : BottomSheetDialogFragment() {
                         val startDate = Date(startDateMillis)
                         val endDate = Date(endDateMillis)
 
-                        // Update the latest end date to the most recent one
                         if (latestEndDate == null || endDate.after(latestEndDate)) {
                             latestEndDate = endDate
                         }
 
-                        // Add all dates in the range to the occupiedDates list
                         val calendar = Calendar.getInstance()
                         calendar.time = startDate
                         while (!calendar.time.after(endDate)) {
@@ -108,7 +155,7 @@ class CalendarBottomSheet : BottomSheetDialogFragment() {
                         }
                     }
                 }
-                onComplete() // Notify that the data fetching is complete
+                onComplete()
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -123,8 +170,13 @@ class CalendarBottomSheet : BottomSheetDialogFragment() {
         selectedDateTextView.text = "Selected Date: ${dateFormatter.format(date)}"
     }
 
+    private fun refreshCalendar() {
+        val dates = generateCalendarDates()
+        calendarAdapter.updateDates(dates)
+    }
+
     private fun generateCalendarDates(): List<Date> {
-        val calendar = Calendar.getInstance()
+        val calendar = this.calendar.clone() as Calendar
         val dates = mutableListOf<Date>()
 
         // Set to the first day of the current month

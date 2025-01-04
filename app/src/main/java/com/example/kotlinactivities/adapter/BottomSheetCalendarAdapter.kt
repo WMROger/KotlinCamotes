@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class BottomSheetCalendarAdapter(
-    private val dates: List<Date>, // List of dates for the calendar
+    private var dates: List<Date>, // List of dates for the calendar
     private var selectedDate: Date?, // The currently selected date
     private val occupiedDates: List<Date>, // The list of occupied dates
     private val latestEndDate: Date?, // The latest end date from Firebase
@@ -33,6 +33,17 @@ class BottomSheetCalendarAdapter(
 
     override fun getItemCount(): Int = dates.size
 
+    /**
+     * Updates the list of dates in the calendar and refreshes the adapter.
+     */
+    fun updateDates(newDates: List<Date>) {
+        dates = newDates
+        notifyDataSetChanged() // Refresh the calendar
+    }
+
+    /**
+     * Updates the selected date and refreshes the adapter.
+     */
     fun updateSelectedDate(newSelectedDate: Date?) {
         selectedDate = newSelectedDate
         notifyDataSetChanged() // Refresh the calendar

@@ -20,12 +20,12 @@
     <application
         android:name=".MyApp"
         android:allowBackup="true"
+        android:background="#F4F5F7"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
-        android:background="#F4F5F7"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
@@ -34,20 +34,25 @@
         <activity
             android:name=".authenticationPage.RegisterGoogleActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.KotlinActivites" />
         <activity
             android:name=".adminPage.AdminMainActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".profilePage.ChangePasswordActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".authenticationPage.ForgetPasswordActivity"
-            android:exported="false" /> <!-- Splash Activity -->
+            android:exported="false"
+            android:screenOrientation="portrait" /> <!-- Splash Activity -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
             android:label=""
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.KotlinActivities.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -58,28 +63,36 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:usesCleartextTraffic="true" /> <!-- Onboarding Activity -->
         <activity
             android:name=".OnboardingActivity"
-            android:exported="false" /> <!-- Other Activities -->
+            android:exported="false"
+            android:screenOrientation="portrait" /> <!-- Other Activities -->
         <activity
             android:name=".homePage.BookingRoomActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".authenticationPage.VerificationActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".homePage.RoomDetailsActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".homePage.PaymentNotImplementedActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".authenticationPage.RegisterActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".authenticationPage.LoginActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="preloaded_fonts"
