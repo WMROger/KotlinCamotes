@@ -10,21 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center">
-
-        <Button
-            android:id="@+id/viewUsersButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="View Users"
-            android:layout_marginEnd="8dp" />
-
-        <Button
-            android:id="@+id/manageSettingsButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Manage Settings" />
-    </LinearLayout>
+        android:gravity="center"/>
 
     <!-- Fragment container for loading fragments -->
     <androidx.fragment.app.FragmentContainerView
@@ -63,7 +49,7 @@
             android:background="#FFF"
             app:bubbletab_horizontal_padding="10dp"
             app:bubbletab_icon_size="30dp"
-            app:bubbletab_menuResource="@menu/bottom_menu"
+            app:bubbletab_menuResource="@menu/admin_bottom_nav_bar"
             app:bubbletab_tab_corner_radius="50dp"
             app:bubbletab_title_size="14sp"
             app:layout_constraintBottom_toBottomOf="parent"

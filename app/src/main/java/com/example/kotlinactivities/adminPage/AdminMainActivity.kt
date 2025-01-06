@@ -2,16 +2,12 @@ package com.example.kotlinactivities.adminPage
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.kotlinactivities.R
+import com.example.kotlinactivities.admin.ApprovalFragment
 import com.example.kotlinactivities.authenticationPage.LoginActivity
-import com.example.kotlinactivities.admin.AdminDashboardFragment
-import com.example.kotlinactivities.admin.ViewUsersFragment
-import com.example.kotlinactivities.admin.ManageSettingsFragment
 import com.example.kotlinactivities.navBar.ProfileFragment
 import com.google.firebase.auth.FirebaseAuth
 import io.ak1.BubbleTabBar
@@ -33,44 +29,25 @@ class AdminMainActivity : AppCompatActivity() {
 
         // Load DashboardFragment by default
         bubbleTabBar.setSelectedWithId(R.id.admin_dashboard, false)
-        loadFragment(AdminDashboardFragment())
+        loadFragment(ApprovalFragment())
 
         // Handle tab switching using BubbleTabBar
         bubbleTabBar.addBubbleListener { id ->
             val fragment = when (id) {
-                R.id.admin_dashboard -> AdminDashboardFragment()
-                R.id.admin_users -> ViewUsersFragment()
-                R.id.admin_settings -> ManageSettingsFragment()
-                R.id.admin_profile -> ProfileFragment() // Use a generic profile fragment or an admin-specific one
+                R.id.admin_dashboard -> ApprovalFragment()
+                R.id.admin_profile -> ProfileFragment() // Admin-specific profile fragment
                 else -> null
             }
-            fragment?.let {
-                loadFragment(it)
-            }
+            fragment?.let { loadFragment(it) }
         }
 
-        // Button-based navigation setup
-        val viewUsersButton = findViewById<Button>(R.id.viewUsersButton)
-        val manageSettingsButton = findViewById<Button>(R.id.manageSettingsButton)
-        val logoutButton = findViewById<Button>(R.id.logoutButton)
-
-        // Show ViewUsersFragment when "View Users" button is clicked
-        viewUsersButton.setOnClickListener {
-            loadFragment(ViewUsersFragment())
-        }
-
-        // Show ManageSettingsFragment when "Manage Settings" button is clicked
-        manageSettingsButton.setOnClickListener {
-            loadFragment(ManageSettingsFragment())
-        }
-
-        // Logout functionality with confirmation dialog
-        logoutButton.setOnClickListener {
+        // Handle Logout Button
+        findViewById<Button>(R.id.logoutButton).setOnClickListener {
             logoutUser() // Call the logout confirmation dialog
         }
     }
 
-    // Load the selected fragment
+    // Function to load selected fragments
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(

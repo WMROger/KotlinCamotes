@@ -12,7 +12,7 @@
         android:title="Users" />
     <item
         android:id="@+id/admin_settings"
-        android:icon="@drawable/ic_settings"
+        android:icon="@drawable/ic_myroom"
         android:iconTint="#000000"
         android:title="Settings" />
     <item
