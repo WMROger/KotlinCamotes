@@ -34,10 +34,15 @@ class SplashActivity : AppCompatActivity() {
         // Delay for the Lottie animation, then proceed
         CoroutineScope(Dispatchers.Main).launch {
             delay(3000) // Duration of the animation
+//            navigateToOnboarding()
             checkFirstTimeUser() // Check if it's the first-time user or navigate based on role
         }
     }
-
+    private fun navigateToOnboarding() {
+        val intent = Intent(this, OnboardingActivity::class.java) // Redirect to onboarding
+        startActivity(intent)
+        finish() // End SplashActivity
+    }
     private fun checkFirstTimeUser() {
         // Check if the user is opening the app for the first time
         val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)

@@ -14,10 +14,13 @@
         android:layout_width="304dp"
         android:layout_height="42dp"
         android:hint="xxxxxx"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/RegisterSubHeader" />
+        app:layout_constraintTop_toBottomOf="@+id/RegisterSubHeader"
+        app:layout_constraintVertical_bias="0.048" />
 
     <Button
         android:id="@+id/verifyButton"
@@ -27,23 +30,26 @@
         android:text="Continue"
         android:textSize="16.6sp"
         app:cornerRadius="18dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/verificationCodeEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/verificationCodeEditText"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/backToLoginTextView"
         android:layout_width="71dp"
         android:layout_height="90dp"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
         android:text="@string/back_button"
         android:textColor="#101010"
         android:textSize="60sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.018" />
 
     <TextView
         android:id="@+id/RegisterHeader"
@@ -56,10 +62,12 @@
         android:text="@string/verification_header"
         android:textSize="34sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.074" />
 
     <TextView
         android:id="@+id/RegisterSubHeader"
@@ -71,10 +79,12 @@
         android:text="@string/verification_sub_header"
         android:textColor="#7C7C7C"
         android:textSize="21sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/RegisterHeader" />
+        app:layout_constraintTop_toBottomOf="@+id/RegisterHeader"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/resendCode"
@@ -87,9 +97,11 @@
         android:text="@string/resend_code"
         android:textColor="#4270CC"
         android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/verifyButton" />
+        app:layout_constraintTop_toBottomOf="@+id/verifyButton"
+        app:layout_constraintVertical_bias="0.008" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
