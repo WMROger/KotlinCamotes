@@ -35,6 +35,7 @@ class AdminMainActivity : AppCompatActivity() {
         bubbleTabBar.addBubbleListener { id ->
             val fragment = when (id) {
                 R.id.admin_dashboard -> ApprovalFragment()
+                R.id.admin_add_room -> AddRoomFragment()
                 R.id.admin_profile -> ProfileFragment() // Admin-specific profile fragment
                 else -> null
             }
