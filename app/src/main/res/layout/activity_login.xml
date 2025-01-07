@@ -31,11 +31,10 @@
         android:layout_height="50dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/loginButton">
+        app:layout_constraintTop_toBottomOf="@+id/orText">
 
         <LinearLayout
             android:id="@+id/googleSignInButton"
@@ -85,7 +84,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.356"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView" />
+        app:layout_constraintTop_toBottomOf="@+id/cardView"
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/loginButton"
@@ -114,10 +114,10 @@
         android:textSize="10.4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.837"
+        app:layout_constraintHorizontal_bias="0.78"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/passwordEditText"
-        app:layout_constraintVertical_bias="0.027" />
+        app:layout_constraintVertical_bias="0.023" />
 
     <EditText
         android:id="@+id/passwordEditText"
@@ -176,9 +176,10 @@
         android:textSize="15.34dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.137"
+        app:layout_constraintHorizontal_bias="0.129"
         app:layout_constraintStart_toEndOf="@+id/RegisterAccountTxt"
-        app:layout_constraintTop_toBottomOf="@+id/cardView" />
+        app:layout_constraintTop_toBottomOf="@+id/cardView"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/orText"
@@ -189,11 +190,9 @@
         android:text="Or"
         android:textColor="#818181"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/cardView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loginButton"
-        app:layout_constraintVertical_bias="0.333" />
+        app:layout_constraintTop_toBottomOf="@id/loginButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
