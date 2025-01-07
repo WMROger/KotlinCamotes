@@ -6,7 +6,7 @@
         android:iconTint="#000000"
         android:title="Dashboard" />
     <item
-        android:id="@+id/admin_users"
+        android:id="@+id/admin_add_room"
         android:icon="@drawable/ic_map"
         android:iconTint="#000000"
         android:title="Users" />
