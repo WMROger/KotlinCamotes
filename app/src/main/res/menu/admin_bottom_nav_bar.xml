@@ -4,12 +4,12 @@
         android:id="@+id/admin_dashboard"
         android:icon="@drawable/ic_home"
         android:iconTint="#000000"
-        android:title="Dashboard" />
+        android:title="Approval" />
     <item
         android:id="@+id/admin_add_room"
         android:icon="@drawable/ic_map"
         android:iconTint="#000000"
-        android:title="Users" />
+        android:title="Rooms" />
     <item
         android:id="@+id/admin_settings"
         android:icon="@drawable/ic_myroom"
