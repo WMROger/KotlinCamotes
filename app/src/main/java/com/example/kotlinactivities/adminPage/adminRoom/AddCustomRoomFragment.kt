@@ -85,19 +85,23 @@ class AddCustomRoomFragment : Fragment() {
 
             if (selectedCategory != null && description.isNotEmpty() && price.isNotEmpty()) {
                 if (selectedImages.isNotEmpty()) {
-                    // Call the utility function from the separate file
-                    mapOf(
-                        "category" to selectedCategory,
-                        "description" to description,
-                        "price" to price,
-                        "pax" to paxCount,
-                        "amenities" to selectedAmenities.toList()
-                    )?.let { it1 ->
-                        uploadImageAndSaveToRealtimeDB(
-                            selectedImages[0], // Use the first selected image
-                            requireContext(),
-                            it1
+                    uploadImageAndSaveToRealtimeDB(
+                        selectedImages[0], // Use the first selected image
+                        requireContext(),
+                        mapOf(
+                            "category" to selectedCategory,
+                            "description" to description,
+                            "price" to price,
+                            "pax" to paxCount,
+                            "amenities" to selectedAmenities.toList()
                         )
+                    ) { success ->
+                        if (success) {
+                            // Reset fields after successful upload
+                            resetFields()
+                        } else {
+                            Toast.makeText(requireContext(), "Failed to save room details.", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 } else {
                     Toast.makeText(requireContext(), "Please upload an image.", Toast.LENGTH_SHORT).show()
@@ -107,7 +111,20 @@ class AddCustomRoomFragment : Fragment() {
             }
         }
 
+
+
         return view
+    }
+    private fun resetFields() {
+        selectedImages.clear() // Clear the selected images list
+        selectedCategory = null // Reset the selected category
+        selectedAmenities.clear() // Clear the selected amenities
+        etRoomDescription.text.clear() // Clear the room description input
+        etRoomPrice.text.clear() // Clear the room price input
+        tvPaxCount.text = "5" // Reset pax count to default value
+        paxCount = 5 // Reset pax count variable
+        imagePreviewContainer.removeAllViews() // Clear the image preview container
+        Toast.makeText(requireContext(), "Fields reset successfully.", Toast.LENGTH_SHORT).show()
     }
 
     private fun fetchCategoriesFromRealtimeDatabase() {

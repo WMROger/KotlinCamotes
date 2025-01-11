@@ -19,13 +19,15 @@ import java.io.FileOutputStream
 fun uploadImageAndSaveToRealtimeDB(
     imageUri: Uri,
     context: Context,
-    roomDetails: Map<String, Any?>
+    roomDetails: Map<String, Any?>,
+    onCompletion: (Boolean) -> Unit // Callback to notify upload completion
 ) {
     // Get the file from Uri
     val file = getFileFromUri(context, imageUri)
 
     if (file == null || !file.exists()) {
         Toast.makeText(context, "File does not exist", Toast.LENGTH_SHORT).show()
+        onCompletion(false) // Notify failure
         return
     }
 
@@ -39,19 +41,26 @@ fun uploadImageAndSaveToRealtimeDB(
             val uploadResponse = response.body()
             if (response.isSuccessful && uploadResponse?.status == "success") {
                 val imageUrl = uploadResponse.url ?: ""
-                saveToRealtimeDatabase(imageUrl, roomDetails, context)
+                saveToRealtimeDatabase(imageUrl, roomDetails, context, onCompletion)
             } else {
                 Toast.makeText(context, "Upload failed: ${uploadResponse?.message}", Toast.LENGTH_SHORT).show()
+                onCompletion(false) // Notify failure
             }
         }
 
         override fun onFailure(call: Call<UploadResponse>, t: Throwable) {
             Toast.makeText(context, "Upload error: ${t.message}", Toast.LENGTH_SHORT).show()
+            onCompletion(false) // Notify failure
         }
     })
 }
 
-private fun saveToRealtimeDatabase(imageUrl: String, roomDetails: Map<String, Any?>, context: Context) {
+private fun saveToRealtimeDatabase(
+    imageUrl: String,
+    roomDetails: Map<String, Any?>,
+    context: Context,
+    onCompletion: (Boolean) -> Unit // Callback to notify database save completion
+) {
     val database = FirebaseDatabase.getInstance().reference
     val roomId = database.child("rooms").push().key // Generate a unique room ID
 
@@ -62,12 +71,19 @@ private fun saveToRealtimeDatabase(imageUrl: String, roomDetails: Map<String, An
         database.child("rooms").child(roomId).setValue(roomData)
             .addOnSuccessListener {
                 Toast.makeText(context, "Room details saved to database!", Toast.LENGTH_SHORT).show()
+                onCompletion(true) // Notify success
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Failed to save room: ${it.message}", Toast.LENGTH_SHORT).show()
+                onCompletion(false) // Notify failure
             }
+    } else {
+        Toast.makeText(context, "Failed to generate room ID", Toast.LENGTH_SHORT).show()
+        onCompletion(false) // Notify failure
     }
 }
+
+
 
 // Utility function to copy Uri content to a local file
 private fun getFileFromUri(context: Context, uri: Uri): File? {
