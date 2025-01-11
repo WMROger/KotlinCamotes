@@ -15,7 +15,7 @@ import com.example.kotlinactivities.adminPage.adminAdapter.AmenitiesAdapter
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 
-class FragmentAddAmenities : Fragment() {
+class AddAmenitiesFragment : Fragment() {
 
     private lateinit var rvAmenitiesList: RecyclerView
     private lateinit var etAddAmenity: EditText
