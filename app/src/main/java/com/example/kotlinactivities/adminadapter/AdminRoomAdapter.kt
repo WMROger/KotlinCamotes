@@ -35,12 +35,12 @@ class AdminRoomAdapter(
 
     class AdminRoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val roomImage: ImageView = itemView.findViewById(R.id.roomImage)
-        private val roomName: TextView = itemView.findViewById(R.id.roomName)
+        private val roomName: TextView = itemView.findViewById(R.id.roomTitle)
         private val roomRating: TextView = itemView.findViewById(R.id.roomRating)
         private val roomPeople: TextView = itemView.findViewById(R.id.roomPeople)
         private val roomPrice: TextView = itemView.findViewById(R.id.roomPrice)
-        private val editButton: Button = itemView.findViewById(R.id.editButton)
-        private val deleteButton: Button = itemView.findViewById(R.id.deleteButton)
+//        private val editButton: Button = itemView.findViewById(R.id.editButton)
+//        private val deleteButton: Button = itemView.findViewById(R.id.deleteButton)
 
         fun bind(
             room: AddRoomFragment.Room,
@@ -53,15 +53,15 @@ class AdminRoomAdapter(
             roomPeople.text = "People: ${room.maxPerson}"
             roomPrice.text = room.price
 
-            // Handle Edit Button Click
-            editButton.setOnClickListener {
-                onEditClick(room)
-            }
-
-            // Handle Delete Button Click
-            deleteButton.setOnClickListener {
-                onDeleteClick(room)
-            }
+//            // Handle Edit Button Click
+//            editButton.setOnClickListener {
+//                onEditClick(room)
+//            }
+//
+//            // Handle Delete Button Click
+//            deleteButton.setOnClickListener {
+//                onDeleteClick(room)
+//            }
         }
     }
 }

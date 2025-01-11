@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -15,69 +14,77 @@
         android:padding="8dp">
 
         <!-- Room Image -->
-        <ImageView
-            android:id="@+id/roomImage"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_cupids_deluxe" />
+            android:layout_marginStart="-10dp"
+            android:layout_marginTop="-10dp"
+            android:layout_marginEnd="-10dp"
+            android:layout_height="400dp">
 
-        <!-- Room Details -->
-        <TextView
-            android:id="@+id/roomName"
+            <!-- Carousel for Room Images -->
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/roomCarousel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Title and Rating in ConstraintLayout -->
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Room Name"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp">
 
-        <TextView
-            android:id="@+id/roomRating"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="4.9 ★"
-            android:layout_marginTop="4dp" />
+            <!-- Room Title -->
+            <TextView
+                android:id="@+id/roomTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Room Title"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/roomRating"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- Room Rating -->
+            <TextView
+                android:id="@+id/roomRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4.9 ★"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Room People -->
         <TextView
             android:id="@+id/roomPeople"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="People: 5"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="4dp"
+            android:text="People: 2"
+            android:textSize="14sp" />
 
+        <!-- Room Price -->
         <TextView
             android:id="@+id/roomPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:text="₱1,678/night"
-            android:layout_marginTop="4dp" />
-
-        <!-- Action Buttons -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
-            android:layout_marginTop="8dp">
-
-            <Button
-                android:id="@+id/editButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Edit"
-                android:backgroundTint="@color/green"
-                android:textColor="@android:color/white"
-                android:layout_marginEnd="8dp" />
-
-            <Button
-                android:id="@+id/deleteButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Delete"
-                android:backgroundTint="@color/red"
-                android:textColor="@android:color/white" />
-        </LinearLayout>
-
+            android:textSize="14sp" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

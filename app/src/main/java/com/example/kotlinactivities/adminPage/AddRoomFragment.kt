@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -62,6 +63,31 @@ class AddRoomFragment : Fragment() {
         fabAddRoom = view.findViewById(R.id.fabAddRoom)
         fabAddRoom.setOnClickListener {
             // Navigate to Add Room Form (Add your own logic here)
+        }
+        // Initialize Floating Action Button
+        fabAddRoom = view.findViewById(R.id.fabAddRoom)
+        fabAddRoom.setOnClickListener {
+            // Show the bottom sheet
+            val bottomSheet = AddRoomBottomSheetFragment { option ->
+                when (option) {
+                    AddRoomBottomSheetFragment.Option.ADD_CATEGORY -> {
+                        // Redirect to AddCategoryFragment
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.fragmentContainer, AddCategoryFragment()) // Replace with your container ID
+                            .addToBackStack(null) // Add this transaction to the back stack
+                            .commit()
+                    }
+                    AddRoomBottomSheetFragment.Option.ADD_ROOM -> {
+                        // Handle Add Room Action
+                        Toast.makeText(context, "Add Room Clicked", Toast.LENGTH_SHORT).show()
+                    }
+                    AddRoomBottomSheetFragment.Option.ADD_AMENITIES -> {
+                        // Handle Add Amenities Action
+                        Toast.makeText(context, "Add Amenities Clicked", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            bottomSheet.show(parentFragmentManager, bottomSheet.tag)
         }
 
         return view
