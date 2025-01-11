@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.adminPage
+package com.example.kotlinactivities.adminPage.adminRoom
 
 import android.os.Bundle
 import android.view.LayoutInflater
