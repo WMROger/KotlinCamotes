@@ -1,35 +1,38 @@
-package com.example.kotlinactivities.adminPage
+package com.example.kotlinactivities.adminPage.adminRoom
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.kotlinactivities.R
-import com.example.kotlinactivities.adminPage.ViewModel.CategoryViewModel
+import com.example.kotlinactivities.adminPage.AddCategoryFragment
 import com.example.kotlinactivities.adminadapter.RoomCarouselAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
+import com.google.firebase.database.*
 
 class AddRoomFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var tabLayout: TabLayout
     private lateinit var fabAddRoom: FloatingActionButton
-    private val categoryViewModel: CategoryViewModel by activityViewModels() // Shared ViewModel
+    private lateinit var databaseReference: DatabaseReference // Firebase Database Reference
+    private val categories = mutableListOf<String>() // Store fetched categories locally
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_add_room, container, false)
+
+        // Initialize Firebase Realtime Database reference
+        databaseReference = FirebaseDatabase.getInstance().getReference("categories")
 
         // Initialize RecyclerView
         recyclerView = view.findViewById(R.id.roomsRecyclerView)
@@ -39,10 +42,8 @@ class AddRoomFragment : Fragment() {
         // Initialize TabLayout
         tabLayout = view.findViewById(R.id.tabLayoutRooms)
 
-        // Observe ViewModel categories
-        categoryViewModel.categories.observe(viewLifecycleOwner) { categories ->
-            updateTabLayout(categories)
-        }
+        // Fetch categories from Firebase and display them in TabLayout
+        fetchCategoriesFromFirebase()
 
         // Initialize Floating Action Button
         fabAddRoom = view.findViewById(R.id.fabAddRoom)
@@ -59,7 +60,10 @@ class AddRoomFragment : Fragment() {
                         Toast.makeText(context, "Add Room Clicked", Toast.LENGTH_SHORT).show()
                     }
                     AddRoomBottomSheetFragment.Option.ADD_AMENITIES -> {
-                        Toast.makeText(context, "Add Amenities Clicked", Toast.LENGTH_SHORT).show()
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.fragmentContainer, AddAmenitiesFragment())
+                            .addToBackStack(null)
+                            .commit()
                     }
                 }
             }
@@ -69,29 +73,45 @@ class AddRoomFragment : Fragment() {
         return view
     }
 
-    private fun updateTabLayout(categories: List<String>) {
-        tabLayout.removeAllTabs()
-        for (category in categories) {
-            tabLayout.addTab(tabLayout.newTab().setText(category))
-        }
+    private fun fetchCategoriesFromFirebase() {
+        databaseReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                // Clear the existing categories list
+                categories.clear()
+                tabLayout.removeAllTabs()
 
-        // Set adapter data based on the first tab by default
-        if (categories.isNotEmpty()) {
-            val initialCategory = categories.first()
-            val roomAdapter = RoomAdapter(getSampleRooms(initialCategory))
-            recyclerView.adapter = roomAdapter
-        }
+                // Iterate through all children in the "categories" node
+                for (child in snapshot.children) {
+                    val category = child.getValue(String::class.java)
+                    if (category != null) {
+                        categories.add(category)
+                        tabLayout.addTab(tabLayout.newTab().setText(category))
+                    }
+                }
 
-        // Handle Tab Selection
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                val roomCategory = tab?.text.toString()
-                val updatedRooms = getSampleRooms(roomCategory)
-                (recyclerView.adapter as? RoomAdapter)?.updateRooms(updatedRooms)
+                // Set default adapter data for the first tab
+                if (categories.isNotEmpty()) {
+                    val initialCategory = categories.first()
+                    val roomAdapter = RoomAdapter(getSampleRooms(initialCategory))
+                    recyclerView.adapter = roomAdapter
+                }
+
+                // Handle Tab Selection
+                tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                    override fun onTabSelected(tab: TabLayout.Tab?) {
+                        val roomCategory = tab?.text.toString()
+                        val updatedRooms = getSampleRooms(roomCategory)
+                        (recyclerView.adapter as? RoomAdapter)?.updateRooms(updatedRooms)
+                    }
+
+                    override fun onTabUnselected(tab: TabLayout.Tab?) {}
+                    override fun onTabReselected(tab: TabLayout.Tab?) {}
+                })
             }
 
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(context, "Failed to fetch categories: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
         })
     }
 

@@ -1,13 +1,13 @@
-package com.example.kotlinactivities.adminPage
+package com.example.kotlinactivities.adminadapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
+import com.example.kotlinactivities.adminPage.adminRoom.AddRoomFragment
 
 class AdminRoomAdapter(
     private var rooms: List<AddRoomFragment.Room>,

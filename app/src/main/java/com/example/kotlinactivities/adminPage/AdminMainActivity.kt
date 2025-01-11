@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.admin.ApprovalFragment
+import com.example.kotlinactivities.adminPage.adminRoom.AddRoomFragment
 import com.example.kotlinactivities.authenticationPage.LoginActivity
 import com.example.kotlinactivities.userPage.navBar.ProfileFragment
 import com.google.firebase.auth.FirebaseAuth
