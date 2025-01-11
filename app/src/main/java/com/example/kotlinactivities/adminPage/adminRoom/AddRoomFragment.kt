@@ -57,7 +57,10 @@ class AddRoomFragment : Fragment() {
                             .commit()
                     }
                     AddRoomBottomSheetFragment.Option.ADD_ROOM -> {
-                        Toast.makeText(context, "Add Room Clicked", Toast.LENGTH_SHORT).show()
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.fragmentContainer, AddCustomRoomFragment())
+                            .addToBackStack(null)
+                            .commit()
                     }
                     AddRoomBottomSheetFragment.Option.ADD_AMENITIES -> {
                         parentFragmentManager.beginTransaction()
