@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.navBar
+package com.example.kotlinactivities.userPage.navBar
 
 import android.content.Intent
 import android.os.Bundle
@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.RoomAdapter
-import com.example.kotlinactivities.homePage.RoomDetailsActivity
+import com.example.kotlinactivities.userPage.homePage.RoomDetailsActivity
 import com.example.kotlinactivities.model.Room
 
 class HomeFragment : Fragment() {

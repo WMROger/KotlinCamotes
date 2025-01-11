@@ -41,7 +41,7 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".profilePage.ChangePasswordActivity"
+            android:name=".userPage.profilePage.ChangePasswordActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
@@ -70,7 +70,7 @@
             android:exported="false"
             android:screenOrientation="portrait" /> <!-- Other Activities -->
         <activity
-            android:name=".homePage.BookingRoomActivity"
+            android:name=".userPage.homePage.BookingRoomActivity"
             android:exported="true"
             android:screenOrientation="portrait" />
         <activity
@@ -78,11 +78,11 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".homePage.RoomDetailsActivity"
+            android:name=".userPage.homePage.RoomDetailsActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".homePage.PaymentNotImplementedActivity"
+            android:name=".userPage.homePage.PaymentNotImplementedActivity"
             android:exported="true"
             android:screenOrientation="portrait" />
         <activity

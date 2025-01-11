@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.homePage
+package com.example.kotlinactivities.userPage.homePage
 
 import android.content.Intent
 import android.os.Bundle

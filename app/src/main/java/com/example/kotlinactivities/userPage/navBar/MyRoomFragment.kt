@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.navBar
+package com.example.kotlinactivities.userPage.navBar
 
 import android.content.Intent
 import android.os.Bundle
@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.MyRoomsAdapter
-import com.example.kotlinactivities.homePage.RoomDetailsActivity
+import com.example.kotlinactivities.userPage.homePage.RoomDetailsActivity
 import com.example.kotlinactivities.model.Room
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*

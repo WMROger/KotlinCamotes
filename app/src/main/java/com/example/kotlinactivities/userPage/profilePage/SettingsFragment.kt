@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.profilePage
+package com.example.kotlinactivities.userPage.profilePage
 
 import android.content.Intent
 import android.os.Bundle
@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment
 import com.example.kotlinactivities.MainActivity
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.authenticationPage.LoginActivity
-import com.example.kotlinactivities.profilePage.ChangePasswordActivity
+import com.example.kotlinactivities.userPage.profilePage.ChangePasswordActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError

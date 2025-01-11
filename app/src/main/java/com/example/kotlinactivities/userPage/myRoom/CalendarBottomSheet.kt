@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.myRoom
+package com.example.kotlinactivities.userPage.myRoom
 
 import android.os.Bundle
 import android.view.LayoutInflater

@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.homePage
+package com.example.kotlinactivities.userPage.homePage
 
 import android.content.Intent
 import android.os.Bundle
@@ -14,8 +14,8 @@ import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.ImageCarouselAdapter
 import com.example.kotlinactivities.databinding.ActivityRoomDetailsBinding
 import com.example.kotlinactivities.model.Room
-import com.example.kotlinactivities.myRoom.CalendarBottomSheet
-import com.example.kotlinactivities.myRoom.CancelBookingFragment
+import com.example.kotlinactivities.userPage.myRoom.CalendarBottomSheet
+import com.example.kotlinactivities.userPage.myRoom.CancelBookingFragment
 import com.google.firebase.database.FirebaseDatabase
 import java.text.NumberFormat
 import java.util.*

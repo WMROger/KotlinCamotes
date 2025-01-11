@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.navBar
+package com.example.kotlinactivities.userPage.navBar
 
 import android.os.Bundle
 import android.os.Handler

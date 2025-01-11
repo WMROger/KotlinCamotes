@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.navBar
+package com.example.kotlinactivities.userPage.navBar
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,7 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.kotlinactivities.R
-import com.example.kotlinactivities.profilePage.SettingsFragment
+import com.example.kotlinactivities.userPage.profilePage.SettingsFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError

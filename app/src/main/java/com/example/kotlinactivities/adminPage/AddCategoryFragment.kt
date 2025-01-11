@@ -9,9 +9,11 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
+import com.example.kotlinactivities.adminPage.ViewModel.CategoryViewModel
 
 class AddCategoryFragment : Fragment() {
 
@@ -19,7 +21,7 @@ class AddCategoryFragment : Fragment() {
     private lateinit var addCategoryButton: Button
     private lateinit var categoryInput: EditText
     private lateinit var categoryAdapter: CategoryAdapter
-    private val categoryList = mutableListOf("Barkada", "Deluxe", "VIP") // Initial categories
+    private val categoryViewModel: CategoryViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,22 +29,22 @@ class AddCategoryFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_add_category, container, false)
 
-        // Initialize views
         categoryRecyclerView = view.findViewById(R.id.categoryRecyclerView)
         addCategoryButton = view.findViewById(R.id.addCategoryButton)
         categoryInput = view.findViewById(R.id.categoryInput)
 
-        // Set up RecyclerView
-        categoryAdapter = CategoryAdapter(categoryList)
+        categoryAdapter = CategoryAdapter(mutableListOf()) { categoryViewModel.removeCategory(it) }
         categoryRecyclerView.layoutManager = LinearLayoutManager(context)
         categoryRecyclerView.adapter = categoryAdapter
 
-        // Handle adding a new category
+        categoryViewModel.categories.observe(viewLifecycleOwner) { categories ->
+            categoryAdapter.updateCategories(categories)
+        }
+
         addCategoryButton.setOnClickListener {
             val newCategory = categoryInput.text.toString().trim()
             if (newCategory.isNotEmpty()) {
-                categoryList.add(newCategory)
-                categoryAdapter.notifyItemInserted(categoryList.size - 1)
+                categoryViewModel.addCategory(newCategory)
                 categoryInput.text.clear()
                 Toast.makeText(context, "Category added", Toast.LENGTH_SHORT).show()
             } else {
@@ -53,13 +55,11 @@ class AddCategoryFragment : Fragment() {
         return view
     }
 
-    // Adapter for the RecyclerView
-    class CategoryAdapter(private val categories: List<String>) :
+    class CategoryAdapter(private val categories: MutableList<String>, private val onRemove: (String) -> Unit) :
         RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_category, parent, false)
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_category, parent, false)
             return CategoryViewHolder(view)
         }
 
@@ -69,11 +69,21 @@ class AddCategoryFragment : Fragment() {
 
         override fun getItemCount(): Int = categories.size
 
+        fun updateCategories(newCategories: List<String>) {
+            categories.clear()
+            categories.addAll(newCategories)
+            notifyDataSetChanged()
+        }
+
         class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             private val categoryName: TextView = itemView.findViewById(R.id.categoryName)
+            private val removeButton: Button = itemView.findViewById(R.id.removeCategoryButton)
 
             fun bind(category: String) {
                 categoryName.text = category
+                removeButton.setOnClickListener {
+                    onRemove(category)
+                }
             }
         }
     }

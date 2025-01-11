@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.profilePage
+package com.example.kotlinactivities.userPage.profilePage
 
 import android.os.Bundle
 import android.text.method.PasswordTransformationMethod

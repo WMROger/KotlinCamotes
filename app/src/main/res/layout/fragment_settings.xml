@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="1000dp"
     android:background="@android:color/white"
-    tools:context=".profilePage.SettingsFragment">
+    tools:context=".userPage.profilePage.SettingsFragment">
 
     <!-- Back Button -->
     <ImageView

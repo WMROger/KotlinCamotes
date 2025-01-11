@@ -8,10 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import com.example.kotlinactivities.navBar.HomeFragment
-import com.example.kotlinactivities.navBar.MapFragment
-import com.example.kotlinactivities.navBar.MyRoomFragment
-import com.example.kotlinactivities.navBar.ProfileFragment
+import com.example.kotlinactivities.userPage.navBar.HomeFragment
+import com.example.kotlinactivities.userPage.navBar.MapFragment
+import com.example.kotlinactivities.userPage.navBar.MyRoomFragment
+import com.example.kotlinactivities.userPage.navBar.ProfileFragment
 import com.example.kotlinactivities.authenticationPage.LoginActivity
 import com.example.kotlinactivities.model.Room
 import com.google.firebase.auth.FirebaseAuth
