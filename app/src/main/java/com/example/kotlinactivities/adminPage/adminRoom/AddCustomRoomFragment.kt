@@ -15,8 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adminPage.adminAdapter.AmenitiesAdapter
 import com.example.kotlinactivities.adminPage.adminAdapter.CategoryAdapter
-import com.example.kotlinactivities.adminadapter.customRoomAdapter.CustomRoomAmenitiesAdapter
-import com.example.kotlinactivities.adminadapter.customRoomAdapter.CustomRoomCategoryAdapter
+import com.example.kotlinactivities.adminPage.adminAdapter.customRoomAdapter.CustomRoomAmenitiesAdapter
+import com.example.kotlinactivities.adminPage.adminAdapter.customRoomAdapter.CustomRoomCategoryAdapter
 import com.google.firebase.database.*
 
 class AddCustomRoomFragment : Fragment() {

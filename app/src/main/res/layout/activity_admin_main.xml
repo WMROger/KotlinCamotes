@@ -1,42 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:orientation="horizontal" />
 
     <!-- Fragment container for loading fragments -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp" />
+        android:layout_below="@id/adminBubbleTabBar"
+        android:layout_marginTop="16dp"
+        android:layout_weight="1" />
 
     <!-- Logout button at the bottom -->
     <Button
         android:id="@+id/logoutButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Logout"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp"
-        android:layout_gravity="center_horizontal" />
+        android:text="Logout" />
 
     <!-- Wrap BubbleTabBar in CardView for corner radius -->
     <androidx.cardview.widget.CardView
         android:layout_width="350dp"
         android:layout_height="70dp"
+        android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
         app:cardCornerRadius="50dp"
         app:cardElevation="5dp"
-        android:layout_gravity="center_horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">

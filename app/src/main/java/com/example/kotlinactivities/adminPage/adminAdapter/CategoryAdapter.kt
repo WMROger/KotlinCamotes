@@ -9,10 +9,8 @@ import com.example.kotlinactivities.R
 
 class CategoryAdapter(
     private var categories: MutableList<String>,
-    private val onCategorySelected: (String) -> Unit
+    private val onRemoveCategory: (String) -> Unit
 ) : RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
-
-    private var selectedPosition = RecyclerView.NO_POSITION
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -22,14 +20,10 @@ class CategoryAdapter(
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val category = categories[position]
-        holder.bind(category, position == selectedPosition)
+        holder.bind(category)
 
         holder.itemView.setOnClickListener {
-            val previousPosition = selectedPosition
-            selectedPosition = holder.bindingAdapterPosition
-            notifyItemChanged(previousPosition)
-            notifyItemChanged(selectedPosition)
-            onCategorySelected(category)
+            onRemoveCategory(category) // Trigger removal callback when clicked
         }
     }
 
@@ -44,12 +38,8 @@ class CategoryAdapter(
     class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val categoryName: TextView = itemView.findViewById(R.id.categoryName)
 
-        fun bind(category: String, isSelected: Boolean) {
+        fun bind(category: String) {
             categoryName.text = category
-            itemView.setBackgroundColor(
-                if (isSelected) itemView.context.getColor(R.color.green)
-                else itemView.context.getColor(R.color.white)
-            )
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.adminadapter
+package com.example.kotlinactivities.adminPage.adminAdapter
 
 import android.view.LayoutInflater
 import android.view.View

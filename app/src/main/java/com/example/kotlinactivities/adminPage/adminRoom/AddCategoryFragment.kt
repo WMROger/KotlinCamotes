@@ -8,14 +8,11 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
-import com.example.kotlinactivities.adminPage.ViewModel.CategoryViewModel
 import com.example.kotlinactivities.adminPage.adminAdapter.CategoryAdapter
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 
 class AddCategoryFragment : Fragment() {
 
@@ -23,10 +20,11 @@ class AddCategoryFragment : Fragment() {
     private lateinit var addCategoryButton: Button
     private lateinit var categoryInput: EditText
     private lateinit var categoryAdapter: CategoryAdapter
-    private val categoryViewModel: CategoryViewModel by activityViewModels()
 
     // Firebase database reference
     private lateinit var databaseReference: DatabaseReference
+
+    private val categories = mutableListOf<String>() // Store categories locally
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,26 +41,20 @@ class AddCategoryFragment : Fragment() {
         categoryInput = view.findViewById(R.id.categoryInput)
 
         // Initialize the adapter
-        categoryAdapter = CategoryAdapter(mutableListOf()) { categoryViewModel.removeCategory(it) }
+        categoryAdapter = CategoryAdapter(categories) { category ->
+            removeCategoryFromFirebase(category)
+        }
         categoryRecyclerView.layoutManager = LinearLayoutManager(context)
         categoryRecyclerView.adapter = categoryAdapter
 
-        // Observe ViewModel categories
-        categoryViewModel.categories.observe(viewLifecycleOwner) { categories ->
-            categoryAdapter.updateCategories(categories)
-        }
+        // Fetch data from Firebase
+        fetchCategoriesFromFirebase()
 
         // Add new category
         addCategoryButton.setOnClickListener {
             val newCategory = categoryInput.text.toString().trim()
             if (newCategory.isNotEmpty()) {
-                // Add to ViewModel
-                categoryViewModel.addCategory(newCategory)
-
-                // Save to Firebase
                 saveCategoryToFirebase(newCategory)
-
-                // Clear input field and show a message
                 categoryInput.text.clear()
                 Toast.makeText(context, "Category added", Toast.LENGTH_SHORT).show()
             } else {
@@ -74,9 +66,7 @@ class AddCategoryFragment : Fragment() {
     }
 
     private fun saveCategoryToFirebase(category: String) {
-        // Generate a unique key for the category
         val categoryId = databaseReference.push().key
-
         if (categoryId != null) {
             databaseReference.child(categoryId).setValue(category)
                 .addOnSuccessListener {
@@ -88,5 +78,45 @@ class AddCategoryFragment : Fragment() {
         } else {
             Toast.makeText(context, "Failed to generate category ID", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun fetchCategoriesFromFirebase() {
+        databaseReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                categories.clear()
+                for (child in snapshot.children) {
+                    val category = child.getValue(String::class.java)
+                    if (category != null) {
+                        categories.add(category)
+                    }
+                }
+                categoryAdapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(context, "Failed to fetch categories: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun removeCategoryFromFirebase(category: String) {
+        databaseReference.orderByValue().equalTo(category)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    for (child in snapshot.children) {
+                        child.ref.removeValue()
+                            .addOnSuccessListener {
+                                Toast.makeText(context, "Category removed", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(context, "Failed to remove category: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(context, "Failed to remove category: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 }
