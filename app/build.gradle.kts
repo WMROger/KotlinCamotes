@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.firebase.database.ktx)
     implementation ("com.google.firebase:firebase-auth:21.3.0")
     implementation ("com.google.firebase:firebase-database:20.0.5")
+    implementation ("com.google.firebase:firebase-storage:20.2.1")
 
     // Android libraries
     implementation(libs.android.sdk)
@@ -101,6 +102,7 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.firebase.vertexai)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.firebase.firestore.ktx)
     kapt("com.github.bumptech.glide:compiler:4.15.1")
     debugImplementation("com.github.bumptech.glide:okhttp3-integration:4.15.1")
     implementation ("com.google.android.material:material:1.11.0") // Update to the latest version
@@ -114,5 +116,8 @@ dependencies {
     implementation ("com.airbnb.android:lottie:5.2.0")
     implementation ("androidx.core:core-splashscreen:1.0.1")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("com.squareup.okhttp3:okhttp:4.10.0")
 
 }

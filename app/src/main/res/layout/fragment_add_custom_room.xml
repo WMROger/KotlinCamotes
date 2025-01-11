@@ -1,164 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     android:padding="16dp">
 
-    <!-- Header -->
-    <TextView
-        android:id="@+id/tvHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Room"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <!-- Save Button -->
-    <Button
-        android:id="@+id/btnSaveRoom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Save"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Upload Image -->
-    <Button
-        android:id="@+id/btnUploadImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Upload Image"
-        app:layout_constraintTop_toBottomOf="@id/tvHeader"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <!-- Image Preview -->
-    <LinearLayout
-        android:id="@+id/imagePreviewContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/btnUploadImage"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:paddingTop="8dp"
-        android:gravity="center_horizontal" />
-
-    <!-- Categories -->
-    <TextView
-        android:id="@+id/tvCategory"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Category"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/imagePreviewContainer"
-        app:layout_constraintStart_toStartOf="parent"
-        android:paddingTop="16dp" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCategory"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvCategory"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:padding="8dp"
-        android:clipToPadding="false" />
-
-
-    <!-- Amenities -->
-    <TextView
-        android:id="@+id/tvAmenities"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Amenities"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/rvCategory"
-        app:layout_constraintStart_toStartOf="parent"
-        android:paddingTop="16dp" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvAmenities"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvAmenities"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-
-    <!-- Pax Selector -->
-    <TextView
-        android:id="@+id/tvPax"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Pax"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/rvAmenities"
-        app:layout_constraintStart_toStartOf="parent"
-        android:paddingTop="16dp" />
-
-    <LinearLayout
-        android:id="@+id/paxSelector"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/tvPax"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <Button
-            android:id="@+id/btnDecreasePax"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/back_button" />
-
+        <!-- Header -->
         <TextView
-            android:id="@+id/tvPaxCount"
+            android:id="@+id/tvHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="5"
-            android:paddingHorizontal="8dp"
-            android:textSize="16sp"
-            android:gravity="center" />
+            android:text="Room"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
+        <!-- Save Button -->
         <Button
-            android:id="@+id/btnIncreasePax"
+            android:id="@+id/btnSaveRoom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/next_button" />
-    </LinearLayout>
+            android:text="Save"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Room Description -->
-    <EditText
-        android:id="@+id/etRoomDescription"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="What is the room about"
-        android:gravity="top|start"
-        android:padding="8dp"
-        app:layout_constraintTop_toBottomOf="@id/paxSelector"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:minLines="3" />
+        <!-- Upload Image -->
+        <Button
+            android:id="@+id/btnUploadImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Upload Image"
+            app:layout_constraintTop_toBottomOf="@id/tvHeader"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Price -->
-    <EditText
-        android:id="@+id/etRoomPrice"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Price"
-        android:inputType="numberDecimal"
-        android:padding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etRoomDescription"
-        app:layout_constraintVertical_bias="0.0" />
+        <!-- Image Preview -->
+        <LinearLayout
+            android:id="@+id/imagePreviewContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/btnUploadImage"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:paddingTop="8dp"
+            android:gravity="center_horizontal" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Categories -->
+        <TextView
+            android:id="@+id/tvCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Category"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/imagePreviewContainer"
+            app:layout_constraintStart_toStartOf="parent"
+            android:paddingTop="16dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCategory"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/tvCategory"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:padding="8dp"
+            android:clipToPadding="false" />
+
+        <!-- Amenities -->
+        <TextView
+            android:id="@+id/tvAmenities"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Amenities"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/rvCategory"
+            app:layout_constraintStart_toStartOf="parent"
+            android:paddingTop="16dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAmenities"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/tvAmenities"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Pax Selector -->
+        <TextView
+            android:id="@+id/tvPax"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pax"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/rvAmenities"
+            app:layout_constraintStart_toStartOf="parent"
+            android:paddingTop="16dp" />
+
+        <LinearLayout
+            android:id="@+id/paxSelector"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/tvPax"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <Button
+                android:id="@+id/btnDecreasePax"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/back_button" />
+
+            <TextView
+                android:id="@+id/tvPaxCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5"
+                android:paddingHorizontal="8dp"
+                android:textSize="16sp"
+                android:gravity="center" />
+
+            <Button
+                android:id="@+id/btnIncreasePax"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/next_button" />
+        </LinearLayout>
+
+        <!-- Room Description -->
+        <EditText
+            android:id="@+id/etRoomDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="What is the room about"
+            android:gravity="top|start"
+            android:padding="8dp"
+            app:layout_constraintTop_toBottomOf="@id/paxSelector"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:minLines="3" />
+
+        <!-- Price -->
+        <EditText
+            android:id="@+id/etRoomPrice"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Price"
+            android:inputType="numberDecimal"
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/etRoomDescription"
+            app:layout_constraintVertical_bias="0.0" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

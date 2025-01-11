@@ -13,11 +13,10 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
-import com.example.kotlinactivities.adminPage.adminAdapter.AmenitiesAdapter
-import com.example.kotlinactivities.adminPage.adminAdapter.CategoryAdapter
 import com.example.kotlinactivities.adminPage.adminAdapter.customRoomAdapter.CustomRoomAmenitiesAdapter
 import com.example.kotlinactivities.adminPage.adminAdapter.customRoomAdapter.CustomRoomCategoryAdapter
-import com.google.firebase.database.*
+import com.example.kotlinactivities.adminPage.upload.uploadImageAndSaveToRealtimeDB // Import the separate function
+import com.google.firebase.database.FirebaseDatabase
 
 class AddCustomRoomFragment : Fragment() {
 
@@ -34,12 +33,12 @@ class AddCustomRoomFragment : Fragment() {
 
     private var paxCount = 5
     private val selectedImages = mutableListOf<Uri>() // Store uploaded image URIs
-    private val categories = mutableListOf<String>() // List to store categories
-    private val amenities = mutableListOf<String>() // List to store amenities
-    private var selectedCategory: String? = null // To store the selected category
-    private val selectedAmenities = mutableSetOf<String>() // Track selected amenities
+    private val categories = mutableListOf<String>() // Categories from Realtime DB
+    private val amenities = mutableListOf<String>() // Amenities from Realtime DB
+    private var selectedCategory: String? = null // Selected Category
+    private val selectedAmenities = mutableSetOf<String>() // Selected Amenities
 
-    private lateinit var databaseReference: DatabaseReference // Firebase Database reference
+    private val databaseReference = FirebaseDatabase.getInstance().reference // Firebase DB reference
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,35 +58,50 @@ class AddCustomRoomFragment : Fragment() {
         etRoomPrice = view.findViewById(R.id.etRoomPrice)
         btnSaveRoom = view.findViewById(R.id.btnSaveRoom)
 
-        // Initialize Firebase Database reference
-        databaseReference = FirebaseDatabase.getInstance().reference
+        // Fetch data
+        fetchCategoriesFromRealtimeDatabase()
+        fetchAmenitiesFromRealtimeDatabase()
 
-        // Fetch categories and amenities
-        fetchCategoriesFromFirebase()
-        fetchAmenitiesFromFirebase()
-
-        // Handle Pax Counter
+        // Adjust pax count
         btnDecreasePax.setOnClickListener {
             if (paxCount > 1) {
                 paxCount--
                 tvPaxCount.text = paxCount.toString()
             }
         }
+
         btnIncreasePax.setOnClickListener {
             paxCount++
             tvPaxCount.text = paxCount.toString()
         }
 
-        // Handle Image Upload
+        // Image upload
         btnUploadImage.setOnClickListener { selectImages() }
 
-        // Save Button
+        // Save room details
         btnSaveRoom.setOnClickListener {
             val description = etRoomDescription.text.toString()
             val price = etRoomPrice.text.toString()
 
             if (selectedCategory != null && description.isNotEmpty() && price.isNotEmpty()) {
-                Toast.makeText(requireContext(), "Room Saved!", Toast.LENGTH_SHORT).show()
+                if (selectedImages.isNotEmpty()) {
+                    // Call the utility function from the separate file
+                    mapOf(
+                        "category" to selectedCategory,
+                        "description" to description,
+                        "price" to price,
+                        "pax" to paxCount,
+                        "amenities" to selectedAmenities.toList()
+                    )?.let { it1 ->
+                        uploadImageAndSaveToRealtimeDB(
+                            selectedImages[0], // Use the first selected image
+                            requireContext(),
+                            it1
+                        )
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Please upload an image.", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 Toast.makeText(requireContext(), "Please fill all fields.", Toast.LENGTH_SHORT).show()
             }
@@ -96,42 +110,20 @@ class AddCustomRoomFragment : Fragment() {
         return view
     }
 
-    private fun fetchCategoriesFromFirebase() {
-        databaseReference.child("categories").addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                categories.clear()
-                for (child in snapshot.children) {
-                    val category = child.getValue(String::class.java)
-                    if (category != null) {
-                        categories.add(category)
-                    }
-                }
-                setupCategoryRecyclerView()
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(context, "Failed to fetch categories: ${error.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+    private fun fetchCategoriesFromRealtimeDatabase() {
+        databaseReference.child("categories").get().addOnSuccessListener { snapshot ->
+            categories.clear()
+            snapshot.children.mapNotNullTo(categories) { it.getValue(String::class.java) }
+            setupCategoryRecyclerView()
+        }
     }
 
-    private fun fetchAmenitiesFromFirebase() {
-        databaseReference.child("amenities").addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                amenities.clear()
-                for (child in snapshot.children) {
-                    val amenity = child.getValue(String::class.java)
-                    if (amenity != null) {
-                        amenities.add(amenity)
-                    }
-                }
-                setupAmenitiesRecyclerView()
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(context, "Failed to fetch amenities: ${error.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+    private fun fetchAmenitiesFromRealtimeDatabase() {
+        databaseReference.child("amenities").get().addOnSuccessListener { snapshot ->
+            amenities.clear()
+            snapshot.children.mapNotNullTo(amenities) { it.getValue(String::class.java) }
+            setupAmenitiesRecyclerView()
+        }
     }
 
     private fun setupCategoryRecyclerView() {
@@ -144,44 +136,69 @@ class AddCustomRoomFragment : Fragment() {
     private fun setupAmenitiesRecyclerView() {
         rvAmenities.layoutManager = LinearLayoutManager(requireContext())
         rvAmenities.adapter = CustomRoomAmenitiesAdapter(amenities) { selected ->
-            selectedAmenities.clear() // Clear and update the selected amenities
+            selectedAmenities.clear()
             selectedAmenities.addAll(selected)
         }
     }
 
-
     private fun selectImages() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-        intent.type = "image/*"
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            type = "image/*"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        }
         imagePicker.launch(intent)
     }
 
     private val imagePicker =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                val data = result.data
-                data?.clipData?.let {
-                    for (i in 0 until it.itemCount) {
-                        selectedImages.add(it.getItemAt(i).uri)
-                    }
-                } ?: data?.data?.let {
-                    selectedImages.add(it)
-                }
+                result.data?.data?.let { selectedImages.add(it) }
                 updateImagePreview()
             }
         }
 
     private fun updateImagePreview() {
         imagePreviewContainer.removeAllViews()
-        selectedImages.forEach { uri ->
-            val imageView = ImageView(requireContext()).apply {
-                setImageURI(uri)
-                layoutParams = LinearLayout.LayoutParams(200, 200).apply {
+        selectedImages.forEachIndexed { index, uri ->
+            val container = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
                     setMargins(8, 8, 8, 8)
                 }
             }
-            imagePreviewContainer.addView(imageView)
+
+            val fileNameView = TextView(requireContext()).apply {
+                text = uri.lastPathSegment ?: "File"
+                textSize = 14f
+                setOnClickListener { showZoomedImageDialog(uri, index) }
+            }
+
+            container.addView(fileNameView)
+            imagePreviewContainer.addView(container)
         }
+    }
+
+    private fun showZoomedImageDialog(imageUri: Uri, position: Int) {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_zoomed_image, null)
+        val imageView = dialogView.findViewById<ImageView>(R.id.zoomedImageView)
+        val btnDelete = dialogView.findViewById<Button>(R.id.btnDelete)
+
+        imageView.setImageURI(imageUri)
+
+        val dialog = android.app.AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        btnDelete.setOnClickListener {
+            selectedImages.removeAt(position)
+            updateImagePreview()
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 }
