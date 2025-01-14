@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
     android:orientation="horizontal"
     android:padding="8dp">
 
+    <!-- Category Name -->
     <TextView
         android:id="@+id/categoryName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Category Name"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:padding="8dp" />
+
+    <!-- Remove Button -->
+    <Button
+        android:id="@+id/removeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/roboto"
-        android:padding="4dp"
-        android:textColor="@color/black"
-        android:textSize="16sp" />
-
+        android:text="Remove"
+        android:backgroundTint="@color/green"
+        android:textColor="@android:color/white" />
 </LinearLayout>

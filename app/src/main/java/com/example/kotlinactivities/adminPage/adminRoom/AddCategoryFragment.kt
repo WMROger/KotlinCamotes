@@ -1,6 +1,7 @@
 package com.example.kotlinactivities.adminPage.adminRoom
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -100,23 +101,39 @@ class AddCategoryFragment : Fragment() {
     }
 
     private fun removeCategoryFromFirebase(category: String) {
-        databaseReference.orderByValue().equalTo(category)
+        val cleanCategory = category.trim()
+
+        databaseReference.orderByValue().equalTo(cleanCategory)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    for (child in snapshot.children) {
-                        child.ref.removeValue()
-                            .addOnSuccessListener {
-                                Toast.makeText(context, "Category removed", Toast.LENGTH_SHORT).show()
-                            }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(context, "Failed to remove category: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
+                    Log.d("RemoveCategory", "Snapshot exists: ${snapshot.exists()}")
+                    if (snapshot.exists()) {
+                        for (child in snapshot.children) {
+                            Log.d("RemoveCategory", "Removing key: ${child.key}, value: ${child.value}")
+                            child.ref.removeValue()
+                                .addOnSuccessListener {
+                                    Log.d("RemoveCategory", "Successfully removed: $cleanCategory")
+                                    Toast.makeText(context, "Category removed successfully", Toast.LENGTH_SHORT).show()
+                                    categories.remove(cleanCategory)
+                                    categoryAdapter.notifyDataSetChanged()
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("RemoveCategory", "Failed to remove: ${e.message}")
+                                    Toast.makeText(context, "Failed to remove category: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        }
+                    } else {
+                        Log.d("RemoveCategory", "Category not found: $cleanCategory")
+                        Toast.makeText(context, "Category not found in the database", Toast.LENGTH_SHORT).show()
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
+                    Log.e("RemoveCategory", "Database error: ${error.message}")
                     Toast.makeText(context, "Failed to remove category: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             })
     }
+
+
 }

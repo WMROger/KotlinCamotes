@@ -3,6 +3,7 @@ package com.example.kotlinactivities.adminPage.adminAdapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
@@ -14,16 +15,18 @@ class CategoryAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_category, parent, false)
+            .inflate(R.layout.item_room_category, parent, false) // Ensure this matches the layout file name
         return CategoryViewHolder(view)
     }
 
+
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val category = categories[position]
-        holder.bind(category)
+        holder.categoryName.text = category
 
-        holder.itemView.setOnClickListener {
-            onRemoveCategory(category) // Trigger removal callback when clicked
+        // Attach the remove click listener to the button
+        holder.removeButton.setOnClickListener {
+            onRemoveCategory(category)
         }
     }
 
@@ -36,10 +39,7 @@ class CategoryAdapter(
     }
 
     class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val categoryName: TextView = itemView.findViewById(R.id.categoryName)
-
-        fun bind(category: String) {
-            categoryName.text = category
-        }
+        val categoryName: TextView = itemView.findViewById(R.id.categoryName)
+        val removeButton: Button = itemView.findViewById(R.id.removeButton)
     }
 }
