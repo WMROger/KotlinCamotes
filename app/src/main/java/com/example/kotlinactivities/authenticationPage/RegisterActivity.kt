@@ -5,6 +5,7 @@ import android.graphics.Paint
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
+import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -88,7 +89,7 @@ class RegisterActivity : AppCompatActivity() {
             val verificationCode = Random.nextInt(100000, 999999).toString()
             val timestamp = System.currentTimeMillis()
 
-            // Save the verification code and timestamp to Firebase
+            // Save verification code and timestamp to Firebase
             val codeData = mapOf(
                 "code" to verificationCode,
                 "email" to email,
@@ -99,15 +100,18 @@ class RegisterActivity : AppCompatActivity() {
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         // Send verification email
+                        Log.d("RegisterActivity", "Verification code saved successfully.")
                         sendEmailVerification(email, verificationCode) {
                             // Register the user in Firebase Authentication
                             registerUser(name, phoneNumber, email, password)
                         }
                     } else {
-                        Toast.makeText(this, "Failed to save verification code: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                        Log.e("RegisterActivity", "Failed to save verification code: ${task.exception?.message}")
+                        Toast.makeText(this, "Failed to save verification code.", Toast.LENGTH_SHORT).show()
                     }
                 }
         }
+
 
         // Navigate back to Login
         backToLoginTextView.setOnClickListener {
@@ -124,11 +128,13 @@ class RegisterActivity : AppCompatActivity() {
             try {
                 sendEmail(email, subject, messageBody)
                 runOnUiThread {
+                    Log.d("RegisterActivity", "Verification email sent successfully.")
                     Toast.makeText(this@RegisterActivity, "Verification code sent to $email", Toast.LENGTH_LONG).show()
                     onComplete()
                 }
             } catch (e: Exception) {
                 runOnUiThread {
+                    Log.e("RegisterActivity", "Failed to send email: ${e.message}")
                     Toast.makeText(this@RegisterActivity, "Failed to send email: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -140,32 +146,36 @@ class RegisterActivity : AppCompatActivity() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    val userId = user!!.uid
-                    val userMap = mapOf(
-                        "name" to name,
-                        "phoneNumber" to phoneNumber,
-                        "email" to email,
-                        "emailVerified" to false,
-                        "role" to "User" // Assign default role as "User"
-                    )
-                    val database = FirebaseDatabase.getInstance().getReference("users")
-                    database.child(userId).setValue(userMap).addOnCompleteListener { dbTask ->
-                        if (dbTask.isSuccessful) {
-                            val intent = Intent(this, VerificationActivity::class.java)
-                            intent.putExtra("EMAIL", email)
-                            intent.putExtra("SOURCE", "register")
-                            startActivity(intent)
-                            finish()
-                        } else {
-                            Toast.makeText(this, "Database Error: ${dbTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                    if (user != null) {
+                        val userId = user.uid
+                        val userMap = mapOf(
+                            "name" to name,
+                            "phoneNumber" to phoneNumber,
+                            "email" to email,
+                            "emailVerified" to false,
+                            "role" to "User" // Default role
+                        )
+                        val database = FirebaseDatabase.getInstance().getReference("users")
+                        database.child(userId).setValue(userMap).addOnCompleteListener { dbTask ->
+                            if (dbTask.isSuccessful) {
+                                Log.d("RegisterActivity", "User registered and saved to database.")
+                                val intent = Intent(this, VerificationActivity::class.java)
+                                intent.putExtra("EMAIL", email)
+                                intent.putExtra("SOURCE", "register")
+                                startActivity(intent)
+                                finish()
+                            } else {
+                                Log.e("RegisterActivity", "Database Error: ${dbTask.exception?.message}")
+                                Toast.makeText(this, "Database Error.", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                 } else {
-                    Toast.makeText(this, "Authentication Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("RegisterActivity", "Authentication Error: ${task.exception?.message}")
+                    Toast.makeText(this, "Authentication Error.", Toast.LENGTH_SHORT).show()
                 }
             }
     }
-
 
 
     private fun togglePasswordVisibility(editText: EditText, toggleTextView: TextView) {

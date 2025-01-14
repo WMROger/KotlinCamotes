@@ -42,10 +42,14 @@
         android:text="Himensulan Island, Camotes Cebu"
         android:textColor="#7C7C7C"
         android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/filtersLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerText" />
 
     <!-- Filters -->
+
+    <!-- SwipeRefreshLayout and RecyclerView -->
+
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/filtersLayout"
         android:layout_width="match_parent"
@@ -53,7 +57,12 @@
         android:orientation="horizontal"
         android:paddingHorizontal="20dp"
         android:paddingVertical="8dp"
-        app:layout_constraintTop_toBottomOf="@id/subheaderText">
+        app:layout_constraintBottom_toTopOf="@+id/swipeRefreshLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/headerText"
+        app:layout_constraintVertical_bias="1.0">
 
         <!-- Deluxe Room Button -->
         <TextView
@@ -89,21 +98,22 @@
             android:textSize="14sp" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <!-- SwipeRefreshLayout and RecyclerView -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_marginTop="150dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/filtersLayout">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/roomsRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:padding="16dp"
             tools:listitem="@layout/room_card" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
