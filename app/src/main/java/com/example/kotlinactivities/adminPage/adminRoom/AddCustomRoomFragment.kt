@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adminPage.adminAdapter.customRoomAdapter.CustomRoomAmenitiesAdapter
 import com.example.kotlinactivities.adminPage.adminAdapter.customRoomAdapter.CustomRoomCategoryAdapter
+import com.example.kotlinactivities.adminPage.adminAdapter.customRoomAdapter.SingleSelectionCategoryAdapter
 import com.example.kotlinactivities.adminPage.upload.uploadImageAndSaveToRealtimeDB // Import the separate function
 import com.google.firebase.database.FirebaseDatabase
 
@@ -145,10 +146,11 @@ class AddCustomRoomFragment : Fragment() {
 
     private fun setupCategoryRecyclerView() {
         rvCategory.layoutManager = LinearLayoutManager(requireContext())
-        rvCategory.adapter = CustomRoomCategoryAdapter(categories) { selected ->
-            selectedCategory = selected
+        rvCategory.adapter = SingleSelectionCategoryAdapter(categories) { selected ->
+            selectedCategory = selected // Store the selected category
         }
     }
+
 
     private fun setupAmenitiesRecyclerView() {
         rvAmenities.layoutManager = LinearLayoutManager(requireContext())
