@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.kotlinactivities.R
 
-class RoomCarouselAdapter(private val imageList: List<String>) :
+class RoomCarouselAdapter(private val imageUrls: List<String>) :
     RecyclerView.Adapter<RoomCarouselAdapter.CarouselViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CarouselViewHolder {
@@ -18,10 +18,10 @@ class RoomCarouselAdapter(private val imageList: List<String>) :
     }
 
     override fun onBindViewHolder(holder: CarouselViewHolder, position: Int) {
-        holder.bind(imageList[position])
+        holder.bind(imageUrls[position])
     }
 
-    override fun getItemCount(): Int = imageList.size
+    override fun getItemCount(): Int = imageUrls.size
 
     class CarouselViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val imageView: ImageView = itemView.findViewById(R.id.carouselImage)
@@ -29,7 +29,7 @@ class RoomCarouselAdapter(private val imageList: List<String>) :
         fun bind(imageUrl: String) {
             Glide.with(itemView.context)
                 .load(imageUrl)
-                .placeholder(R.drawable.ic_splash) // Optional placeholder
+                .placeholder(R.drawable.ic_splash) // Placeholder image
                 .into(imageView)
         }
     }

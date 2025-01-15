@@ -122,16 +122,21 @@ class AddRoomFragment : Fragment() {
                     val roomList = mutableListOf<AdminRoom>()
 
                     for (child in snapshot.children) {
-                        val roomName = child.child("name").getValue(String::class.java) ?: "Unknown Room"
-                        val roomRating = child.child("rating").getValue(Double::class.java) ?: 0.0
+                        val roomName = child.child("description").getValue(String::class.java) ?: "Unknown Room"
+                        val roomRating = (3..5).random() + (0..9).random() / 10.0 // Mock random ratings
                         val maxPerson = child.child("pax").getValue(Int::class.java) ?: 0
-                        val price = child.child("price").getValue(String::class.java) ?: "N/A"
+                        val price = "₱${child.child("price").getValue(String::class.java) ?: "N/A"}"
                         val imageUrl = child.child("image_url").getValue(String::class.java) ?: ""
 
                         roomList.add(AdminRoom(roomName, roomRating, maxPerson, price, imageUrl))
                     }
 
-                    (recyclerView.adapter as? AdminRoomAdapter)?.updateRooms(roomList)
+                    // Populate the RecyclerView with fetched rooms
+                    if (recyclerView.adapter == null) {
+                        recyclerView.adapter = AdminRoomAdapter(roomList)
+                    } else {
+                        (recyclerView.adapter as? AdminRoomAdapter)?.updateRooms(roomList)
+                    }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -139,6 +144,10 @@ class AddRoomFragment : Fragment() {
                 }
             })
     }
+
+
+
+
 
     private fun getSampleRooms(category: String): List<AdminRoom> {
         return when (category) {
