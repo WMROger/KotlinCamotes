@@ -11,7 +11,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.kotlinactivities.R
+import com.example.kotlinactivities.adminPage.adminAdapter.AdminRoomAdapter
 import com.example.kotlinactivities.adminPage.adminAdapter.RoomCarouselAdapter
+import com.example.kotlinactivities.model.AdminRoom
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.database.*
@@ -78,11 +80,9 @@ class AddRoomFragment : Fragment() {
     private fun fetchCategoriesFromFirebase() {
         databaseReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                // Clear the existing categories list
                 categories.clear()
                 tabLayout.removeAllTabs()
 
-                // Iterate through all children in the "categories" node
                 for (child in snapshot.children) {
                     val category = child.getValue(String::class.java)
                     if (category != null) {
@@ -91,19 +91,15 @@ class AddRoomFragment : Fragment() {
                     }
                 }
 
-                // Set default adapter data for the first tab
                 if (categories.isNotEmpty()) {
-                    val initialCategory = categories.first()
-                    val roomAdapter = RoomAdapter(getSampleRooms(initialCategory))
-                    recyclerView.adapter = roomAdapter
+                    // Fetch rooms for the first category by default
+                    fetchRoomsByCategory(categories.first())
                 }
 
-                // Handle Tab Selection
                 tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                     override fun onTabSelected(tab: TabLayout.Tab?) {
-                        val roomCategory = tab?.text.toString()
-                        val updatedRooms = getSampleRooms(roomCategory)
-                        (recyclerView.adapter as? RoomAdapter)?.updateRooms(updatedRooms)
+                        val selectedCategory = tab?.text.toString()
+                        fetchRoomsByCategory(selectedCategory) // Fetch for the selected tab
                     }
 
                     override fun onTabUnselected(tab: TabLayout.Tab?) {}
@@ -117,54 +113,64 @@ class AddRoomFragment : Fragment() {
         })
     }
 
-    private fun getSampleRooms(category: String): List<Room> {
+    private fun fetchRoomsByCategory(category: String) {
+        val roomsRef = FirebaseDatabase.getInstance().getReference("rooms")
+
+        roomsRef.orderByChild("category").equalTo(category)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val roomList = mutableListOf<AdminRoom>()
+
+                    for (child in snapshot.children) {
+                        val roomName = child.child("name").getValue(String::class.java) ?: "Unknown Room"
+                        val roomRating = child.child("rating").getValue(Double::class.java) ?: 0.0
+                        val maxPerson = child.child("pax").getValue(Int::class.java) ?: 0
+                        val price = child.child("price").getValue(String::class.java) ?: "N/A"
+                        val imageUrl = child.child("image_url").getValue(String::class.java) ?: ""
+
+                        roomList.add(AdminRoom(roomName, roomRating, maxPerson, price, imageUrl))
+                    }
+
+                    (recyclerView.adapter as? AdminRoomAdapter)?.updateRooms(roomList)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(context, "Failed to fetch rooms: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
+
+    private fun getSampleRooms(category: String): List<AdminRoom> {
         return when (category) {
             "Deluxe Room" -> listOf(
-                Room("Cupid's Deluxe Room", 4.9, 5, "₱1,678/night", R.drawable.ic_cupids_deluxe)
+                AdminRoom(
+                    "Cupid's Deluxe Room",
+                    4.9,
+                    5,
+                    "₱1,678/night",
+                    "https://waveaway.scarlet2.io/assets/jakub-zerdzicki-68ITkIiVOHs-unsplash.jpg"
+                )
             )
             "Barkada Room" -> listOf(
-                Room("Tropical Barkada Room", 4.5, 8, "₱2,500/night", R.drawable.ic_cupids_deluxe)
+                AdminRoom(
+                    "Tropical Barkada Room",
+                    4.5,
+                    8,
+                    "₱2,500/night",
+                    "https://waveaway.scarlet2.io/assets/samsung-memory-Tnm-287tzHQ-unsplash.jpg"
+                )
             )
             "Regular Room" -> listOf(
-                Room("Cozy Regular Room", 4.0, 3, "₱1,000/night", R.drawable.ic_cupids_deluxe)
+                AdminRoom(
+                    "Cozy Regular Room",
+                    4.0,
+                    3,
+                    "₱1,000/night",
+                    "https://waveaway.scarlet2.io/assets/samsung-memory-Tnm-287tzHQ-unsplash.jpg"
+                )
             )
             else -> emptyList()
         }
     }
 
-    data class Room(val name: String, val rating: Double, val maxPerson: Int, val price: String, val imageResId: Int)
-
-    class RoomAdapter(private var rooms: List<Room>) : RecyclerView.Adapter<RoomAdapter.RoomViewHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RoomViewHolder {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.room_card, parent, false)
-            return RoomViewHolder(view)
-        }
-
-        override fun onBindViewHolder(holder: RoomViewHolder, position: Int) {
-            holder.bind(rooms[position])
-        }
-
-        override fun getItemCount(): Int = rooms.size
-
-        fun updateRooms(updatedRooms: List<Room>) {
-            rooms = updatedRooms
-            notifyDataSetChanged()
-        }
-
-        class RoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            private val roomCarousel: ViewPager2 = itemView.findViewById(R.id.roomCarousel)
-            private val roomName: TextView = itemView.findViewById(R.id.roomTitle)
-            private val roomRating: TextView = itemView.findViewById(R.id.roomRating)
-            private val roomMaxPerson: TextView = itemView.findViewById(R.id.roomPeople)
-            private val roomPrice: TextView = itemView.findViewById(R.id.roomPrice)
-
-            fun bind(room: Room) {
-                roomCarousel.adapter = RoomCarouselAdapter(listOf(room.imageResId))
-                roomName.text = room.name
-                roomRating.text = "${room.rating} ★"
-                roomMaxPerson.text = "People: ${room.maxPerson}"
-                roomPrice.text = room.price
-            }
-        }
-    }
 }
