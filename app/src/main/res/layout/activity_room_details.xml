@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".userPage.homePage.RoomDetailsActivity"
-    android:background="#F4F5F7">
+    android:background="#F4F5F7"
+    tools:context=".userPage.homePage.RoomDetailsActivity">
 
     <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
@@ -35,8 +35,8 @@
                     android:id="@+id/indicator_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="20dp"
                     android:layout_gravity="bottom|center_horizontal"
+                    android:layout_marginBottom="20dp"
                     android:orientation="horizontal">
                     <!-- Dots will be added programmatically -->
                 </LinearLayout>
@@ -98,11 +98,12 @@
                 android:textStyle="bold" />
 
             <LinearLayout
+                android:id="@+id/amenitiesLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:orientation="horizontal"
-                android:paddingLeft="16dp">
+                android:padding="8dp">
 
                 <TextView
                     android:id="@+id/wifi"

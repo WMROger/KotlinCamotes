@@ -136,7 +136,7 @@ class HomeFragment : Fragment() {
         val filteredRooms = if (category == null || category == "All") {
             originalRoomList
         } else {
-            originalRoomList.filter { it.category.equals(category, ignoreCase = true) }
+            originalRoomList.filter { it.roomCategory.equals(category, ignoreCase = true) }
         }
 
         roomList.clear()
@@ -169,8 +169,8 @@ class HomeFragment : Fragment() {
                     val imageUrl = child.child("image_url").getValue(String::class.java) ?: ""
                     val imageUrls = child.child("image_urls").getValue(object : GenericTypeIndicator<List<String>>() {}) ?: listOf()
                     val bookingStatus = child.child("bookingStatus").getValue(String::class.java) ?: "Available"
+                    val roomCategory = child.child("category").getValue(String::class.java) ?: "Unknown Category" // Fetch roomCategory
                     val isFavorited = child.child("isFavorited").getValue(Boolean::class.java) ?: false
-                    val category = child.child("category").getValue(String::class.java) ?: "Uncategorized" // Fetch category
                     val rating = "${(3..5).random()}.${(0..9).random()} ★" // Mock random ratings
 
                     // Add to the room list
@@ -183,8 +183,8 @@ class HomeFragment : Fragment() {
                             people = "$pax People",
                             price = "₱$price/night",
                             rating = rating,
-                            category = category, // Assign category
                             bookingStatus = bookingStatus,
+                            roomCategory = roomCategory, // Add roomCategory here
                             isFavorited = isFavorited
                         )
                     )
@@ -200,6 +200,7 @@ class HomeFragment : Fragment() {
             }
         })
     }
+
 
 
 

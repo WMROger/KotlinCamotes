@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -16,7 +17,11 @@ import com.example.kotlinactivities.databinding.ActivityRoomDetailsBinding
 import com.example.kotlinactivities.model.Room
 import com.example.kotlinactivities.userPage.myRoom.CalendarBottomSheet
 import com.example.kotlinactivities.userPage.myRoom.CancelBookingFragment
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.GenericTypeIndicator
+import com.google.firebase.database.ValueEventListener
 import java.text.NumberFormat
 import java.util.*
 
@@ -62,18 +67,12 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
 
     // Function to populate room details
     private fun populateRoomDetails(room: Room) {
-        // Check if there are image URLs
-        val images = room.imageUrls ?: listOf() // Default to an empty list if null
-
+        // Image carousel setup
+        val images = room.imageUrls ?: listOf()
         if (images.isNotEmpty()) {
-            // Multiple images: Set up the carousel
             val imageCarouselAdapter = ImageCarouselAdapter(images)
-            binding.roomImage.adapter = imageCarouselAdapter // Bind adapter to ViewPager2
-
-            // Setup dots indicator
+            binding.roomImage.adapter = imageCarouselAdapter
             setupDots(images.size)
-
-            // Register a callback to update dots on page change
             binding.roomImage.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
@@ -81,20 +80,67 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
                 }
             })
         } else {
-            // Single image case: Use a placeholder or the first image URL directly
-            binding.roomImage.visibility = View.VISIBLE
             val singleImageAdapter = ImageCarouselAdapter(listOf(room.imageUrl ?: R.drawable.ic_splash3.toString()))
             binding.roomImage.adapter = singleImageAdapter
         }
 
-        // Populate other room details
+        // Populate static room details
         binding.roomTitle.text = room.title
         binding.roomLocation.text = "Himensulan Island, Camotes Cebu" // Static for now
         binding.roomRating.text = room.rating
         binding.roomPrice.text = formatPrice(removeNightSuffix(room.price)) // Format price
         binding.roomDescription.text =
             "Indulge in luxury and comfort in our ${room.title}, featuring elegant interiors, plush bedding, a spacious seating area, and modern amenities."
+
+        // Fetch category and amenities from Firebase
+        fetchCategoryAndAmenities(room.id)
     }
+
+    private fun fetchCategoryAndAmenities(roomId: String?) {
+        if (roomId == null) {
+            Toast.makeText(this, "Room ID not found.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val roomRef = FirebaseDatabase.getInstance().getReference("rooms").child(roomId)
+
+        roomRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    // Fetch and display category
+                    val category = snapshot.child("category").getValue(String::class.java)
+
+                    // Fetch and display amenities
+                    val amenities = snapshot.child("amenities").getValue(object : GenericTypeIndicator<List<String>>() {})
+                    displayAmenities(amenities ?: emptyList())
+                } else {
+                    Toast.makeText(this@RoomDetailsActivity, "Room data not found.", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("RoomDetailsActivity", "Failed to fetch data: ${error.message}")
+                Toast.makeText(this@RoomDetailsActivity, "Failed to fetch room details.", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+
+    private fun displayAmenities(amenities: List<String>) {
+        // Clear previous amenities
+        binding.amenitiesLayout.removeAllViews()
+
+        for (amenity in amenities) {
+            val textView = TextView(this).apply {
+                text = "• $amenity" // Add bullet point
+                textSize = 14f
+                setTextColor(ContextCompat.getColor(this@RoomDetailsActivity, R.color.black)) // Adjust color
+                setPadding(8, 8, 8, 8)
+            }
+            binding.amenitiesLayout.addView(textView)
+        }
+    }
+
 
     // Function to setup dots for the image carousel
     private fun setupDots(count: Int) {
