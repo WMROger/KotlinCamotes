@@ -107,12 +107,14 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
         roomRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
-                    // Fetch and display category
-                    val category = snapshot.child("category").getValue(String::class.java)
 
                     // Fetch and display amenities
                     val amenities = snapshot.child("amenities").getValue(object : GenericTypeIndicator<List<String>>() {})
                     displayAmenities(amenities ?: emptyList())
+
+                    // Fetch and display description
+                    val description = snapshot.child("description").getValue(String::class.java)
+                    binding.roomDescription.text = description ?: "No description available."
                 } else {
                     Toast.makeText(this@RoomDetailsActivity, "Room data not found.", Toast.LENGTH_SHORT).show()
                 }
@@ -124,6 +126,7 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
             }
         })
     }
+
 
 
     private fun displayAmenities(amenities: List<String>) {
