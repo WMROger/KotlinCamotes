@@ -8,12 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.kotlinactivities.R
 
-class ImageCarouselAdapter(private val imageUrls: List<String>) :
+class ImageCarouselAdapter(private val images: List<String>) :
     RecyclerView.Adapter<ImageCarouselAdapter.ImageViewHolder>() {
-
-    class ImageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val imageView: ImageView = view.findViewById(R.id.carouselImage)
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -22,9 +18,21 @@ class ImageCarouselAdapter(private val imageUrls: List<String>) :
     }
 
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
-        val imageUrl = imageUrls[position]
-        Glide.with(holder.itemView.context).load(imageUrl).into(holder.imageView)
+        holder.bind(images[position])
     }
 
-    override fun getItemCount(): Int = imageUrls.size
+    override fun getItemCount(): Int = images.size
+
+    class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val imageView: ImageView = itemView.findViewById(R.id.carouselImage)
+
+        fun bind(imageUrl: String) {
+            // Load image using Glide
+            Glide.with(itemView.context)
+                .load(imageUrl)
+                .placeholder(R.drawable.ic_map) // Optional placeholder for loading
+                .error(R.drawable.ic_splash) // Fallback if image fails to load
+                .into(imageView)
+        }
+    }
 }

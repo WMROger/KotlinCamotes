@@ -43,39 +43,36 @@ class RoomAdapter(
     }
 
     class RoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val roomCarousel: ViewPager2 = itemView.findViewById(R.id.roomCarousel) // Carousel for images
+        private val roomCarousel: ViewPager2 = itemView.findViewById(R.id.roomCarousel)
         private val roomTitle: TextView = itemView.findViewById(R.id.roomTitle)
         private val roomPeople: TextView = itemView.findViewById(R.id.roomPeople)
         private val roomPrice: TextView = itemView.findViewById(R.id.roomPrice)
         private val roomRating: TextView = itemView.findViewById(R.id.roomRating)
         private val favoriteButton: ImageView = itemView.findViewById(R.id.favoriteButton)
-
         fun bind(room: Room) {
-            // Ensure imageUrls is never null
-            val images = room.imageUrls ?: emptyList()
-            roomCarousel.adapter = ImageCarouselAdapter(images) // Pass non-null list to adapter
+            // Handle multiple images or fallback to single image
+            val imageUrls = room.imageUrls?.ifEmpty { listOf(room.imageUrl) } ?: listOf(room.imageUrl)
+            roomCarousel.adapter = ImageCarouselAdapter(imageUrls)
 
-            roomTitle.text = room.title
-            roomPeople.text = "${room.people} People"
-            roomPrice.text = room.price
-            roomRating.text = room.rating
+            // Set other room details with fallback/default values
+            roomTitle.text = room.title.ifBlank { "Untitled Room" }
+            roomPeople.text = if (room.people.isNotBlank()) "${room.people} People" else "N/A People"
+            roomPrice.text = room.price.ifBlank { "₱0/night" }
+            roomRating.text = room.rating.ifBlank { "No Rating" }
+            // Update favorite button icon based on the isFavorited state
+            favoriteButton.setImageResource(
+                if (room.isFavorited) R.drawable.ic_heart else R.drawable.ic_heart_black
+            )
 
-            // Set the favorite button icon based on the favorite state
-            if (room.isFavorited) {
-                favoriteButton.setImageResource(R.drawable.ic_heart) // Favorited icon (Red Heart)
-            } else {
-                favoriteButton.setImageResource(R.drawable.ic_heart_black) // Unfavorited icon (Black Heart)
-            }
-
-            // Handle favorite button click
+            // Handle favorite button toggle
             favoriteButton.setOnClickListener {
                 room.isFavorited = !room.isFavorited
-                // Change icon dynamically
-                if (room.isFavorited) {
-                    favoriteButton.setImageResource(R.drawable.ic_heart)
-                } else {
-                    favoriteButton.setImageResource(R.drawable.ic_heart_black)
-                }
+                favoriteButton.setImageResource(
+                    if (room.isFavorited) R.drawable.ic_heart else R.drawable.ic_heart_black
+                )
+
+                // Log the favorite status for debugging
+                Log.d("RoomAdapter", "Room ${room.title} favorited: ${room.isFavorited}")
             }
         }
     }

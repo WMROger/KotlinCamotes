@@ -5,13 +5,14 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Room(
-    val id: String? = null, // Room ID from Firebase
+    val id: String? = null,
     val imageUrl: String = "",
-    val imageUrls: List<String>? = null, // Add this for multiple images
+    val imageUrls: List<String>? = null,
     val title: String = "",
     val people: String = "",
     val price: String = "",
     val rating: String = "",
-    val bookingStatus: String = "", // Add booking status
+    val category: String = "", // Add category field
+    val bookingStatus: String = "",
     var isFavorited: Boolean = false
 ) : Parcelable

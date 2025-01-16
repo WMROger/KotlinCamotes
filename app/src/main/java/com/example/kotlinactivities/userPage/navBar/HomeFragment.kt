@@ -24,6 +24,7 @@ import androidx.appcompat.widget.LinearLayoutCompat
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.GenericTypeIndicator
 import com.google.firebase.database.ValueEventListener
 
 class HomeFragment : Fragment() {
@@ -95,7 +96,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun addFilterButton(category: String) {
-        // Create a TextView for the category
+        Log.d("HomeFragment", "Adding filter button for category: $category") // Debug log
+
         val filterButton = TextView(requireContext()).apply {
             text = category
             textSize = 14f
@@ -107,21 +109,20 @@ class HomeFragment : Fragment() {
             layoutParams = LinearLayoutCompat.LayoutParams(
                 0,
                 LinearLayoutCompat.LayoutParams.WRAP_CONTENT,
-                1f // Equal weight
+                1f
             )
 
-            // Handle click events
             setOnClickListener {
-                updateRoomList(category) // Filter the RecyclerView based on the selected category
+                updateRoomList(category)
                 resetFilterButtons()
-                background = requireContext().getDrawable(R.drawable.filter_button_selected) // Highlight selected filter
-                setTextColor(Color.WHITE) // Change text color for selected filter
+                background = requireContext().getDrawable(R.drawable.filter_button_selected)
+                setTextColor(Color.WHITE)
             }
         }
 
-        // Add the TextView to the filters layout
         filtersLayout.addView(filterButton)
     }
+
 
     private fun resetFilterButtons() {
         for (i in 0 until filtersLayout.childCount) {
@@ -133,47 +134,74 @@ class HomeFragment : Fragment() {
 
     private fun updateRoomList(category: String?) {
         val filteredRooms = if (category == null || category == "All") {
-            originalRoomList // Show all rooms
+            originalRoomList
         } else {
-            originalRoomList.filter { it.title.contains(category, ignoreCase = true) }
+            originalRoomList.filter { it.category.equals(category, ignoreCase = true) }
         }
 
-        // Update RecyclerView
         roomList.clear()
         roomList.addAll(filteredRooms)
         roomAdapter.notifyDataSetChanged()
+
+        if (filteredRooms.isEmpty()) {
+            Toast.makeText(requireContext(), "No rooms available for category: $category", Toast.LENGTH_SHORT).show()
+        }
+
+        Log.d("HomeFragment", "Filtered rooms: ${filteredRooms.size} for category: $category")
     }
 
+
+
+
     private fun loadRoomData() {
-        // Add mock data for now (replace with real API data later)
-        roomList.addAll(
-            listOf(
-                Room(
-                    imageUrls = listOf("https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png"),
-                    title = "Deluxe Room",
-                    people = "2",
-                    price = "₱1,678/night",
-                    rating = "4.9 ★"
-                ),
-                Room(
-                    imageUrls = listOf("https://waveaway.scarlet2.io/assets/ic_cupids_deluxe2.png"),
-                    title = "Barkada Room",
-                    people = "5",
-                    price = "₱2,500/night",
-                    rating = "4.8 ★"
-                ),
-                Room(
-                    imageUrls = listOf("https://waveaway.scarlet2.io/assets/ic_cupids_deluxe.png"),
-                    title = "Regular Room",
-                    people = "3",
-                    price = "₱1,200/night",
-                    rating = "4.5 ★"
-                )
-            )
-        )
-        originalRoomList.addAll(roomList) // Keep original data
-        roomAdapter.notifyDataSetChanged()
+        val roomsRef = FirebaseDatabase.getInstance().getReference("rooms")
+
+        roomsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                roomList.clear()
+                originalRoomList.clear()
+
+                for (child in snapshot.children) {
+                    val id = child.key
+                    val title = child.child("description").getValue(String::class.java) ?: "Unknown Room"
+                    val pax = child.child("pax").getValue(Int::class.java) ?: 0
+                    val price = child.child("price").getValue(String::class.java) ?: "N/A"
+                    val imageUrl = child.child("image_url").getValue(String::class.java) ?: ""
+                    val imageUrls = child.child("image_urls").getValue(object : GenericTypeIndicator<List<String>>() {}) ?: listOf()
+                    val bookingStatus = child.child("bookingStatus").getValue(String::class.java) ?: "Available"
+                    val isFavorited = child.child("isFavorited").getValue(Boolean::class.java) ?: false
+                    val category = child.child("category").getValue(String::class.java) ?: "Uncategorized" // Fetch category
+                    val rating = "${(3..5).random()}.${(0..9).random()} ★" // Mock random ratings
+
+                    // Add to the room list
+                    roomList.add(
+                        Room(
+                            id = id,
+                            imageUrl = imageUrl,
+                            imageUrls = imageUrls,
+                            title = title,
+                            people = "$pax People",
+                            price = "₱$price/night",
+                            rating = rating,
+                            category = category, // Assign category
+                            bookingStatus = bookingStatus,
+                            isFavorited = isFavorited
+                        )
+                    )
+                }
+
+                // Save the original data and update the RecyclerView
+                originalRoomList.addAll(roomList)
+                roomAdapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(requireContext(), "Failed to load rooms: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
+
+
 
     private fun navigateToRoomDetails(room: Room) {
         val intent = Intent(requireContext(), RoomDetailsActivity::class.java).apply {

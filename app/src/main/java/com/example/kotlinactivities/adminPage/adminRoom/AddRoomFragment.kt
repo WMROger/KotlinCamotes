@@ -123,7 +123,7 @@ class AddRoomFragment : Fragment() {
 
                     for (child in snapshot.children) {
                         val roomName = child.child("description").getValue(String::class.java) ?: "Unknown Room"
-                        val roomRating = (3..5).random() + (0..9).random() / 10.0 // Mock random ratings
+                        val roomRating = (3..4).random() + (0..9).random() / 4.0 // Mock random ratings
                         val maxPerson = child.child("pax").getValue(Int::class.java) ?: 0
                         val price = "₱${child.child("price").getValue(String::class.java) ?: "N/A"}"
                         val imageUrl = child.child("image_url").getValue(String::class.java) ?: ""
@@ -144,10 +144,6 @@ class AddRoomFragment : Fragment() {
                 }
             })
     }
-
-
-
-
 
     private fun getSampleRooms(category: String): List<AdminRoom> {
         return when (category) {
