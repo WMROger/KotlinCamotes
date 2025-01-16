@@ -265,10 +265,11 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
         val intent = Intent(this, BookingRoomActivity::class.java).apply {
             putExtra("roomTitle", room.title)
             putExtra("roomPrice", removeNightSuffix(room.price).toInt())
-            putExtra("imageUrl", room.imageUrls?.firstOrNull()) // Pass the first image URL
+            putExtra("imageUrl", room.imageUrls?.firstOrNull() ?: room.imageUrl) // Pass the first image URL or fallback to default
         }
         startActivity(intent)
     }
+
 
     private fun toggleFavorite() {
         isFavorited = !isFavorited // Toggle the state

@@ -36,6 +36,7 @@ class HomeFragment : Fragment() {
     private val roomList = mutableListOf<Room>() // List of all rooms
     private val originalRoomList = mutableListOf<Room>() // Original unfiltered data
     private val categories = mutableListOf<String>() // To store categories from Firebase
+    private var selectedCategory: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -96,16 +97,18 @@ class HomeFragment : Fragment() {
     }
 
     private fun addFilterButton(category: String) {
-        Log.d("HomeFragment", "Adding filter button for category: $category") // Debug log
-
         val filterButton = TextView(requireContext()).apply {
             text = category
             textSize = 14f
             setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.BLACK)
+            setTextColor(if (category == selectedCategory) Color.WHITE else Color.BLACK)
             gravity = Gravity.CENTER
             setPadding(16, 8, 16, 8)
-            background = requireContext().getDrawable(R.drawable.filter_button_default)
+            background = if (category == selectedCategory) {
+                requireContext().getDrawable(R.drawable.filter_button_selected)
+            } else {
+                requireContext().getDrawable(R.drawable.filter_button_default)
+            }
             layoutParams = LinearLayoutCompat.LayoutParams(
                 0,
                 LinearLayoutCompat.LayoutParams.WRAP_CONTENT,
@@ -113,28 +116,48 @@ class HomeFragment : Fragment() {
             )
 
             setOnClickListener {
-                updateRoomList(category)
-                resetFilterButtons()
-                background = requireContext().getDrawable(R.drawable.filter_button_selected)
-                setTextColor(Color.WHITE)
+                updateRoomList(category) // Apply or reset filter
+                resetFilterButtons() // Reset visual styles for all buttons
+                // Highlight this button if it's now the selected category
+                if (selectedCategory == category) {
+                    background = requireContext().getDrawable(R.drawable.filter_button_selected)
+                    setTextColor(Color.WHITE)
+                }
             }
         }
 
         filtersLayout.addView(filterButton)
     }
 
-
     private fun resetFilterButtons() {
         for (i in 0 until filtersLayout.childCount) {
             val child = filtersLayout.getChildAt(i) as TextView
-            child.background = requireContext().getDrawable(R.drawable.filter_button_default) // Reset background
-            child.setTextColor(Color.BLACK) // Reset text color
+            val isSelected = child.text.toString() == selectedCategory
+            child.background = if (isSelected) {
+                requireContext().getDrawable(R.drawable.filter_button_selected)
+            } else {
+                requireContext().getDrawable(R.drawable.filter_button_default)
+            }
+            child.setTextColor(if (isSelected) Color.WHITE else Color.BLACK)
         }
     }
 
     private fun updateRoomList(category: String?) {
+        if (selectedCategory == category) {
+            // If the selected filter is clicked again, reset to show all rooms
+            selectedCategory = null // Reset selected category
+            roomList.clear()
+            roomList.addAll(originalRoomList) // Show all rooms
+            roomAdapter.notifyDataSetChanged()
+            resetFilterButtons() // Reset all filter button styles
+            Toast.makeText(requireContext(), "Filter reset. Showing all rooms.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Apply new category filter
+        selectedCategory = category
         val filteredRooms = if (category == null || category == "All") {
-            originalRoomList
+            originalRoomList // Show all rooms if "All" is selected
         } else {
             originalRoomList.filter { it.roomCategory.equals(category, ignoreCase = true) }
         }
@@ -149,9 +172,6 @@ class HomeFragment : Fragment() {
 
         Log.d("HomeFragment", "Filtered rooms: ${filteredRooms.size} for category: $category")
     }
-
-
-
 
     private fun loadRoomData() {
         val roomsRef = FirebaseDatabase.getInstance().getReference("rooms")
@@ -201,9 +221,6 @@ class HomeFragment : Fragment() {
         })
     }
 
-
-
-
     private fun navigateToRoomDetails(room: Room) {
         val intent = Intent(requireContext(), RoomDetailsActivity::class.java).apply {
             putExtra("room", room)
@@ -214,8 +231,11 @@ class HomeFragment : Fragment() {
     private fun setupSwipeRefresh() {
         swipeRefreshLayout.setOnRefreshListener {
             Toast.makeText(requireContext(), "Refreshing rooms...", Toast.LENGTH_SHORT).show()
+            selectedCategory = null // Reset the selected category
             loadRoomData() // Reload room data
+            resetFilterButtons() // Reset the visual state of filters
             swipeRefreshLayout.isRefreshing = false // Stop refresh animation
         }
     }
+
 }
