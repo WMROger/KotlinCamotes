@@ -5,7 +5,7 @@
         android:layout_height="200dp"
         android:orientation="vertical"
         android:padding="12dp"
-        android:background="@drawable/ic_splash3">
+        android:background="@drawable/badge_unknown">
 
         <!-- User details and room info -->
         <LinearLayout
@@ -16,8 +16,8 @@
             <!-- Profile picture -->
             <ImageView
                 android:id="@+id/userProfileImage"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="38dp"
+                android:layout_height="28dp"
                 android:src="@drawable/ic_profile"
                 android:scaleType="centerCrop"
                 android:layout_marginEnd="12dp"
@@ -36,7 +36,7 @@
                     android:layout_height="wrap_content"
                     android:text="User Name"
                     android:textStyle="bold"
-                    android:textSize="16sp"
+                    android:textSize="13sp"
                     android:textColor="@android:color/black" />
 
                 <TextView
@@ -44,7 +44,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Reservation date: Dec 13-17"
-                    android:textSize="14sp"
+                    android:textSize="11sp"
                     android:textColor="@android:color/darker_gray" />
 
                 <TextView
@@ -52,7 +52,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Check-in: 8am"
-                    android:textSize="14sp"
+                    android:textSize="11sp"
                     android:textColor="@android:color/darker_gray" />
 
                 <TextView
@@ -60,7 +60,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Check-out: 8pm"
-                    android:textSize="14sp"
+                    android:textSize="11sp"
                     android:textColor="@android:color/darker_gray" />
             </LinearLayout>
 
@@ -76,7 +76,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="1x Deluxe Room"
-                    android:textSize="14sp"
+                    android:textSize="11sp"
                     android:textColor="@android:color/black" />
 
                 <TextView
@@ -84,7 +84,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Paid - via GCash"
-                    android:textSize="14sp"
+                    android:textSize="11sp"
                     android:textColor="@android:color/holo_green_dark" />
 
                 <TextView
@@ -92,7 +92,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="₱1,678"
-                    android:textSize="16sp"
+                    android:textSize="13sp"
                     android:textColor="@android:color/black"
                     android:textStyle="bold" />
             </LinearLayout>

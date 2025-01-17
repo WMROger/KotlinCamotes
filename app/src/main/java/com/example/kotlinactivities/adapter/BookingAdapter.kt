@@ -11,8 +11,10 @@ import com.example.kotlinactivities.model.Booking
 import java.text.SimpleDateFormat
 import java.util.*
 
-class BookingAdapter(private val bookings: List<Booking>) :
-    RecyclerView.Adapter<BookingAdapter.BookingViewHolder>() {
+class BookingAdapter(
+    private val bookings: List<Booking>,
+    private val fetchUserName: (String, (String) -> Unit) -> Unit // Callback to fetch the user's name by userId
+) : RecyclerView.Adapter<BookingAdapter.BookingViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookingViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -35,25 +37,26 @@ class BookingAdapter(private val bookings: List<Booking>) :
         private val roomTypeText: TextView = itemView.findViewById(R.id.roomType)
         private val paymentStatusText: TextView = itemView.findViewById(R.id.paymentStatus)
         private val totalPriceText: TextView = itemView.findViewById(R.id.totalPrice)
-        private val paidButton: Button = itemView.findViewById(R.id.paidButton)
-        private val cancelButton: Button = itemView.findViewById(R.id.cancelButton)
 
         fun bind(booking: Booking) {
-            // Set user email as the user name
-            userNameText.text = booking.userEmail
+            // Fetch and display the user's name
+            fetchUserName(booking.userId) { fullName ->
+                val firstName = fullName.split(" ").firstOrNull() ?: "Unknown"
+                userNameText.text = firstName // Show first name
+            }
 
             // Format reservation date
-            reservationDateText.text = "Reservation date: ${formatDate(booking.startDate as? Long)}"
+            reservationDateText.text = "Reservation date: ${formatDate(booking.startDate)}"
 
-            // Static check-in and check-out times (dynamic if needed)
+            // Static check-in and check-out times
             checkInText.text = "Check-in: 8 AM"
             checkOutText.text = "Check-out: 8 PM"
 
-            // Set room type and total price
-            roomTypeText.text = "1x ${booking.roomTitle}" // Assuming 1 room
+            // Room type and total price
+            roomTypeText.text = "1x ${booking.roomTitle}"
             totalPriceText.text = "₱${booking.totalPrice}"
 
-            // Set payment status
+            // Payment status
             paymentStatusText.text = booking.paymentStatus
             paymentStatusText.setTextColor(
                 when (booking.paymentStatus) {
@@ -63,21 +66,8 @@ class BookingAdapter(private val bookings: List<Booking>) :
                     else -> itemView.context.getColor(android.R.color.holo_red_dark) // Default for Canceled
                 }
             )
-
-            // Handle Paid button click
-            paidButton.setOnClickListener {
-                // Mark the booking as paid (update database here)
-                // TODO: Implement Firebase logic to update the payment status to "Paid"
-            }
-
-            // Handle Cancel button click
-            cancelButton.setOnClickListener {
-                // Mark the booking as canceled (update database here)
-                // TODO: Implement Firebase logic to update the payment status to "Canceled"
-            }
         }
 
-        // Helper function to format date (with null safety)
         private fun formatDate(dateMillis: Long?): String {
             return if (dateMillis != null) {
                 val date = Date(dateMillis)

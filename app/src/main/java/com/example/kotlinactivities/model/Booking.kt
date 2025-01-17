@@ -5,6 +5,7 @@ import java.util.Locale
 data class Booking(
     val endDate: Long = 0L, // Use Long for timestamps
     val guestCount: Int = 0,
+    var userName: String = "", // Added to hold the first name
     val imageUrl: String = "",
     val paymentMethod: String = "",
     val paymentStatus: String = "",

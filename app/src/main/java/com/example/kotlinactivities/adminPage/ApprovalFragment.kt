@@ -1,4 +1,4 @@
-package com.example.kotlinactivities.admin
+package com.example.kotlinactivities.adminPage
 
 import android.os.Bundle
 import android.util.Log
@@ -33,8 +33,9 @@ class ApprovalFragment : Fragment() {
         bookingsRecyclerView = view.findViewById(R.id.bookingsRecyclerView)
         tabLayout = view.findViewById(R.id.tabLayout)
 
+        // Initialize RecyclerView
+        bookingsAdapter = BookingAdapter(bookingsList, ::fetchUserName) // Initialize here
         bookingsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        bookingsAdapter = BookingAdapter(bookingsList)
         bookingsRecyclerView.adapter = bookingsAdapter
 
         // Initialize Firebase Database reference
@@ -76,7 +77,7 @@ class ApprovalFragment : Fragment() {
 
                 for (bookingSnapshot in snapshot.children) {
                     try {
-                        // Map data to Booking model
+                        // Deserialize Firebase snapshot into the Booking model
                         val booking = bookingSnapshot.getValue(Booking::class.java)
                         if (booking != null && filterCondition(booking)) {
                             bookingsList.add(booking)
@@ -84,13 +85,13 @@ class ApprovalFragment : Fragment() {
                         }
                     } catch (e: Exception) {
                         // Log the error and skip the problematic data
-                        Log.e("FirebaseError", "Error parsing booking: ${e.message}")
+                        Log.e("ApprovalFragment", "Error parsing booking: ${e.message}")
                     }
                 }
 
                 // Notify the adapter of data changes
                 bookingsAdapter.notifyDataSetChanged()
-                Log.d("ApprovalFragment", "Total bookings: ${bookingsList.size}")
+                Log.d("ApprovalFragment", "Total bookings loaded: ${bookingsList.size}")
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -103,23 +104,25 @@ class ApprovalFragment : Fragment() {
         })
     }
 
-    private fun isToday(booking: Booking): Boolean {
-        return try {
-            val today = System.currentTimeMillis()
-            val startOfDay = today - (today % (24 * 60 * 60 * 1000)) // Start of the day
-            val endOfDay = startOfDay + (24 * 60 * 60 * 1000) // End of the day
-            booking.startDate in startOfDay..endOfDay
-        } catch (e: Exception) {
-            false
+    private fun fetchUserName(userId: String, callback: (String) -> Unit) {
+        val usersReference = FirebaseDatabase.getInstance().getReference("Users")
+        usersReference.child(userId).get().addOnSuccessListener { snapshot ->
+            val fullName = snapshot.child("name").getValue(String::class.java) ?: "Unknown"
+            callback(fullName)
+        }.addOnFailureListener {
+            callback("Unknown") // Fallback if fetching fails
         }
     }
 
+    private fun isToday(booking: Booking): Boolean {
+        val today = System.currentTimeMillis()
+        val startOfDay = today - (today % (24 * 60 * 60 * 1000)) // Start of the day
+        val endOfDay = startOfDay + (24 * 60 * 60 * 1000)       // End of the day
+        return booking.startDate in startOfDay..endOfDay
+    }
+
     private fun isUpcoming(booking: Booking): Boolean {
-        return try {
-            booking.startDate > System.currentTimeMillis() && booking.paymentStatus != "Accepted"
-        } catch (e: Exception) {
-            false
-        }
+        return booking.startDate > System.currentTimeMillis() && booking.paymentStatus != "Accepted"
     }
 
     private fun isRescheduled(booking: Booking): Boolean {
