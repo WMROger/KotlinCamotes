@@ -177,6 +177,7 @@ class BookingRoomActivity : AppCompatActivity() {
         val bookingId = bookingsRef.push().key
 
         if (bookingId != null && startDate != null && endDate != null) { // Ensure dates are not null
+            val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
             val bookingData = mapOf(
                 "userId" to userId,
                 "userEmail" to userEmail,
@@ -185,12 +186,15 @@ class BookingRoomActivity : AppCompatActivity() {
                 "guestCount" to guestCount,
                 "totalPrice" to totalPrice,
                 "totalDays" to calculateTotalDays(),
-                "startDate" to startDate!!.time, // Ensure dates are not null
+                "startDate" to startDate!!.time,
+                "startDateReadable" to dateFormatter.format(startDate),
                 "endDate" to endDate!!.time,
+                "endDateReadable" to dateFormatter.format(endDate),
                 "imageUrl" to firstImageUrl,
-                "paymentMethod" to paymentMethod, // Use the passed payment method
+                "paymentMethod" to paymentMethod,
                 "paymentStatus" to "Pending Approval"
             )
+
 
             // Upload booking data to Firebase
             bookingsRef.child(bookingId).setValue(bookingData)

@@ -40,6 +40,9 @@ class ApprovalFragment : Fragment() {
         // Initialize Firebase Database reference
         databaseReference = FirebaseDatabase.getInstance().getReference("bookings")
 
+        // Add tabs to TabLayout
+        setupTabLayout()
+
         // Load today's bookings by default
         loadBookings { isToday(it) }
 
@@ -58,6 +61,12 @@ class ApprovalFragment : Fragment() {
         })
 
         return view
+    }
+
+    private fun setupTabLayout() {
+        tabLayout.addTab(tabLayout.newTab().setText("Today's bookings"))
+        tabLayout.addTab(tabLayout.newTab().setText("Upcoming bookings"))
+        tabLayout.addTab(tabLayout.newTab().setText("Rescheduled"))
     }
 
     private fun loadBookings(filterCondition: (Booking) -> Boolean) {
@@ -85,7 +94,11 @@ class ApprovalFragment : Fragment() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(requireContext(), "Failed to load bookings: ${error.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to load bookings: ${error.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
     }
