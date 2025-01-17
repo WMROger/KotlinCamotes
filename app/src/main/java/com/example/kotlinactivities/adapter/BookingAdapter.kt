@@ -1,5 +1,6 @@
 package com.example.kotlinactivities.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +14,7 @@ import java.util.*
 
 class BookingAdapter(
     private val bookings: List<Booking>,
-    private val fetchUserName: (String, (String) -> Unit) -> Unit // Callback to fetch the user's name by userId
+    private val fetchUserName: (String, (String) -> Unit) -> Unit // Pass a function to fetch the user's name
 ) : RecyclerView.Adapter<BookingAdapter.BookingViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookingViewHolder {
@@ -37,12 +38,16 @@ class BookingAdapter(
         private val roomTypeText: TextView = itemView.findViewById(R.id.roomType)
         private val paymentStatusText: TextView = itemView.findViewById(R.id.paymentStatus)
         private val totalPriceText: TextView = itemView.findViewById(R.id.totalPrice)
+        private val paidButton: Button = itemView.findViewById(R.id.paidButton)
+        private val cancelButton: Button = itemView.findViewById(R.id.cancelButton)
 
         fun bind(booking: Booking) {
-            // Fetch and display the user's name
+            Log.d("BookingAdapter", "Binding userId: ${booking.userId}") // Debug userId
+
+            // Fetch and display the user's first name
             fetchUserName(booking.userId) { fullName ->
                 val firstName = fullName.split(" ").firstOrNull() ?: "Unknown"
-                userNameText.text = firstName // Show first name
+                userNameText.text = firstName
             }
 
             // Format reservation date
@@ -52,22 +57,32 @@ class BookingAdapter(
             checkInText.text = "Check-in: 8 AM"
             checkOutText.text = "Check-out: 8 PM"
 
-            // Room type and total price
+            // Set room type and total price
             roomTypeText.text = "1x ${booking.roomTitle}"
             totalPriceText.text = "₱${booking.totalPrice}"
 
-            // Payment status
+            // Set payment status
             paymentStatusText.text = booking.paymentStatus
             paymentStatusText.setTextColor(
                 when (booking.paymentStatus) {
                     "Paid" -> itemView.context.getColor(android.R.color.holo_green_dark)
                     "Pending Approval" -> itemView.context.getColor(android.R.color.holo_orange_dark)
                     "Rescheduled" -> itemView.context.getColor(android.R.color.holo_blue_dark)
-                    else -> itemView.context.getColor(android.R.color.holo_red_dark) // Default for Canceled
+                    else -> itemView.context.getColor(android.R.color.holo_red_dark)
                 }
             )
+
+            // Handle button clicks
+            paidButton.setOnClickListener {
+                // TODO: Implement Firebase logic to mark as Paid
+            }
+            cancelButton.setOnClickListener {
+                // TODO: Implement Firebase logic to Cancel the booking
+            }
         }
 
+
+        // Helper function to format date
         private fun formatDate(dateMillis: Long?): String {
             return if (dateMillis != null) {
                 val date = Date(dateMillis)

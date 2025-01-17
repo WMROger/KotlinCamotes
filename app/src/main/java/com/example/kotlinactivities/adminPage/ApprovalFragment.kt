@@ -34,7 +34,7 @@ class ApprovalFragment : Fragment() {
         tabLayout = view.findViewById(R.id.tabLayout)
 
         // Initialize RecyclerView
-        bookingsAdapter = BookingAdapter(bookingsList, ::fetchUserName) // Initialize here
+        bookingsAdapter = BookingAdapter(bookingsList, ::fetchUserName)
         bookingsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         bookingsRecyclerView.adapter = bookingsAdapter
 
@@ -77,19 +77,19 @@ class ApprovalFragment : Fragment() {
 
                 for (bookingSnapshot in snapshot.children) {
                     try {
-                        // Deserialize Firebase snapshot into the Booking model
                         val booking = bookingSnapshot.getValue(Booking::class.java)
-                        if (booking != null && filterCondition(booking)) {
-                            bookingsList.add(booking)
-                            Log.d("ApprovalFragment", "Booking loaded: $booking")
+                        if (booking != null) {
+                            val passesFilter = filterCondition(booking)
+                            Log.d("LoadCheck", "Booking ${booking.userId}: Passes filter -> $passesFilter")
+                            if (passesFilter) {
+                                bookingsList.add(booking)
+                            }
                         }
                     } catch (e: Exception) {
-                        // Log the error and skip the problematic data
                         Log.e("ApprovalFragment", "Error parsing booking: ${e.message}")
                     }
                 }
 
-                // Notify the adapter of data changes
                 bookingsAdapter.notifyDataSetChanged()
                 Log.d("ApprovalFragment", "Total bookings loaded: ${bookingsList.size}")
             }
@@ -104,13 +104,21 @@ class ApprovalFragment : Fragment() {
         })
     }
 
+
     private fun fetchUserName(userId: String, callback: (String) -> Unit) {
         val usersReference = FirebaseDatabase.getInstance().getReference("Users")
         usersReference.child(userId).get().addOnSuccessListener { snapshot ->
-            val fullName = snapshot.child("name").getValue(String::class.java) ?: "Unknown"
-            callback(fullName)
-        }.addOnFailureListener {
-            callback("Unknown") // Fallback if fetching fails
+            val fullName = snapshot.child("name").getValue(String::class.java)
+            if (fullName != null && fullName.isNotEmpty()) {
+                callback(fullName)
+                Log.d("fetchUserName", "Fetched name for userId $userId: $fullName")
+            } else {
+                callback("Unknown")
+                Log.e("fetchUserName", "No name found for userId: $userId")
+            }
+        }.addOnFailureListener { exception ->
+            callback("Unknown")
+            Log.e("fetchUserName", "Error fetching name for userId: $userId", exception)
         }
     }
 
@@ -118,14 +126,22 @@ class ApprovalFragment : Fragment() {
         val today = System.currentTimeMillis()
         val startOfDay = today - (today % (24 * 60 * 60 * 1000)) // Start of the day
         val endOfDay = startOfDay + (24 * 60 * 60 * 1000)       // End of the day
-        return booking.startDate in startOfDay..endOfDay
+
+        val result = booking.startDate in startOfDay..endOfDay && booking.paymentStatus == "Accepted"
+        Log.d("FilterCheck", "isToday: Booking ${booking.userId} -> $result (startDate: ${booking.startDate}, paymentStatus: ${booking.paymentStatus})")
+        return result
     }
 
     private fun isUpcoming(booking: Booking): Boolean {
-        return booking.startDate > System.currentTimeMillis() && booking.paymentStatus != "Accepted"
+        val result = booking.paymentStatus == "Pending Approval"
+        Log.d("FilterCheck", "isUpcoming: Booking ${booking.userId} -> $result (paymentStatus: ${booking.paymentStatus})")
+        return result
     }
 
     private fun isRescheduled(booking: Booking): Boolean {
-        return booking.paymentStatus == "Rescheduled"
+        val result = booking.paymentStatus == "Rescheduled"
+        Log.d("FilterCheck", "isRescheduled: Booking ${booking.userId} -> $result")
+        return result
     }
+
 }
