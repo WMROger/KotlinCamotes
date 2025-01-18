@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:text="Check-in: 8am"
                 android:textSize="11sp"
-                android:textColor="@android:color/darker_gray" />
+                android:textColor="@color/green" />
 
             <TextView
                 android:id="@+id/checkOut"
@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:text="Check-out: 8pm"
                 android:textSize="11sp"
-                android:textColor="@android:color/darker_gray" />
+                android:textColor="@color/red" />
         </LinearLayout>
 
         <!-- Room and price details -->
