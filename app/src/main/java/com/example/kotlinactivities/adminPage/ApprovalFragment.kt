@@ -77,11 +77,10 @@ class ApprovalFragment : Fragment() {
 
                 for (bookingSnapshot in snapshot.children) {
                     try {
+                        Log.d("ApprovalFragment", "Raw data: ${bookingSnapshot.value}")
                         val booking = bookingSnapshot.getValue(AdminBooking::class.java)
                         if (booking != null) {
-                            val passesFilter = filterCondition(booking)
-                            Log.d("LoadCheck", "Booking ${booking.userId}: Passes filter -> $passesFilter")
-                            if (passesFilter) {
+                            if (filterCondition(booking)) {
                                 bookingsList.add(booking)
                             }
                         }
@@ -123,19 +122,14 @@ class ApprovalFragment : Fragment() {
 
     private fun isToday(booking: AdminBooking): Boolean {
         val today = System.currentTimeMillis()
-        val startOfDay = today - (today % (24 * 60 * 60 * 1000)) // Start of the day
-        val endOfDay = startOfDay + (24 * 60 * 60 * 1000)       // End of the day
+        val startOfDay = today - (today % (24 * 60 * 60 * 1000)) // Start of the day in milliseconds
+        val endOfDay = startOfDay + (24 * 60 * 60 * 1000) - 1    // End of the day in milliseconds
 
-        // Include bookings where paymentStatus is "Accepted" or "Success"
-        val isPaymentAccepted = booking.paymentStatus.equals("Accepted", ignoreCase = true) ||
+        // Check if startDate is not null and falls within today's range
+        val startDate = booking.startDate ?: return false
+
+        return startDate in startOfDay..endOfDay &&
                 booking.paymentStatus.equals("Success", ignoreCase = true)
-
-        val result = booking.startDate in startOfDay..endOfDay && isPaymentAccepted
-        Log.d(
-            "FilterCheck",
-            "isToday: Booking ${booking.userId} -> $result (startDate: ${booking.startDate}, paymentStatus: ${booking.paymentStatus})"
-        )
-        return result
     }
 
     private fun isUpcoming(booking: AdminBooking): Boolean {

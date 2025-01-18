@@ -28,36 +28,31 @@ class AdminBookingAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookingViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_todays_booking, parent, false) // Match the new XML layout
+            .inflate(R.layout.item_booking, parent, false) // Inflate the correct layout
         return BookingViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: BookingViewHolder, position: Int) {
         val booking = bookings[position]
 
-        // Set booking details
-        holder.userName.text = booking.userName ?: "Unknown"
-        holder.reservationDate.text = "Reservation date: ${booking.startDateReadable ?: "N/A"} - ${booking.endDateReadable ?: "N/A"}"
-        holder.checkIn.text = "Check-in: 8am"
-        holder.checkOut.text = "Check-out: 8pm"
-        holder.roomType.text = booking.roomTitle ?: "1x Deluxe Room"
+        // Bind booking details to the views
+        holder.userName.text = "User: ${booking.userId ?: "Unknown"}"
+        holder.reservationDate.text = "Reservation Date: ${booking.startDateReadable ?: "N/A"} - ${booking.endDateReadable ?: "N/A"}"
+        holder.checkIn.text = "Check-in: 8am" // Replace with dynamic data if available
+        holder.checkOut.text = "Check-out: 8pm" // Replace with dynamic data if available
+        holder.roomType.text = booking.roomTitle ?: "Unknown Room"
         holder.paymentStatus.text = booking.paymentStatus ?: "Unknown"
-        holder.totalPrice.text = "₱${booking.totalPrice ?: "0"}"
+        holder.totalPrice.text = "₱${booking.totalPrice ?: 0}"
 
-        // Optional: Set user profile image (if applicable)
-        // You can load the image using a library like Glide or Picasso
-        // Example:
-        // Glide.with(holder.userProfileImage.context)
-        //     .load(booking.imageUrl ?: R.drawable.ic_profile)
-        //     .circleCrop()
-        //     .into(holder.userProfileImage)
-
-        // Fetch and display the user's name if needed
+        // Fetch and display the user's name (if available)
         booking.userId?.let { userId ->
             fetchUserName(userId) { name ->
                 holder.userName.text = name
             }
         }
+
+        // Optional: Load profile image if needed (hardcoded here as an example)
+        holder.userProfileImage.setImageResource(R.drawable.ic_profile)
     }
 
     override fun getItemCount(): Int = bookings.size
