@@ -127,10 +127,19 @@ class ApprovalFragment : Fragment() {
         val startOfDay = today - (today % (24 * 60 * 60 * 1000)) // Start of the day
         val endOfDay = startOfDay + (24 * 60 * 60 * 1000)       // End of the day
 
-        val result = booking.startDate in startOfDay..endOfDay && booking.paymentStatus == "Accepted"
-        Log.d("FilterCheck", "isToday: Booking ${booking.userId} -> $result (startDate: ${booking.startDate}, paymentStatus: ${booking.paymentStatus})")
+        // Include bookings where paymentStatus is "Accepted" or "Success"
+        val isPaymentAccepted = booking.paymentStatus.equals("Accepted", ignoreCase = true) ||
+                booking.paymentStatus.equals("Success", ignoreCase = true)
+
+        val result = booking.startDate in startOfDay..endOfDay && isPaymentAccepted
+        Log.d(
+            "FilterCheck",
+            "isToday: Booking ${booking.userId} -> $result (startDate: ${booking.startDate}, paymentStatus: ${booking.paymentStatus})"
+        )
         return result
     }
+
+
 
     private fun isUpcoming(booking: Booking): Boolean {
         val result = booking.paymentStatus == "Pending Approval"

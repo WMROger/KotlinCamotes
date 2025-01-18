@@ -126,79 +126,86 @@ class PaymentNotImplementedActivity : AppCompatActivity() {
         }
     }
 
-
-
-
     private fun handlePaymentSuccess() {
-        // Save room to RoomManager
-        RoomManager.addRoom(
-            Room(
-                imageUrl = imageUrl, // Use the URL instead of a drawable resource ID
-                title = roomTitle ?: "Unknown Room",
-                people = "$guestCount People",
-                price = "₱${roomPrice}/night",
-                rating = "4.9",
-                isFavorited = false
-            )
-        )
-        Log.d("PaymentActivity", "Payment successful. Room added to RoomManager.")
+        val bookingId = intent.getStringExtra("bookingId") // Retrieve booking ID
+        if (bookingId != null) {
+            val database = FirebaseDatabase.getInstance()
+            val bookingsRef = database.getReference("bookings").child(bookingId)
 
-        // Upload booking details to Firebase
-        uploadToFirebase()
+            // Update the paymentStatus to "Success"
+            bookingsRef.child("paymentStatus").setValue("Success")
+                .addOnSuccessListener {
+                    Log.d("PaymentActivity", "Payment status updated to Success.")
+                    Toast.makeText(this, "Payment successful!", Toast.LENGTH_LONG).show()
 
-        // Navigate to MyRoomFragment
-        val intent = Intent(this, MainActivity::class.java).apply {
-            putExtra("navigateTo", "MyRoomFragment")
+                    // Navigate to MyRoomFragment
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.putExtra("navigateTo", "MyRoomFragment")
+                    startActivity(intent)
+                    finish()
+                }
+                .addOnFailureListener { error ->
+                    Log.e("PaymentActivity", "Failed to update payment status: ${error.message}")
+                    Toast.makeText(
+                        this,
+                        "Failed to update payment status. Please try again.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+        } else {
+            Toast.makeText(this, "Booking ID not found. Cannot update payment status.", Toast.LENGTH_LONG).show()
         }
-        startActivity(intent)
-
-        finish()
     }
 
-    private fun uploadToFirebase() {
+    private fun uploadToFirebase(
+        roomTitle: String,
+        userId: String,
+        userEmail: String,
+        firstImageUrl: String,
+        paymentMethod: String
+    ) {
         val database = FirebaseDatabase.getInstance()
         val bookingsRef = database.getReference("bookings")
 
-        val bookingId = bookingsRef.push().key // Generate a unique key for this booking
+        val bookingId = bookingsRef.push().key // Generate a unique booking ID
         if (bookingId != null) {
-            // Retrieve the details from the intent
+            val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
             val totalDays = intent.getIntExtra("totalDays", 1)
-            val userEmail = intent.getStringExtra("userEmail") ?: "Unknown User"
-            val userId = intent.getStringExtra("userId") ?: "Unknown ID"
             val startDateMillis = intent.getLongExtra("startDate", 0L)
             val endDateMillis = intent.getLongExtra("endDate", 0L)
 
-            if (startDateMillis != 0L) startDate = Date(startDateMillis)
-            if (endDateMillis != 0L) endDate = Date(endDateMillis)
+            // Safely parse startDate and endDate
+            val startDate = if (startDateMillis != 0L) Date(startDateMillis) else null
+            val endDate = if (endDateMillis != 0L) Date(endDateMillis) else null
 
-            val bookingDetails = mapOf(
-                "roomTitle" to roomTitle,
-                "guestCount" to guestCount,
-                "roomPrice" to "₱${roomPrice}/night",
-                "totalPrice" to "₱${totalPrice / 100}", // Divide by 100 if amount is in centavos
-                "totalDays" to totalDays,
-                "startDate" to startDate?.time, // Store as timestamp
-                "endDate" to endDate?.time,     // Store as timestamp
-                "userEmail" to userEmail,
+            val bookingData = mapOf(
                 "userId" to userId,
-                "imageUrl" to imageUrl, // Pass the image URL
-                "paymentMethod" to "Gcash", // Include payment method for Gcash
-                "paymentStatus" to "Success" // Mark as Success for Gcash payment
+                "userEmail" to userEmail,
+                "roomTitle" to roomTitle,
+                "roomPrice" to roomPrice,
+                "guestCount" to guestCount,
+                "totalPrice" to totalPrice / 100, // Convert from centavos to pesos
+                "totalDays" to totalDays,
+                "startDate" to startDate?.time,
+                "startDateReadable" to startDate?.let { dateFormatter.format(it) },
+                "endDate" to endDate?.time,
+                "endDateReadable" to endDate?.let { dateFormatter.format(it) },
+                "imageUrl" to firstImageUrl,
+                "paymentMethod" to paymentMethod,
+                "paymentStatus" to "Success"
             )
 
-            bookingsRef.child(bookingId).setValue(bookingDetails)
+            bookingsRef.child(bookingId).setValue(bookingData)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        Log.d("Firebase", "Booking details uploaded successfully.")
+                        Log.d("Firebase", "Booking uploaded successfully.")
                     } else {
-                        Log.e("Firebase", "Failed to upload booking details: ${task.exception?.message}")
+                        Log.e("Firebase", "Failed to upload booking: ${task.exception?.message}")
                         showToast("Error uploading booking details to Firebase.")
                     }
                 }
         }
     }
-
-
 
     private fun createPayMongoSource(amount: Int) {
         val sourceRequest = SourceRequest(

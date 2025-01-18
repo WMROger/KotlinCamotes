@@ -147,18 +147,62 @@ class BookingRoomActivity : AppCompatActivity() {
     }
 
     private fun handleGcashBooking(roomTitle: String, totalPrice: Int) {
-        val intent = Intent(this, PaymentNotImplementedActivity::class.java)
-        intent.putExtra("roomTitle", roomTitle)
-        intent.putExtra("totalPrice", totalPrice * 100) // Convert to centavos
-        intent.putExtra("roomPrice", roomPrice)
-        intent.putExtra("guestCount", guestCount)
-        intent.putExtra("imageUrl", imageUrl)
-        intent.putExtra("startDate", startDate?.time) // Pass start date as timestamp
-        intent.putExtra("endDate", endDate?.time) // Pass end date as timestamp
-        intent.putExtra("userId", firebaseAuth.currentUser?.uid ?: "Unknown ID")
-        intent.putExtra("userEmail", firebaseAuth.currentUser?.email ?: "Unknown User")
-        intent.putExtra("paymentMethod", "Gcash")
-        startActivity(intent)
+        val database = FirebaseDatabase.getInstance()
+        val bookingsRef = database.getReference("bookings")
+
+        val bookingId = bookingsRef.push().key
+        if (bookingId != null && startDate != null && endDate != null) {
+            val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+            val bookingData: Map<String, Any> = mapOf(
+                "userId" to (firebaseAuth.currentUser?.uid ?: "Unknown ID"),
+                "userEmail" to (firebaseAuth.currentUser?.email ?: "Unknown User"),
+                "roomTitle" to roomTitle,
+                "roomPrice" to roomPrice,
+                "guestCount" to guestCount,
+                "totalPrice" to totalPrice, // Ensure this is Int or Double
+                "totalDays" to calculateTotalDays(),
+                "startDate" to startDate!!.time,
+                "startDateReadable" to dateFormatter.format(startDate!!),
+                "endDate" to endDate!!.time,
+                "endDateReadable" to dateFormatter.format(endDate!!),
+                "imageUrl" to imageUrl,
+                "paymentMethod" to "Gcash",
+                "paymentStatus" to "Pending Approval"
+            )
+
+            bookingsRef.child(bookingId).setValue(bookingData)
+                .addOnSuccessListener {
+                    Log.d("BookingActivity", "Booking uploaded successfully.")
+
+                    // Redirect to PaymentNotImplementedActivity
+                    val intent = Intent(this, PaymentNotImplementedActivity::class.java).apply {
+                        putExtra("bookingId", bookingId) // Pass booking ID
+                        putExtra("roomTitle", roomTitle)
+                        putExtra("totalPrice", totalPrice * 100) // Convert to centavos
+                        putExtra("guestCount", guestCount)
+                        putExtra("roomPrice", roomPrice)
+                        putExtra("imageUrl", imageUrl)
+                        putExtra("startDate", startDate!!.time)
+                        putExtra("endDate", endDate!!.time)
+                        putExtra("paymentMethod", "Gcash")
+                    }
+                    startActivity(intent)
+                }
+                .addOnFailureListener { error ->
+                    Log.e("BookingActivity", "Failed to upload booking: ${error.message}")
+                    Toast.makeText(
+                        this,
+                        "Failed to submit booking: ${error.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+        } else {
+            Toast.makeText(
+                this,
+                "Failed to upload booking. Ensure all fields are selected.",
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
 
@@ -223,9 +267,6 @@ class BookingRoomActivity : AppCompatActivity() {
             ).show()
         }
     }
-
-
-
 
     private fun navigateToHomeFragment() {
         val intent = Intent(this, MainActivity::class.java)
