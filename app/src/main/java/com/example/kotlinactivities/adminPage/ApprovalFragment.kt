@@ -10,16 +10,16 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
-import com.example.kotlinactivities.adapter.BookingAdapter
-import com.example.kotlinactivities.model.Booking
+import com.example.kotlinactivities.adminPage.adminAdapter.AdminBookingAdapter
+import com.example.kotlinactivities.model.AdminBooking
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.database.*
 
 class ApprovalFragment : Fragment() {
 
     private lateinit var bookingsRecyclerView: RecyclerView
-    private lateinit var bookingsAdapter: BookingAdapter
-    private val bookingsList: MutableList<Booking> = mutableListOf()
+    private lateinit var bookingsAdapter: AdminBookingAdapter
+    private val bookingsList: MutableList<AdminBooking> = mutableListOf()
     private lateinit var databaseReference: DatabaseReference
     private lateinit var tabLayout: TabLayout
 
@@ -34,7 +34,7 @@ class ApprovalFragment : Fragment() {
         tabLayout = view.findViewById(R.id.tabLayout)
 
         // Initialize RecyclerView
-        bookingsAdapter = BookingAdapter(bookingsList, ::fetchUserName)
+        bookingsAdapter = AdminBookingAdapter(bookingsList, ::fetchUserName)
         bookingsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         bookingsRecyclerView.adapter = bookingsAdapter
 
@@ -70,14 +70,14 @@ class ApprovalFragment : Fragment() {
         tabLayout.addTab(tabLayout.newTab().setText("Rescheduled"))
     }
 
-    private fun loadBookings(filterCondition: (Booking) -> Boolean) {
+    private fun loadBookings(filterCondition: (AdminBooking) -> Boolean) {
         databaseReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 bookingsList.clear()
 
                 for (bookingSnapshot in snapshot.children) {
                     try {
-                        val booking = bookingSnapshot.getValue(Booking::class.java)
+                        val booking = bookingSnapshot.getValue(AdminBooking::class.java)
                         if (booking != null) {
                             val passesFilter = filterCondition(booking)
                             Log.d("LoadCheck", "Booking ${booking.userId}: Passes filter -> $passesFilter")
@@ -104,7 +104,6 @@ class ApprovalFragment : Fragment() {
         })
     }
 
-
     private fun fetchUserName(userId: String, callback: (String) -> Unit) {
         val usersReference = FirebaseDatabase.getInstance().getReference("Users")
         usersReference.child(userId).get().addOnSuccessListener { snapshot ->
@@ -122,7 +121,7 @@ class ApprovalFragment : Fragment() {
         }
     }
 
-    private fun isToday(booking: Booking): Boolean {
+    private fun isToday(booking: AdminBooking): Boolean {
         val today = System.currentTimeMillis()
         val startOfDay = today - (today % (24 * 60 * 60 * 1000)) // Start of the day
         val endOfDay = startOfDay + (24 * 60 * 60 * 1000)       // End of the day
@@ -139,18 +138,15 @@ class ApprovalFragment : Fragment() {
         return result
     }
 
-
-
-    private fun isUpcoming(booking: Booking): Boolean {
+    private fun isUpcoming(booking: AdminBooking): Boolean {
         val result = booking.paymentStatus == "Pending Approval"
         Log.d("FilterCheck", "isUpcoming: Booking ${booking.userId} -> $result (paymentStatus: ${booking.paymentStatus})")
         return result
     }
 
-    private fun isRescheduled(booking: Booking): Boolean {
+    private fun isRescheduled(booking: AdminBooking): Boolean {
         val result = booking.paymentStatus == "Rescheduled"
         Log.d("FilterCheck", "isRescheduled: Booking ${booking.userId} -> $result")
         return result
     }
-
 }
