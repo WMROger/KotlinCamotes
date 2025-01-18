@@ -34,9 +34,7 @@ class ApprovalFragment : Fragment() {
         tabLayout = view.findViewById(R.id.tabLayout)
 
         // Initialize RecyclerView
-        bookingsAdapter = AdminBookingAdapter(bookingsList, ::fetchUserName)
         bookingsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        bookingsRecyclerView.adapter = bookingsAdapter
 
         // Initialize Firebase Database reference
         databaseReference = FirebaseDatabase.getInstance().getReference("bookings")
@@ -77,17 +75,19 @@ class ApprovalFragment : Fragment() {
 
                 for (bookingSnapshot in snapshot.children) {
                     try {
-                        Log.d("ApprovalFragment", "Raw data: ${bookingSnapshot.value}")
                         val booking = bookingSnapshot.getValue(AdminBooking::class.java)
-                        if (booking != null) {
-                            if (filterCondition(booking)) {
-                                bookingsList.add(booking)
-                            }
+                        if (booking != null && filterCondition(booking)) {
+                            bookingsList.add(booking)
                         }
                     } catch (e: Exception) {
                         Log.e("ApprovalFragment", "Error parsing booking: ${e.message}")
                     }
                 }
+
+                // Determine if the tab is "Upcoming Bookings"
+                val isUpcomingTab = tabLayout.selectedTabPosition == 1
+                bookingsAdapter = AdminBookingAdapter(bookingsList, ::fetchUserName, isUpcomingTab)
+                bookingsRecyclerView.adapter = bookingsAdapter
 
                 bookingsAdapter.notifyDataSetChanged()
                 Log.d("ApprovalFragment", "Total bookings loaded: ${bookingsList.size}")
@@ -107,16 +107,9 @@ class ApprovalFragment : Fragment() {
         val usersReference = FirebaseDatabase.getInstance().getReference("Users")
         usersReference.child(userId).get().addOnSuccessListener { snapshot ->
             val fullName = snapshot.child("name").getValue(String::class.java)
-            if (fullName != null && fullName.isNotEmpty()) {
-                callback(fullName)
-                Log.d("fetchUserName", "Fetched name for userId $userId: $fullName")
-            } else {
-                callback("Unknown")
-                Log.e("fetchUserName", "No name found for userId: $userId")
-            }
-        }.addOnFailureListener { exception ->
+            callback(fullName ?: "Unknown")
+        }.addOnFailureListener {
             callback("Unknown")
-            Log.e("fetchUserName", "Error fetching name for userId: $userId", exception)
         }
     }
 
@@ -125,22 +118,15 @@ class ApprovalFragment : Fragment() {
         val startOfDay = today - (today % (24 * 60 * 60 * 1000)) // Start of the day in milliseconds
         val endOfDay = startOfDay + (24 * 60 * 60 * 1000) - 1    // End of the day in milliseconds
 
-        // Check if startDate is not null and falls within today's range
-        val startDate = booking.startDate ?: return false
-
-        return startDate in startOfDay..endOfDay &&
-                booking.paymentStatus.equals("Success", ignoreCase = true)
+        val endDate = booking.endDate ?: return false
+        return booking.paymentStatus.equals("Success", ignoreCase = true) && endDate >= startOfDay
     }
 
     private fun isUpcoming(booking: AdminBooking): Boolean {
-        val result = booking.paymentStatus == "Pending Approval"
-        Log.d("FilterCheck", "isUpcoming: Booking ${booking.userId} -> $result (paymentStatus: ${booking.paymentStatus})")
-        return result
+        return booking.paymentStatus == "Pending Approval"
     }
 
     private fun isRescheduled(booking: AdminBooking): Boolean {
-        val result = booking.paymentStatus == "Rescheduled"
-        Log.d("FilterCheck", "isRescheduled: Booking ${booking.userId} -> $result")
-        return result
+        return booking.paymentStatus == "Rescheduled"
     }
 }
