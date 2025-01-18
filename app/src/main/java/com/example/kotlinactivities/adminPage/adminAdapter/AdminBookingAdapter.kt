@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.model.AdminBooking
+import java.util.Locale
 
 class AdminBookingAdapter(
     private val bookings: List<AdminBooking>,
@@ -46,8 +47,16 @@ class AdminBookingAdapter(
         holder.reservationDate.text = "Reservation date: ${booking.startDateReadable} - ${booking.endDateReadable}"
         holder.checkIn.text = "Check-in: 8am" // Hardcoded check-in time
         holder.checkOut.text = "Check-out: 8pm" // Hardcoded check-out time
-        holder.paymentStatus.text = booking.paymentStatus ?: "Unknown"
         holder.totalPrice.text = "₱${booking.totalPrice ?: 0}"
+
+        // Map paymentStatus to a more user-friendly display value
+        holder.paymentStatus.text = when (booking.paymentStatus?.lowercase(Locale.ROOT)) {
+            "success" -> "Paid - via GCash"
+            "accepted" -> "Accepted"
+            "pending approval" -> "Pending Approval"
+            "rescheduled" -> "Rescheduled"
+            else -> booking.paymentStatus ?: "Unknown"
+        }
 
         // Fetch and display user's full name if needed
         booking.userId?.let { userId ->
@@ -56,13 +65,11 @@ class AdminBookingAdapter(
             }
         }
 
-        // Show/hide buttons based on conditions
+        // Show/hide buttons logic (if applicable for the tab)
         if (!isUpcomingTab) {
-            // Hide buttons for "Today's Bookings"
             holder.paidButton.visibility = View.GONE
             holder.cancelButton.visibility = View.GONE
         } else {
-            // Toggle buttons for "Upcoming Bookings"
             if (position == expandedPosition) {
                 holder.paidButton.visibility = View.VISIBLE
                 holder.cancelButton.visibility = View.VISIBLE
@@ -71,15 +78,15 @@ class AdminBookingAdapter(
                 holder.cancelButton.visibility = View.GONE
             }
 
-            // Card click listener to expand/collapse buttons
             holder.itemView.setOnClickListener {
                 val previousExpandedPosition = expandedPosition
                 expandedPosition = if (expandedPosition == position) -1 else position
-                notifyItemChanged(previousExpandedPosition) // Update the previously expanded card
-                notifyItemChanged(position) // Update the currently expanded card
+                notifyItemChanged(previousExpandedPosition)
+                notifyItemChanged(position)
             }
         }
     }
+
 
     override fun getItemCount(): Int = bookings.size
 }
