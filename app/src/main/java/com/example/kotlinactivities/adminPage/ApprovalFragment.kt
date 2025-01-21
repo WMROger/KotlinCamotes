@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,28 +31,29 @@ class ApprovalFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_approval, container, false)
 
         // Initialize views
+        val filterIcon = view.findViewById<ImageView>(R.id.filterIcon)
         bookingsRecyclerView = view.findViewById(R.id.bookingsRecyclerView)
         tabLayout = view.findViewById(R.id.tabLayout)
 
-        // Initialize RecyclerView
+        // Set up RecyclerView
         bookingsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // Initialize Firebase Database reference
         databaseReference = FirebaseDatabase.getInstance().getReference("bookings")
 
-        // Add tabs to TabLayout
+        // Set up TabLayout
         setupTabLayout()
 
         // Load today's bookings by default
         loadBookings { isToday(it) }
 
-        // Handle tab selection
+        // Handle TabLayout selection
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 when (tab?.position) {
-                    0 -> loadBookings { isToday(it) } // Load Today's Bookings
-                    1 -> loadBookings { isUpcoming(it) } // Load Upcoming Bookings
-                    2 -> loadBookings { isRescheduled(it) } // Load Rescheduled Bookings
+                    0 -> loadBookings { isToday(it) }
+                    1 -> loadBookings { isUpcoming(it) }
+                    2 -> loadBookings { isRescheduled(it) }
                 }
             }
 
@@ -59,13 +61,22 @@ class ApprovalFragment : Fragment() {
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
 
+        // Handle filter icon click
+        filterIcon.setOnClickListener {
+            Toast.makeText(requireContext(), "Filter clicked!", Toast.LENGTH_SHORT).show()
+            // Implement your filter functionality here
+        }
+
         return view
     }
+
 
     private fun setupTabLayout() {
         tabLayout.addTab(tabLayout.newTab().setText("Today's bookings"))
         tabLayout.addTab(tabLayout.newTab().setText("Upcoming bookings"))
         tabLayout.addTab(tabLayout.newTab().setText("Rescheduled"))
+        tabLayout.addTab(tabLayout.newTab().setText("Canceled"))
+        tabLayout.addTab(tabLayout.newTab().setText("Extend Stay"))
     }
 
     private fun loadBookings(filterCondition: (AdminBooking) -> Boolean) {

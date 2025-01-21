@@ -5,14 +5,50 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
+    <!-- Toolbar with Title and Filter Icon -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:tabIndicatorColor="@color/black"
-        app:tabSelectedTextColor="@color/black"
-        app:tabTextColor="@color/gray" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp">
 
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Approval"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textColor="@color/black" />
+
+        <ImageView
+            android:id="@+id/filterIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_filter"
+            app:tint="@color/black" />
+    </LinearLayout>
+
+    <!-- TabLayout inside HorizontalScrollView -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:scrollbars="none">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tabIndicatorColor="@color/black"
+            app:tabSelectedTextColor="@color/black"
+            app:tabTextColor="@color/gray"
+            app:tabMode="scrollable" />
+    </HorizontalScrollView>
+
+    <!-- RecyclerView for Bookings -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/bookingsRecyclerView"
         android:layout_width="match_parent"
