@@ -52,7 +52,7 @@
         android:id="@+id/bookingsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="100dp"
         android:clipToPadding="false"
         android:padding="8dp"
         android:scrollbars="vertical" />
