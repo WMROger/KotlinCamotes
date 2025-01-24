@@ -16,11 +16,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Wrap BubbleTabBar in CardView for corner radius -->
     <androidx.cardview.widget.CardView
-        android:layout_width="350dp"
-        android:layout_height="70dp"
+        android:layout_width="300dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
+        android:paddingHorizontal="50dp"
         app:cardCornerRadius="50dp"
         app:cardElevation="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -31,7 +32,7 @@
             android:id="@+id/bubbleTabBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10.5dp"
+            android:layout_marginTop="5.5dp"
             android:background="#FFF"
             app:bubbletab_horizontal_padding="10dp"
             app:bubbletab_icon_size="30dp"
