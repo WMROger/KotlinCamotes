@@ -28,16 +28,17 @@ class AdminMainActivity : AppCompatActivity() {
         // Initialize BubbleTabBar
         bubbleTabBar = findViewById(R.id.adminBubbleTabBar)
 
-        // Load DashboardFragment by default
-        bubbleTabBar.setSelectedWithId(R.id.admin_dashboard, false)
+        // Load the ApprovalFragment by default
         loadFragment(ApprovalFragment())
+        bubbleTabBar.setSelectedWithId(R.id.admin_dashboard, true) // Set default tab explicitly
 
         // Handle tab switching using BubbleTabBar
         bubbleTabBar.addBubbleListener { id ->
             val fragment = when (id) {
                 R.id.admin_dashboard -> ApprovalFragment()
                 R.id.admin_add_room -> AddRoomFragment()
-                R.id.admin_profile -> ProfileFragment() // Admin-specific profile fragment
+                R.id.admin_settings -> ProfileFragment() // Replace with the correct fragment if necessary
+                R.id.admin_profile -> ProfileFragment()
                 else -> null
             }
             fragment?.let { loadFragment(it) }
@@ -45,7 +46,7 @@ class AdminMainActivity : AppCompatActivity() {
 
         // Handle Logout Button
         findViewById<Button>(R.id.logoutButton).setOnClickListener {
-            logoutUser() // Call the logout confirmation dialog
+            logoutUser()
         }
     }
 
@@ -62,40 +63,28 @@ class AdminMainActivity : AppCompatActivity() {
 
     // Logout functionality with confirmation dialog
     private fun logoutUser() {
-        // Inflate the custom dialog layout
         val dialogView = layoutInflater.inflate(R.layout.dialog_logout_confirmation, null)
-
-        // Create the AlertDialog
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(dialogView)
-            .setCancelable(false) // Prevent dialog from closing when tapping outside
+            .setCancelable(false)
             .create()
 
-        // Access the dialog buttons
         val btnYes = dialogView.findViewById<Button>(R.id.btnYes)
         val btnNo = dialogView.findViewById<Button>(R.id.btnNo)
 
-        // Handle "Yes" button click
         btnYes.setOnClickListener {
-            // Perform logout
             auth.signOut()
-
-            // Navigate to the LoginActivity after logout
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
-
-            // Close the dialog
             dialog.dismiss()
         }
 
-        // Handle "No" button click
         btnNo.setOnClickListener {
-            dialog.dismiss() // Close the dialog
+            dialog.dismiss()
         }
 
-        // Show the dialog
         dialog.show()
     }
 }
