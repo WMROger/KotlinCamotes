@@ -7,12 +7,13 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.kotlinactivities.BaseActivity
 import com.example.kotlinactivities.MainActivity
 import com.example.kotlinactivities.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
-class RegisterGoogleActivity : AppCompatActivity() {
+class RegisterGoogleActivity : BaseActivity() {
 
     private lateinit var auth: FirebaseAuth
 

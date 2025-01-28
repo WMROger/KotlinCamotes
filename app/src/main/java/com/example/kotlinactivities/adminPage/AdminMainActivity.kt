@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.example.kotlinactivities.BaseActivity
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adminPage.ApprovalFragment
 import com.example.kotlinactivities.adminPage.adminRoom.AddRoomFragment
@@ -13,7 +14,7 @@ import com.example.kotlinactivities.userPage.navBar.ProfileFragment
 import com.google.firebase.auth.FirebaseAuth
 import io.ak1.BubbleTabBar
 
-class AdminMainActivity : AppCompatActivity() {
+class AdminMainActivity : BaseActivity() {
 
     private lateinit var bubbleTabBar: BubbleTabBar
     private lateinit var auth: FirebaseAuth

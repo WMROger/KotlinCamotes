@@ -5,13 +5,14 @@ import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.kotlinactivities.BaseActivity
 import com.example.kotlinactivities.R
 import kotlin.random.Random
 import com.example.kotlinactivities.network.sendEmail
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.launch
 
-class ForgetPasswordActivity : AppCompatActivity() {
+class ForgetPasswordActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

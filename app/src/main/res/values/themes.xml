@@ -7,6 +7,11 @@
         <item name="colorControlHighlight">#25443E</item>
         <!-- Set custom font as default -->
         <item name="android:fontFamily">@font/inter</item>
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:fitsSystemWindows">true</item>
     </style>
 
 
