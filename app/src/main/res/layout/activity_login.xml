@@ -1,5 +1,4 @@
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -32,7 +31,7 @@
         android:id="@+id/HeaderLogin"
         android:layout_width="260dp"
         android:layout_height="44dp"
-        android:layout_marginTop="308dp"
+        android:layout_marginTop="338dp"
         android:fontFamily="@font/inter"
         android:paddingTop="8dp"
         android:text="Let’s Get Started!"
@@ -129,17 +128,23 @@
     <Button
         android:id="@+id/loginButton"
         android:layout_width="304dp"
-        android:layout_height="56dp"
+        android:layout_height="51dp"
         android:layout_marginTop="34dp"
+        android:background="@drawable/green_rounded_button"
         android:text="Continue"
-        android:textSize="16.6dp"
-        app:cornerRadius="18dp"
+        android:textAllCaps="false"
+        android:fontFamily="@font/inter"
+        android:textColor="#FFFFFF"
+        android:textSize="16.6sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/passwordEditText"
         app:layout_constraintVertical_bias="0.0" />
+
+
+
 
     <TextView
         android:id="@+id/forgotPassword"
