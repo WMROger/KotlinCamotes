@@ -14,10 +14,11 @@ import java.util.Locale
 class AdminBookingAdapter(
     private val bookings: List<AdminBooking>,
     private val fetchUserName: (String, (String) -> Unit) -> Unit,
-    private val isUpcomingTab: Boolean // Pass whether it's the "Upcoming" tab
+    private val isUpcomingTab: Boolean,
+    private val onPaidClick: (String) -> Unit // Callback for marking as paid
 ) : RecyclerView.Adapter<AdminBookingAdapter.BookingViewHolder>() {
 
-    private var expandedPosition: Int = -1 // To track the expanded card in the "Upcoming" tab
+    private var expandedPosition: Int = -1 // Track expanded booking in Upcoming tab
 
     class BookingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val userProfileImage: ImageView = view.findViewById(R.id.userProfileImage)
@@ -35,21 +36,26 @@ class AdminBookingAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookingViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_booking, parent, false) // Match the item_booking layout
+            .inflate(R.layout.item_booking, parent, false)
         return BookingViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: BookingViewHolder, position: Int) {
         val booking = bookings[position]
 
-        // Set data in the view
+        // Set text data
         holder.roomType.text = booking.roomTitle ?: "Unknown"
-        holder.reservationDate.text = "Reservation date: ${booking.startDateReadable} - ${booking.endDateReadable}"
-        holder.checkIn.text = "Check-in: 8am" // Hardcoded check-in time
-        holder.checkOut.text = "Check-out: 8pm" // Hardcoded check-out time
+        holder.reservationDate.text = "Reservation: ${booking.startDateReadable} - ${booking.endDateReadable}"
+        holder.checkIn.text = "Check-in: 8am"
+        holder.checkOut.text = "Check-out: 8pm"
         holder.totalPrice.text = "₱${booking.totalPrice ?: 0}"
 
-        // Map paymentStatus to a more user-friendly display value
+        // Fetch and display user name
+        booking.userId?.let { userId ->
+            fetchUserName(userId) { name -> holder.userName.text = name }
+        }
+
+        // Set payment status text
         holder.paymentStatus.text = when (booking.paymentStatus?.lowercase(Locale.ROOT)) {
             "success" -> "Paid - via GCash"
             "accepted" -> "Accepted"
@@ -58,25 +64,10 @@ class AdminBookingAdapter(
             else -> booking.paymentStatus ?: "Unknown"
         }
 
-        // Fetch and display user's full name if needed
-        booking.userId?.let { userId ->
-            fetchUserName(userId) { name ->
-                holder.userName.text = name
-            }
-        }
-
-        // Show/hide buttons logic (if applicable for the tab)
-        if (!isUpcomingTab) {
-            holder.paidButton.visibility = View.GONE
-            holder.cancelButton.visibility = View.GONE
-        } else {
-            if (position == expandedPosition) {
-                holder.paidButton.visibility = View.VISIBLE
-                holder.cancelButton.visibility = View.VISIBLE
-            } else {
-                holder.paidButton.visibility = View.GONE
-                holder.cancelButton.visibility = View.GONE
-            }
+        // Click handling for "Upcoming" bookings
+        if (isUpcomingTab) {
+            holder.paidButton.visibility = if (position == expandedPosition) View.VISIBLE else View.GONE
+            holder.cancelButton.visibility = if (position == expandedPosition) View.VISIBLE else View.GONE
 
             holder.itemView.setOnClickListener {
                 val previousExpandedPosition = expandedPosition
@@ -84,9 +75,27 @@ class AdminBookingAdapter(
                 notifyItemChanged(previousExpandedPosition)
                 notifyItemChanged(position)
             }
+
+            holder.paidButton.setOnClickListener {
+                booking.id?.let { id -> onPaidClick(id) }  // Update payment status
+            }
+        } else {
+            // Hide buttons for non-upcoming tabs
+            holder.paidButton.visibility = View.GONE
+            holder.cancelButton.visibility = View.GONE
+        }
+
+        // **Disable clicks for "Today's Bookings"**
+        if (!isUpcomingTab && booking.paymentStatus.equals("Success", ignoreCase = true)) {
+            holder.itemView.isClickable = false
+            holder.itemView.isEnabled = false
+            holder.itemView.alpha = 0.7f // Reduce opacity to show it's non-clickable
+        } else {
+            holder.itemView.isClickable = true
+            holder.itemView.isEnabled = true
+            holder.itemView.alpha = 1.0f
         }
     }
-
 
     override fun getItemCount(): Int = bookings.size
 }

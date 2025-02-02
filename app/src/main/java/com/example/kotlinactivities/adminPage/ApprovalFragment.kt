@@ -15,6 +15,10 @@ import com.example.kotlinactivities.adminPage.adminAdapter.AdminBookingAdapter
 import com.example.kotlinactivities.model.AdminBooking
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.database.*
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class ApprovalFragment : Fragment() {
 
@@ -86,8 +90,32 @@ class ApprovalFragment : Fragment() {
 
                 for (bookingSnapshot in snapshot.children) {
                     try {
-                        val booking = bookingSnapshot.getValue(AdminBooking::class.java)
-                        if (booking != null && filterCondition(booking)) {
+                        // Ensure data is not a raw string
+                        if (!bookingSnapshot.hasChildren()) {
+                            Log.e("FirebaseError", "Invalid booking data: ${bookingSnapshot.value}")
+                            continue
+                        }
+
+                        // Explicitly extract Long values
+                        val booking = AdminBooking(
+                            id = bookingSnapshot.key,
+                            userId = bookingSnapshot.child("userId").getValue(String::class.java),
+                            userEmail = bookingSnapshot.child("userEmail").getValue(String::class.java),
+                            roomTitle = bookingSnapshot.child("roomTitle").getValue(String::class.java),
+                            roomPrice = bookingSnapshot.child("roomPrice").getValue(Int::class.java),
+                            totalDays = bookingSnapshot.child("totalDays").getValue(Int::class.java),
+                            totalPrice = bookingSnapshot.child("totalPrice").getValue(Int::class.java),
+                            guestCount = bookingSnapshot.child("guestCount").getValue(Int::class.java),
+                            imageUr1 = bookingSnapshot.child("imageUr1").getValue(String::class.java),
+                            paymentMethod = bookingSnapshot.child("paymentMethod").getValue(String::class.java),
+                            paymentStatus = bookingSnapshot.child("paymentStatus").getValue(String::class.java),
+                            startDate = bookingSnapshot.child("startDate").getValue(Long::class.java),
+                            endDate = bookingSnapshot.child("endDate").getValue(Long::class.java),
+                            startDateReadable = bookingSnapshot.child("startDateReadable").getValue(String::class.java),
+                            endDateReadable = bookingSnapshot.child("endDateReadable").getValue(String::class.java)
+                        )
+
+                        if (filterCondition(booking)) {
                             bookingsList.add(booking)
                         }
                     } catch (e: Exception) {
@@ -95,23 +123,35 @@ class ApprovalFragment : Fragment() {
                     }
                 }
 
-                // Determine if the tab is "Upcoming Bookings"
-                val isUpcomingTab = tabLayout.selectedTabPosition == 1
-                bookingsAdapter = AdminBookingAdapter(bookingsList, ::fetchUserName, isUpcomingTab)
-                bookingsRecyclerView.adapter = bookingsAdapter
+                Log.d("FinalListSize", "Total Bookings Displayed: ${bookingsList.size}")
 
-                bookingsAdapter.notifyDataSetChanged()
-                Log.d("ApprovalFragment", "Total bookings loaded: ${bookingsList.size}")
+                bookingsAdapter = AdminBookingAdapter(
+                    bookingsList,
+                    ::fetchUserName,
+                    isUpcomingTab = (tabLayout.selectedTabPosition == 1),
+                    onPaidClick = { bookingId -> updatePaymentStatus(bookingId) }
+                )
+                bookingsRecyclerView.adapter = bookingsAdapter
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to load bookings: ${error.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), "Failed to load bookings: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+
+
+
+    private fun updatePaymentStatus(bookingId: String) {
+        databaseReference.child(bookingId).child("paymentStatus")
+            .setValue("Success")
+            .addOnSuccessListener {
+                Toast.makeText(context, "Payment confirmed!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Update failed", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun fetchUserName(userId: String, callback: (String) -> Unit) {
@@ -125,13 +165,23 @@ class ApprovalFragment : Fragment() {
     }
 
     private fun isToday(booking: AdminBooking): Boolean {
-        val today = System.currentTimeMillis()
-        val startOfDay = today - (today % (24 * 60 * 60 * 1000)) // Start of the day in milliseconds
-        val endOfDay = startOfDay + (24 * 60 * 60 * 1000) - 1    // End of the day in milliseconds
+        if (booking.startDateReadable.isNullOrEmpty() || booking.paymentStatus.isNullOrEmpty()) {
+            return false
+        }
 
-        val endDate = booking.endDate ?: return false
-        return booking.paymentStatus.equals("Success", ignoreCase = true) && endDate >= startOfDay
+        // Format of stored date in Firebase
+        val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+
+        // Get today's date in the same format
+        val todayDate = dateFormat.format(Date())
+
+        Log.d("BookingCheck", "Booking ID: ${booking.id}, StartDateReadable: ${booking.startDateReadable}, Today: $todayDate")
+
+        // Compare the date strings
+        return booking.startDateReadable == todayDate &&
+                booking.paymentStatus.equals("Success", ignoreCase = true)
     }
+
 
     private fun isUpcoming(booking: AdminBooking): Boolean {
         return booking.paymentStatus == "Pending Approval"
