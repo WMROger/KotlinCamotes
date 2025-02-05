@@ -15,7 +15,7 @@ class AdminRoomAdapter(
 ) : RecyclerView.Adapter<AdminRoomAdapter.RoomViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RoomViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.room_card, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.admin_room_card, parent, false)
         return RoomViewHolder(view)
     }
 
@@ -44,8 +44,9 @@ class AdminRoomAdapter(
             roomPeople.text = "People: ${room.maxPerson}"
             roomPrice.text = room.price
 
-            // Set up carousel for room images
-            roomCarousel.adapter = RoomCarouselAdapter(listOf(room.imageUrl)) // Use the image URL
+            // Set up carousel for room images (Make sure you are passing a list of images)
+            roomCarousel.adapter = RoomCarouselAdapter(listOf(room.imageUrl)) // This can be updated if you have multiple images
         }
     }
 }
+

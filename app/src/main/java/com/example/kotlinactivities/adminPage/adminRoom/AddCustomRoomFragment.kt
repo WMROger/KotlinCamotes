@@ -16,7 +16,7 @@ import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adminPage.adminAdapter.customRoomAdapter.CustomRoomAmenitiesAdapter
 import com.example.kotlinactivities.adminPage.adminAdapter.customRoomAdapter.CustomRoomCategoryAdapter
 import com.example.kotlinactivities.adminPage.adminAdapter.customRoomAdapter.SingleSelectionCategoryAdapter
-import com.example.kotlinactivities.adminPage.upload.uploadImageAndSaveToRealtimeDB // Import the separate function
+import com.example.kotlinactivities.adminPage.upload.uploadImagesAndSaveToRealtimeDB
 import com.google.firebase.database.FirebaseDatabase
 
 class AddCustomRoomFragment : Fragment() {
@@ -86,8 +86,8 @@ class AddCustomRoomFragment : Fragment() {
 
             if (selectedCategory != null && description.isNotEmpty() && price.isNotEmpty()) {
                 if (selectedImages.isNotEmpty()) {
-                    uploadImageAndSaveToRealtimeDB(
-                        selectedImages[0], // Use the first selected image
+                    uploadImagesAndSaveToRealtimeDB(
+                        selectedImages, // Pass the list of selected images
                         requireContext(),
                         mapOf(
                             "category" to selectedCategory,
@@ -111,6 +111,7 @@ class AddCustomRoomFragment : Fragment() {
                 Toast.makeText(requireContext(), "Please fill all fields.", Toast.LENGTH_SHORT).show()
             }
         }
+
 
 
 
@@ -171,34 +172,38 @@ class AddCustomRoomFragment : Fragment() {
     private val imagePicker =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                result.data?.data?.let { selectedImages.add(it) }
-                updateImagePreview()
+                result.data?.let { data ->
+                    if (data.clipData != null) {
+                        // Multiple images selected
+                        for (i in 0 until data.clipData!!.itemCount) {
+                            val imageUri = data.clipData!!.getItemAt(i).uri
+                            selectedImages.add(imageUri)
+                        }
+                    } else if (data.data != null) {
+                        // Single image selected
+                        selectedImages.add(data.data!!)
+                    }
+                    updateImagePreview()
+                }
             }
         }
+
 
     private fun updateImagePreview() {
         imagePreviewContainer.removeAllViews()
         selectedImages.forEachIndexed { index, uri ->
-            val container = LinearLayout(requireContext()).apply {
-                orientation = LinearLayout.HORIZONTAL
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
+            val imageView = ImageView(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(200, 200).apply {
                     setMargins(8, 8, 8, 8)
                 }
-            }
-
-            val fileNameView = TextView(requireContext()).apply {
-                text = uri.lastPathSegment ?: "File"
-                textSize = 14f
+                setImageURI(uri)
+                scaleType = ImageView.ScaleType.CENTER_CROP
                 setOnClickListener { showZoomedImageDialog(uri, index) }
             }
-
-            container.addView(fileNameView)
-            imagePreviewContainer.addView(container)
+            imagePreviewContainer.addView(imageView)
         }
     }
+
 
     private fun showZoomedImageDialog(imageUri: Uri, position: Int) {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_zoomed_image, null)

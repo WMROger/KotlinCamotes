@@ -13,13 +13,24 @@
         android:orientation="vertical"
         android:padding="8dp">
 
+        <ImageView
+            android:id="@+id/imgDeleteRoom"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:contentDescription="Delete Room"
+            android:src="@drawable/ic_home" />
+
         <!-- Room Image -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
+            android:layout_height="400dp"
             android:layout_marginStart="-10dp"
             android:layout_marginTop="-10dp"
-            android:layout_marginEnd="-10dp"
-            android:layout_height="400dp">
+            android:layout_marginEnd="-10dp">
 
             <!-- Carousel for Room Images -->
             <androidx.viewpager2.widget.ViewPager2

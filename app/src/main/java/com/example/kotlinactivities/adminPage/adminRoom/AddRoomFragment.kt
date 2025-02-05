@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -77,6 +79,7 @@ class AddRoomFragment : Fragment() {
         return view
     }
 
+    // Fetch categories from Firebase
     private fun fetchCategoriesFromFirebase() {
         databaseReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -113,6 +116,7 @@ class AddRoomFragment : Fragment() {
         })
     }
 
+    // Fetch rooms by category
     private fun fetchRoomsByCategory(category: String) {
         val roomsRef = FirebaseDatabase.getInstance().getReference("rooms")
 
@@ -122,13 +126,14 @@ class AddRoomFragment : Fragment() {
                     val roomList = mutableListOf<AdminRoom>()
 
                     for (child in snapshot.children) {
+                        val roomId = child.key ?: "" // Get the roomId from the Firebase snapshot key
                         val roomName = child.child("description").getValue(String::class.java) ?: "Unknown Room"
                         val roomRating = (3..4).random() + (0..9).random() / 4.0 // Mock random ratings
                         val maxPerson = child.child("pax").getValue(Int::class.java) ?: 0
                         val price = "₱${child.child("price").getValue(String::class.java) ?: "N/A"}"
                         val imageUrl = child.child("image_url").getValue(String::class.java) ?: ""
 
-                        roomList.add(AdminRoom(roomName, roomRating, maxPerson, price, imageUrl))
+                        roomList.add(AdminRoom(roomName, roomRating, maxPerson, price, imageUrl, roomId))
                     }
 
                     // Populate the RecyclerView with fetched rooms
@@ -145,37 +150,13 @@ class AddRoomFragment : Fragment() {
             })
     }
 
-    private fun getSampleRooms(category: String): List<AdminRoom> {
-        return when (category) {
-            "Deluxe Room" -> listOf(
-                AdminRoom(
-                    "Cupid's Deluxe Room",
-                    4.9,
-                    5,
-                    "₱1,678/night",
-                    "https://waveaway.scarlet2.io/assets/jakub-zerdzicki-68ITkIiVOHs-unsplash.jpg"
-                )
-            )
-            "Barkada Room" -> listOf(
-                AdminRoom(
-                    "Tropical Barkada Room",
-                    4.5,
-                    8,
-                    "₱2,500/night",
-                    "https://waveaway.scarlet2.io/assets/samsung-memory-Tnm-287tzHQ-unsplash.jpg"
-                )
-            )
-            "Regular Room" -> listOf(
-                AdminRoom(
-                    "Cozy Regular Room",
-                    4.0,
-                    3,
-                    "₱1,000/night",
-                    "https://waveaway.scarlet2.io/assets/samsung-memory-Tnm-287tzHQ-unsplash.jpg"
-                )
-            )
-            else -> emptyList()
+    // Function to delete the room from Firebase database
+    private fun deleteRoomFromDatabase(roomId: String) {
+        val roomRef = FirebaseDatabase.getInstance().getReference("rooms").child(roomId)
+        roomRef.removeValue().addOnSuccessListener {
+            Toast.makeText(context, "Room deleted successfully", Toast.LENGTH_SHORT).show()
+        }.addOnFailureListener {
+            Toast.makeText(context, "Failed to delete room: ${it.message}", Toast.LENGTH_SHORT).show()
         }
     }
-
 }

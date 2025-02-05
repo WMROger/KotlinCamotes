@@ -5,5 +5,6 @@ data class AdminRoom(
     val rating: Double,
     val maxPerson: Int,
     val price: String,
-    val imageUrl: String // Remote image URL
+    val imageUrl: String, // Remote image URL
+    val roomId: String // Ensure roomId is part of the data model
 )

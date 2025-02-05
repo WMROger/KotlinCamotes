@@ -16,47 +16,57 @@ import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
 
-fun uploadImageAndSaveToRealtimeDB(
-    imageUri: Uri,
+fun uploadImagesAndSaveToRealtimeDB(
+    imageUris: List<Uri>,  // Accept a list of image URIs
     context: Context,
     roomDetails: Map<String, Any?>,
     onCompletion: (Boolean) -> Unit // Callback to notify upload completion
 ) {
-    // Get the file from Uri
-    val file = getFileFromUri(context, imageUri)
+    val imageUrls = mutableListOf<String>() // List to store image URLs
 
-    if (file == null || !file.exists()) {
-        Toast.makeText(context, "File does not exist", Toast.LENGTH_SHORT).show()
-        onCompletion(false) // Notify failure
-        return
-    }
-
-    val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
-    val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
-
-    // Upload to server
+    // Upload each image
     val api = RetrofitClient.instance
-    api.uploadFile(body).enqueue(object : Callback<UploadResponse> {
-        override fun onResponse(call: Call<UploadResponse>, response: Response<UploadResponse>) {
-            val uploadResponse = response.body()
-            if (response.isSuccessful && uploadResponse?.status == "success") {
-                val imageUrl = uploadResponse.url ?: ""
-                saveToRealtimeDatabase(imageUrl, roomDetails, context, onCompletion)
-            } else {
-                Toast.makeText(context, "Upload failed: ${uploadResponse?.message}", Toast.LENGTH_SHORT).show()
+    val uploadCalls = imageUris.map { uri ->
+        val file = getFileFromUri(context, uri)
+
+        if (file == null || !file.exists()) {
+            Toast.makeText(context, "File does not exist for ${uri}", Toast.LENGTH_SHORT).show()
+            onCompletion(false) // Notify failure
+            return@map null
+        }
+
+        val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+        val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
+        // Make the upload call for each image
+        api.uploadFile(body).enqueue(object : Callback<UploadResponse> {
+            override fun onResponse(call: Call<UploadResponse>, response: Response<UploadResponse>) {
+                val uploadResponse = response.body()
+                if (response.isSuccessful && uploadResponse?.status == "success") {
+                    val imageUrl = uploadResponse.url ?: ""
+                    imageUrls.add(imageUrl) // Add the image URL to the list
+
+                    // Once all images are uploaded, proceed to save data
+                    if (imageUrls.size == imageUris.size) {
+                        saveToRealtimeDatabase(imageUrls, roomDetails, context, onCompletion)
+                    }
+                } else {
+                    Toast.makeText(context, "Upload failed: ${uploadResponse?.message}", Toast.LENGTH_SHORT).show()
+                    onCompletion(false) // Notify failure
+                }
+            }
+
+            override fun onFailure(call: Call<UploadResponse>, t: Throwable) {
+                Toast.makeText(context, "Upload error: ${t.message}", Toast.LENGTH_SHORT).show()
                 onCompletion(false) // Notify failure
             }
-        }
-
-        override fun onFailure(call: Call<UploadResponse>, t: Throwable) {
-            Toast.makeText(context, "Upload error: ${t.message}", Toast.LENGTH_SHORT).show()
-            onCompletion(false) // Notify failure
-        }
-    })
+        })
+    }
 }
 
+
 private fun saveToRealtimeDatabase(
-    imageUrl: String,
+    imageUrls: List<String>, // List of image URLs
     roomDetails: Map<String, Any?>,
     context: Context,
     onCompletion: (Boolean) -> Unit // Callback to notify database save completion
@@ -66,7 +76,7 @@ private fun saveToRealtimeDatabase(
 
     if (roomId != null) {
         val roomData = roomDetails.toMutableMap()
-        roomData["image_url"] = imageUrl // Add the image URL to the room details
+        roomData["images"] = imageUrls // Add the list of image URLs to the room details
 
         database.child("rooms").child(roomId).setValue(roomData)
             .addOnSuccessListener {
@@ -82,6 +92,7 @@ private fun saveToRealtimeDatabase(
         onCompletion(false) // Notify failure
     }
 }
+
 
 
 
