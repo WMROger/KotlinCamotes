@@ -187,7 +187,7 @@ class HomeFragment : Fragment() {
                     val pax = child.child("pax").getValue(Int::class.java) ?: 0
                     val price = child.child("price").getValue(String::class.java) ?: "N/A"
                     val imageUrl = child.child("image_url").getValue(String::class.java) ?: ""
-                    val imageUrls = child.child("image_urls").getValue(object : GenericTypeIndicator<List<String>>() {}) ?: listOf()
+                    val imageUrls = child.child("images").getValue(object : GenericTypeIndicator<List<String>>() {}) ?: listOf()
                     val bookingStatus = child.child("bookingStatus").getValue(String::class.java) ?: "Available"
                     val roomCategory = child.child("category").getValue(String::class.java) ?: "Unknown Category" // Fetch roomCategory
                     val isFavorited = child.child("isFavorited").getValue(Boolean::class.java) ?: false
@@ -237,5 +237,4 @@ class HomeFragment : Fragment() {
             swipeRefreshLayout.isRefreshing = false // Stop refresh animation
         }
     }
-
 }
