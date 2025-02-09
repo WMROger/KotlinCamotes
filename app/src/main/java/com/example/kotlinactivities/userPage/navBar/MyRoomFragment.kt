@@ -57,7 +57,6 @@ class MyRoomFragment : Fragment() {
         val currentUserId = firebaseAuth.currentUser?.uid
 
         if (currentUserId != null) {
-            // Query the bookings for the current user
             databaseReference.orderByChild("userId").equalTo(currentUserId)
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
@@ -66,11 +65,11 @@ class MyRoomFragment : Fragment() {
                             val roomId = roomSnapshot.key
                             val roomTitle = roomSnapshot.child("roomTitle").value as? String ?: "No Title"
 
-                            // Correctly retrieve totalPrice as either a String or Long
+                            // Handle price properly
                             val totalPrice = when (val price = roomSnapshot.child("totalPrice").value) {
-                                is String -> price // If it's stored as a String, use it directly
-                                is Long -> "₱$price" // If it's a Long, convert it to a String with "₱"
-                                else -> "₱0" // Default to ₱0 if the value is null or unexpected
+                                is String -> price
+                                is Long -> "₱$price"
+                                else -> "₱0"
                             }
 
                             val guestCount = roomSnapshot.child("guestCount").value as? Long ?: 1L
@@ -78,14 +77,9 @@ class MyRoomFragment : Fragment() {
                                 ?: "https://waveaway.scarlet2.io/assets/ic_placeholder.png"
                             val rating = roomSnapshot.child("rating").value as? String ?: "4.9"
 
-                            // Retrieve both paymentStatus and status fields
                             val paymentStatus = roomSnapshot.child("paymentStatus").value as? String ?: ""
                             val status = roomSnapshot.child("status").value as? String ?: "Pending"
 
-                            // Log debugging information
-                            Log.d("MyRoomFragment", "Room ID: $roomId, paymentStatus: $paymentStatus, status: $status")
-
-                            // Determine the final booking status dynamically
                             val bookingStatus = when {
                                 paymentStatus.equals("Success", ignoreCase = true) -> "Approved"
                                 status.equals("Pending Approval", ignoreCase = true) || status.equals("Pending", ignoreCase = true) -> "Pending Approval"
@@ -99,7 +93,7 @@ class MyRoomFragment : Fragment() {
                                     imageUrl = imageUrl,
                                     title = roomTitle,
                                     people = "$guestCount People",
-                                    price = totalPrice, // Use the correctly retrieved totalPrice here
+                                    price = totalPrice,
                                     rating = rating,
                                     bookingStatus = bookingStatus,
                                     isFavorited = false
@@ -107,6 +101,21 @@ class MyRoomFragment : Fragment() {
                             )
                         }
                         myRoomsAdapter.notifyDataSetChanged()
+
+                        // ✅ Toggle UI based on data availability
+                        if (myRoomsList.isNotEmpty()) {
+                            myRoomsRecyclerView.visibility = View.VISIBLE
+                            view?.findViewById<View>(R.id.emptyStateImage)?.visibility = View.GONE
+                            view?.findViewById<View>(R.id.emptyStateTitle)?.visibility = View.GONE
+                            view?.findViewById<View>(R.id.emptyStateSubtitle)?.visibility = View.GONE
+                            view?.findViewById<View>(R.id.homePageLink)?.visibility = View.GONE
+                        } else {
+                            myRoomsRecyclerView.visibility = View.GONE
+                            view?.findViewById<View>(R.id.emptyStateImage)?.visibility = View.VISIBLE
+                            view?.findViewById<View>(R.id.emptyStateTitle)?.visibility = View.VISIBLE
+                            view?.findViewById<View>(R.id.emptyStateSubtitle)?.visibility = View.VISIBLE
+                            view?.findViewById<View>(R.id.homePageLink)?.visibility = View.VISIBLE
+                        }
                     }
 
                     override fun onCancelled(error: DatabaseError) {
@@ -117,6 +126,7 @@ class MyRoomFragment : Fragment() {
             Log.e("MyRoomFragment", "User is not logged in.")
         }
     }
+
 
     private fun navigateToRoomDetails(room: Room, bookingStatus: String) {
         val intent = Intent(requireContext(), RoomDetailsActivity::class.java).apply {
