@@ -9,7 +9,7 @@
     <!-- Header Text -->
     <TextView
         android:id="@+id/headerText"
-        android:layout_width="0dp"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:padding="16dp"
         android:text="Where the wave meets your soul"
@@ -122,7 +122,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingBottom="86dp"
-            android:paddingHorizontal="16dp"
+            android:paddingHorizontal="8dp"
             android:layout_marginBottom="80dp"
             tools:listitem="@layout/room_card" />
 
