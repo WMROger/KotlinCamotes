@@ -8,6 +8,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.example.kotlinactivities.MainActivity
@@ -130,19 +131,29 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
 
 
     private fun displayAmenities(amenities: List<String>) {
-        // Clear previous amenities
-        binding.amenitiesLayout.removeAllViews()
+        val constraintLayout = binding.amenitiesContainer
+        val flow = binding.amenitiesFlow
+
+        // Remove previous views except Flow (first child)
+        constraintLayout.removeViews(1, constraintLayout.childCount - 1)
+
+        val viewIds = mutableListOf<Int>()
 
         for (amenity in amenities) {
-            val textView = TextView(this).apply {
-                text = "• $amenity" // Add bullet point
-                textSize = 14f
-                setTextColor(ContextCompat.getColor(this@RoomDetailsActivity, R.color.black)) // Adjust color
-                setPadding(8, 8, 8, 8)
-            }
-            binding.amenitiesLayout.addView(textView)
+            val textView = layoutInflater.inflate(R.layout.item_amenity, constraintLayout, false) as TextView
+            textView.id = View.generateViewId() // Generate unique ID
+            textView.text = amenity // Set the text dynamically
+            constraintLayout.addView(textView)
+            viewIds.add(textView.id)
         }
+
+        // Update Flow with dynamically created views
+        flow.referencedIds = viewIds.toIntArray()
     }
+
+
+
+
 
 
     // Function to setup dots for the image carousel

@@ -1,0 +1,18 @@
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="40dp"
+    android:background="@drawable/bg_amenities"
+    android:drawablePadding="8dp"
+    android:gravity="center"
+    android:minWidth="120dp"
+    android:paddingHorizontal="16dp"
+    android:textColor="@color/black"
+    android:drawableLeft="@drawable/ic_wifi"
+    android:textSize="14sp" />
+
+    <!--   -->
+
+
+    <!--   -->
+

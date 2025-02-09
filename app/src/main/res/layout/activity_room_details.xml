@@ -86,7 +86,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <!-- Amenities -->
+            <!-- Amenities Section -->
             <TextView
                 android:id="@+id/amenitiesHeader"
                 android:layout_width="wrap_content"
@@ -97,35 +97,61 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <LinearLayout
-                android:id="@+id/amenitiesLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <TextView
-                    android:id="@+id/wifi"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:drawableLeft="@drawable/ic_wifi"
-                    android:drawablePadding="8dp"
-                    android:paddingLeft="16dp"
-                    android:text="Wi-Fi" />
-
-                <TextView
-                    android:id="@+id/airConditioning"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:drawableLeft="@drawable/ic_air_conditioning"
-                    android:drawablePadding="8dp"
-                    android:paddingLeft="16dp"
-                    android:text="Air Conditioning" />
-            </LinearLayout>
 
             <!-- About Section -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/amenitiesContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+
+                <!-- Flow Container -->
+                <androidx.constraintlayout.helper.widget.Flow
+                    android:id="@+id/amenitiesFlow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="wifiText,airConditioningText"
+                    app:flow_horizontalGap="12dp"
+                    app:flow_horizontalStyle="spread_inside"
+                    app:flow_verticalGap="12dp"
+                    app:flow_verticalStyle="packed"
+                    app:flow_wrapMode="chain"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- Wi-Fi -->
+                <TextView
+                    android:id="@+id/wifiText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_amenities"
+                    android:drawableLeft="@drawable/ic_wifi"
+                    android:drawablePadding="8dp"
+                    android:gravity="center"
+                    android:paddingHorizontal="12dp"
+                    android:text="Wi-Fi"
+                    android:textColor="@color/black"
+                    android:textSize="14sp" />
+
+                <!-- Air Conditioning -->
+                <TextView
+                    android:id="@+id/airConditioningText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_amenities"
+                    android:drawableLeft="@drawable/ic_air_conditioning"
+                    android:drawablePadding="8dp"
+                    android:gravity="center"
+                    android:paddingHorizontal="12dp"
+                    android:text="Air Conditioning"
+                    android:textColor="@color/black"
+                    android:textSize="14sp" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <TextView
                 android:id="@+id/aboutHeader"
                 android:layout_width="wrap_content"
