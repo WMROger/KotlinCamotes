@@ -50,10 +50,11 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
 
 
         val itineraryList = listOf(
-            ItineraryItem(R.drawable.ic_splash, "Cave Exploration", "Explore stunning caves with skylights."),
-            ItineraryItem(R.drawable.ic_splash, "Dive", "Dive into vibrant coral reefs."),
-            ItineraryItem(R.drawable.ic_splash, "Diverse Marine Life", "Encounter schools of fish."),
+            ItineraryItem(R.drawable.ic_cave, "Cave Exploration", "Explore stunning caves with skylights."),
+            ItineraryItem(R.drawable.ic_dive, "Dive", "Dive into vibrant coral reefs."),
+            ItineraryItem(R.drawable.ic_marine, "Diverse Marine Life", "Encounter schools of fish."),
             ItineraryItem(R.drawable.ic_splash, "Capture Moments", "Underwater photography sessions."),
+            ItineraryItem(R.drawable.ic_splash, "Cave Exploration", "Marvel at crystal-clear cave pools."),
             ItineraryItem(R.drawable.ic_splash, "Cave Exploration", "Marvel at crystal-clear cave pools.")
         )
 
@@ -156,8 +157,6 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
         })
     }
 
-
-
     private fun displayAmenities(amenities: List<String>) {
         val constraintLayout = binding.amenitiesContainer
         val flow = binding.amenitiesFlow
@@ -178,11 +177,6 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
         // Update Flow with dynamically created views
         flow.referencedIds = viewIds.toIntArray()
     }
-
-
-
-
-
 
     // Function to setup dots for the image carousel
     private fun setupDots(count: Int) {
