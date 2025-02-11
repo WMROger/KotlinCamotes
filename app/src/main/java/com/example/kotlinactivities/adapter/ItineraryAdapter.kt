@@ -5,15 +5,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.model.ItineraryItem
 
-class ItineraryAdapter(private val itineraryList: List<ItineraryItem>) :
+class ItineraryAdapter(private val items: List<ItineraryItem>) :
     RecyclerView.Adapter<ItineraryAdapter.ItineraryViewHolder>() {
 
     class ItineraryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val image: ImageView = view.findViewById(R.id.itineraryImage)
+        val cardView: CardView = view.findViewById(R.id.cardView)
+        val imageView: ImageView = view.findViewById(R.id.itineraryImage)
         val title: TextView = view.findViewById(R.id.itineraryTitle)
         val description: TextView = view.findViewById(R.id.itineraryDescription)
     }
@@ -25,11 +27,13 @@ class ItineraryAdapter(private val itineraryList: List<ItineraryItem>) :
     }
 
     override fun onBindViewHolder(holder: ItineraryViewHolder, position: Int) {
-        val item = itineraryList[position]
-        holder.image.setImageResource(item.imageResId)
+        val item = items[position]
+
+        // Set content
+        holder.imageView.setImageResource(item.imageResId)
         holder.title.text = item.title
         holder.description.text = item.description
     }
 
-    override fun getItemCount() = itineraryList.size
+    override fun getItemCount(): Int = items.size
 }

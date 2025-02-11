@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
@@ -46,6 +47,8 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
         val room = intent.getParcelableExtra<Room>("room")
         val isFromMyRoom = intent.getBooleanExtra("isFromMyRoom", false)
         val bookingStatus = intent.getStringExtra("bookingStatus") ?: "Pending"
+
+
         val itineraryList = listOf(
             ItineraryItem(R.drawable.ic_splash, "Cave Exploration", "Explore stunning caves with skylights."),
             ItineraryItem(R.drawable.ic_splash, "Dive", "Dive into vibrant coral reefs."),
@@ -53,9 +56,21 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
             ItineraryItem(R.drawable.ic_splash, "Capture Moments", "Underwater photography sessions."),
             ItineraryItem(R.drawable.ic_splash, "Cave Exploration", "Marvel at crystal-clear cave pools.")
         )
-        val recyclerView: RecyclerView = findViewById(R.id.itineraryRecyclerView)
-        recyclerView.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+
+        val recyclerView = findViewById<RecyclerView>(R.id.itineraryRecyclerView)
+        val layoutManager = GridLayoutManager(this, 2) // 2 Columns
+        layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return if (position % 3 == 0) 2 else 1 // Every third item takes full width
+            }
+        }
+
+        recyclerView.layoutManager = layoutManager
         recyclerView.adapter = ItineraryAdapter(itineraryList)
+
+
+
+
         // Check for null room object
         if (room == null) {
             finish() // Handle error if room is not passed correctly
