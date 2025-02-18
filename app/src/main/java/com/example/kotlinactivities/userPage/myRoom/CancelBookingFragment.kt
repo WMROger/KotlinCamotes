@@ -18,6 +18,7 @@ class CancelBookingFragment : BottomSheetDialogFragment() {
 
     private var roomId: String? = null
     private var onDismissListener: OnDismissListener? = null
+    private var isCancelled: Boolean = false
 
     interface OnDismissListener {
         fun onDialogDismissed()
@@ -48,18 +49,26 @@ class CancelBookingFragment : BottomSheetDialogFragment() {
         binding.cancelBookingButton.setOnClickListener {
             cancelBooking()
         }
+
+        // Check if the room is already cancelled
+        checkBookingStatus()
     }
 
     private fun cancelBooking() {
         roomId?.let {
             val databaseReference = FirebaseDatabase.getInstance().getReference("bookings")
-            databaseReference.child(it).removeValue() // Remove booking from Firebase
+            val bookingReference = databaseReference.child(it)
+
+            // Update the paymentStatus to "Cancelled"
+            bookingReference.child("paymentStatus").setValue("Cancelled")
                 .addOnSuccessListener {
                     Toast.makeText(
                         requireContext(),
-                        "Booking canceled successfully.",
+                        "Booking cancelled successfully.",
                         Toast.LENGTH_SHORT
                     ).show()
+                    isCancelled = true
+                    updateCancelButtonState()
                     dismiss() // Close the fragment after cancellation
                 }
                 .addOnFailureListener { exception ->
@@ -74,10 +83,23 @@ class CancelBookingFragment : BottomSheetDialogFragment() {
         }
     }
 
-    override fun onDismiss(dialog: android.content.DialogInterface) {
-        super.onDismiss(dialog)
-        // Notify parent activity/fragment about the dismissal
-        onDismissListener?.onDialogDismissed()
+    private fun checkBookingStatus() {
+        roomId?.let {
+            val databaseReference = FirebaseDatabase.getInstance().getReference("bookings").child(it)
+
+            databaseReference.child("paymentStatus").get().addOnSuccessListener { snapshot ->
+                val paymentStatus = snapshot.getValue(String::class.java) ?: ""
+                isCancelled = paymentStatus.equals("Cancelled", ignoreCase = true)
+                updateCancelButtonState()
+            }
+        }
+    }
+
+    private fun updateCancelButtonState() {
+        if (isCancelled) {
+            binding.cancelBookingButton.isEnabled = false
+            binding.cancelBookingButton.text = "Already Cancelled"
+        }
     }
 
     override fun onDestroyView() {

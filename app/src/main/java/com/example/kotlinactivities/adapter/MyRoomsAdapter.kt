@@ -41,6 +41,7 @@ class MyRoomsAdapter(
         holder.roomRatingTextView.text = room.rating
 
         // Set status badge based on `paymentStatus` and `status` fields
+        // Set status badge based on `paymentStatus` and `status` fields
         val paymentStatus = room.bookingStatus // This should already contain the correct derived status
 
         when {
@@ -59,12 +60,18 @@ class MyRoomsAdapter(
                 holder.statusBadge.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.black))
                 holder.statusBadge.setBackgroundResource(R.drawable.badge_rejected) // Red background
             }
+            paymentStatus.equals("Cancelled", ignoreCase = true) -> {
+                holder.statusBadge.text = "Cancelled"
+                holder.statusBadge.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.black)) // Set black text color
+                holder.statusBadge.setBackgroundResource(R.drawable.badge_cancelled) // Black background (optional or default gray)
+            }
             else -> {
                 holder.statusBadge.text = "Unknown Status"
                 holder.statusBadge.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.black))
                 holder.statusBadge.setBackgroundResource(R.drawable.badge_unknown) // Gray background
             }
         }
+
 
         // Handle item click
         holder.itemView.setOnClickListener {

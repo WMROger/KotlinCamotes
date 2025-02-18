@@ -48,12 +48,12 @@ class MyRoomFragment : Fragment() {
         myRoomsRecyclerView.adapter = myRoomsAdapter
 
         // Load Rooms from Firebase
-        loadRoomsFromFirebase()
+        loadRoomsFromFirebase(view)
 
         return view
     }
 
-    private fun loadRoomsFromFirebase() {
+    private fun loadRoomsFromFirebase(view: View) {
         val currentUserId = firebaseAuth.currentUser?.uid
 
         if (currentUserId != null) {
@@ -81,6 +81,7 @@ class MyRoomFragment : Fragment() {
                             val status = roomSnapshot.child("status").value as? String ?: "Pending"
 
                             val bookingStatus = when {
+                                paymentStatus.equals("Cancelled", ignoreCase = true) -> "Cancelled"
                                 paymentStatus.equals("Success", ignoreCase = true) -> "Approved"
                                 status.equals("Pending Approval", ignoreCase = true) || status.equals("Pending", ignoreCase = true) -> "Pending Approval"
                                 status.equals("Rejected", ignoreCase = true) -> "Rejected"
@@ -105,16 +106,16 @@ class MyRoomFragment : Fragment() {
                         // ✅ Toggle UI based on data availability
                         if (myRoomsList.isNotEmpty()) {
                             myRoomsRecyclerView.visibility = View.VISIBLE
-                            view?.findViewById<View>(R.id.emptyStateImage)?.visibility = View.GONE
-                            view?.findViewById<View>(R.id.emptyStateTitle)?.visibility = View.GONE
-                            view?.findViewById<View>(R.id.emptyStateSubtitle)?.visibility = View.GONE
-                            view?.findViewById<View>(R.id.homePageLink)?.visibility = View.GONE
+                            view.findViewById<View>(R.id.emptyStateImage)?.visibility = View.GONE
+                            view.findViewById<View>(R.id.emptyStateTitle)?.visibility = View.GONE
+                            view.findViewById<View>(R.id.emptyStateSubtitle)?.visibility = View.GONE
+                            view.findViewById<View>(R.id.homePageLink)?.visibility = View.GONE
                         } else {
                             myRoomsRecyclerView.visibility = View.GONE
-                            view?.findViewById<View>(R.id.emptyStateImage)?.visibility = View.VISIBLE
-                            view?.findViewById<View>(R.id.emptyStateTitle)?.visibility = View.VISIBLE
-                            view?.findViewById<View>(R.id.emptyStateSubtitle)?.visibility = View.VISIBLE
-                            view?.findViewById<View>(R.id.homePageLink)?.visibility = View.VISIBLE
+                            view.findViewById<View>(R.id.emptyStateImage)?.visibility = View.VISIBLE
+                            view.findViewById<View>(R.id.emptyStateTitle)?.visibility = View.VISIBLE
+                            view.findViewById<View>(R.id.emptyStateSubtitle)?.visibility = View.VISIBLE
+                            view.findViewById<View>(R.id.homePageLink)?.visibility = View.VISIBLE
                         }
                     }
 
@@ -127,17 +128,14 @@ class MyRoomFragment : Fragment() {
         }
     }
 
-
     private fun navigateToRoomDetails(room: Room, bookingStatus: String) {
         val intent = Intent(requireContext(), RoomDetailsActivity::class.java).apply {
             putExtra("room", room)
             putExtra("isFromMyRoom", true) // Indicate that navigation is from MyRoomFragment
             putExtra("bookingStatus", bookingStatus) // Pass the booking status
-
         }
         startActivity(intent)
     }
-
 
     private fun handleFavoriteClick(room: Room) {
         room.isFavorited = !room.isFavorited

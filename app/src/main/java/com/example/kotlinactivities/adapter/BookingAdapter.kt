@@ -68,9 +68,16 @@ class BookingAdapter(
                     "Paid" -> itemView.context.getColor(android.R.color.holo_green_dark)
                     "Pending Approval" -> itemView.context.getColor(android.R.color.holo_orange_dark)
                     "Rescheduled" -> itemView.context.getColor(android.R.color.holo_blue_dark)
+                    "Cancelled" -> itemView.context.getColor(android.R.color.black) // Set black color for "Cancelled"
                     else -> itemView.context.getColor(android.R.color.holo_red_dark)
                 }
             )
+
+            // Set text to "Cancelled" when the status is "Cancelled"
+            if (booking.paymentStatus.equals("Cancelled", ignoreCase = true)) {
+                paymentStatusText.text = "Cancelled"
+            }
+
 
             // Handle button clicks
             paidButton.setOnClickListener {
