@@ -71,8 +71,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="gone"
+                android:paddingBottom="86dp"
                 android:background="@android:color/white"
-                android:padding="8dp" />
+                android:paddingHorizontal="8dp" />
 
                 <!-- Empty State Image -->
                 <ImageView

@@ -42,6 +42,9 @@ class ApprovalFragment : Fragment() {
         // Set up RecyclerView
         bookingsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
+        // Add spacing of 16dp between items
+        bookingsRecyclerView.addItemDecoration(SpacingItemDecoration(16))
+
         // Initialize Firebase Database reference
         databaseReference = FirebaseDatabase.getInstance().getReference("bookings")
 
@@ -90,13 +93,11 @@ class ApprovalFragment : Fragment() {
 
                 for (bookingSnapshot in snapshot.children) {
                     try {
-                        // Ensure data is not a raw string
                         if (!bookingSnapshot.hasChildren()) {
                             Log.e("FirebaseError", "Invalid booking data: ${bookingSnapshot.value}")
                             continue
                         }
 
-                        // Explicitly extract Long values
                         val booking = AdminBooking(
                             id = bookingSnapshot.key,
                             userId = bookingSnapshot.child("userId").getValue(String::class.java),
@@ -118,6 +119,7 @@ class ApprovalFragment : Fragment() {
                         if (filterCondition(booking)) {
                             bookingsList.add(booking)
                         }
+
                     } catch (e: Exception) {
                         Log.e("ApprovalFragment", "Error parsing booking: ${e.message}")
                     }
@@ -142,17 +144,37 @@ class ApprovalFragment : Fragment() {
 
 
 
-
     private fun updatePaymentStatus(bookingId: String) {
-        databaseReference.child(bookingId).child("paymentStatus")
-            .setValue("Success")
+        val bookingRef = databaseReference.child(bookingId)
+
+        bookingRef.child("paymentStatus").setValue("Success")
             .addOnSuccessListener {
-                Toast.makeText(context, "Payment confirmed!", Toast.LENGTH_SHORT).show()
+                bookingRef.child("paymentMethod").get()
+                    .addOnSuccessListener { snapshot ->
+                        val method = snapshot.getValue(String::class.java) ?: "Unknown"
+                        val message = if (method.equals("Cash", ignoreCase = true)) "Payment confirmed via Cash!" else "Payment confirmed!"
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+
+                        // Reload "Today's Bookings" to reflect updated paid bookings
+                        loadBookings { isToday(it) }
+                    }
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Update failed", Toast.LENGTH_SHORT).show()
             }
     }
+
+
+
+
+    private fun reloadAllTabs() {
+        tabLayout.getTabAt(0)?.let { loadBookings { isToday(it) } }  // Today's Bookings
+        tabLayout.getTabAt(1)?.let { loadBookings { isUpcoming(it) } }  // Upcoming Bookings
+    }
+
+
+
+
 
     private fun fetchUserName(userId: String, callback: (String) -> Unit) {
         val usersReference = FirebaseDatabase.getInstance().getReference("Users")
@@ -172,15 +194,20 @@ class ApprovalFragment : Fragment() {
         // Format of stored date in Firebase
         val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
 
-        // Get today's date in the same format
+        // Get today's date
         val todayDate = dateFormat.format(Date())
 
-        Log.d("BookingCheck", "Booking ID: ${booking.id}, StartDateReadable: ${booking.startDateReadable}, Today: $todayDate")
+        Log.d("BookingCheck", "Booking ID: ${booking.id}, StartDateReadable: ${booking.startDateReadable}, Today: $todayDate, PaymentStatus: ${booking.paymentStatus}, PaymentMethod: ${booking.paymentMethod}")
 
-        // Compare the date strings
-        return booking.startDateReadable == todayDate &&
-                booking.paymentStatus.equals("Success", ignoreCase = true)
+        // Allow "Success" payments to appear in "Today's Bookings" even if startDate is later
+        return booking.paymentStatus.equals("Success", ignoreCase = true) &&
+                (booking.startDateReadable == todayDate || booking.startDateReadable > todayDate)
     }
+
+
+
+
+
 
 
     private fun isUpcoming(booking: AdminBooking): Boolean {

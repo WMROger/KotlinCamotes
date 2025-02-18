@@ -57,7 +57,12 @@ class AdminBookingAdapter(
 
         // Set payment status text
         holder.paymentStatus.text = when (booking.paymentStatus?.lowercase(Locale.ROOT)) {
-            "success" -> "Paid - via GCash"
+            "success" -> {
+                if (booking.paymentMethod?.lowercase(Locale.ROOT) == "cash")
+                    "Paid - via Cash"
+                else
+                    "Paid - via GCash" // or other method
+            }
             "accepted" -> "Accepted"
             "pending approval" -> "Pending Approval"
             "rescheduled" -> "Rescheduled"
