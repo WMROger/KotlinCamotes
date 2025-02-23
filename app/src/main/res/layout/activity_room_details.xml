@@ -9,6 +9,7 @@
 
     <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="105dp"
@@ -306,6 +307,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:layout_marginBottom="35dp"
                 android:background="@drawable/circle_background"
                 android:orientation="horizontal"
                 android:padding="16dp">

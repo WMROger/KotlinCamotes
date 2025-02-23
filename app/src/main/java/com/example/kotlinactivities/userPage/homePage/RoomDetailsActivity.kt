@@ -1,9 +1,11 @@
 package com.example.kotlinactivities.userPage.homePage
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -215,39 +217,61 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
             binding.cancelButton.visibility = View.VISIBLE // Show Cancel button
             binding.bookButton.visibility = View.GONE // Hide the Book Now button
 
-            // Check the booking status
-            if (bookingStatus.equals("Pending Approval", ignoreCase = true)) {
-                // Disable and gray out the "Extend Stay" button if the booking is pending approval
-                binding.extendStayButton.isEnabled = false
-                binding.extendStayButton.setBackgroundResource(R.drawable.filter_button_background_unselected) // Use a gray rounded background
-            } else {
-                // Enable the "Extend Stay" button for other statuses
-                binding.extendStayButton.isEnabled = true
-                binding.extendStayButton.setBackgroundResource(R.drawable.filter_button_selected) // Use the green rounded background
+            when (bookingStatus.lowercase(Locale.ROOT)) {
+                "pending approval" -> {
+                    // Disable Extend Stay
+                    binding.extendStayButton.isEnabled = false
+                    binding.extendStayButton.isClickable = false
+                    binding.extendStayButton.setBackgroundColor(Color.GRAY)
+                    binding.extendStayButton.setTextColor(Color.DKGRAY)
+                }
+                "approved" -> {
+                    // Enable Extend Stay
+                    binding.extendStayButton.isEnabled = true
+                    binding.extendStayButton.isClickable = true
+                    binding.extendStayButton.setBackgroundResource(R.drawable.filter_button_selected)
+                    binding.extendStayButton.setTextColor(ContextCompat.getColor(this, R.color.white))
+                }
+                "cancelled" -> {
+                    // Hide both buttons or gray them out
+                    binding.extendStayButton.isEnabled = false
+                    binding.extendStayButton.isClickable = false
+                    binding.cancelButton.isEnabled = false
+                    binding.cancelButton.isClickable = false
+                    binding.extendStayButton.setTextColor(Color.DKGRAY)
+                    binding.cancelButton.setTextColor(Color.DKGRAY)
+                    binding.bookingActionsLayout.visibility = View.GONE
+                    val layoutParams = binding.nestedview.layoutParams as ViewGroup.MarginLayoutParams
+                    layoutParams.bottomMargin = 0 // Set bottom margin to 0
+                    binding.nestedview.layoutParams = layoutParams
+
+
+//                    binding.cancelButton.visibility = View.GONE
+                }
             }
 
             // Set click listeners for "Extend Stay" and "Cancel"
             binding.extendStayButton.setOnClickListener {
-                if (binding.extendStayButton.isEnabled) { // Check if the button is enabled
+                if (binding.extendStayButton.isEnabled) {
                     showCalendarBottomSheet(room)
                 }
             }
+
             binding.cancelButton.setOnClickListener {
-                // Pass the room ID to showCancellationDialog
                 showCancellationDialog(room.id ?: "")
             }
         } else {
             // If accessed from HomeFragment
-            binding.extendStayButton.visibility = View.GONE // Hide Extend Stay button
-            binding.cancelButton.visibility = View.GONE // Hide Cancel button
-            binding.bookButton.visibility = View.VISIBLE // Show the Book Now button
+            binding.extendStayButton.visibility = View.GONE
+            binding.cancelButton.visibility = View.GONE
+            binding.bookButton.visibility = View.VISIBLE
 
             binding.bookButton.setOnClickListener {
-                // Navigate to BookingRoomActivity for booking
                 navigateToBookingActivity()
             }
         }
     }
+
 
     private fun showCalendarBottomSheet(room: Room) {
         val calendarBottomSheet = CalendarBottomSheet()
@@ -266,31 +290,34 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
     }
 
     override fun onDialogDismissed() {
-        // Perform the actual cancellation logic after the dialog is dismissed
         val roomId = intent.getParcelableExtra<Room>("room")?.id ?: return
         val databaseReference = FirebaseDatabase.getInstance().getReference("bookings")
 
         databaseReference.child(roomId).removeValue()
             .addOnSuccessListener {
-                Toast.makeText(
-                    this,
-                    "Booking canceled successfully.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this, "Booking canceled successfully.", Toast.LENGTH_SHORT).show()
+
+                // Disable buttons and change appearance
+                binding.extendStayButton.isEnabled = false
+                binding.cancelButton.isEnabled = false
+
+                binding.extendStayButton.setBackgroundColor(Color.GRAY)
+                binding.cancelButton.setBackgroundColor(Color.GRAY)
+
+                binding.bookButton.visibility = View.VISIBLE // Show "Book Now" button
+
                 val intent = Intent(this, MainActivity::class.java)
-                intent.putExtra("navigateTo", "MyRoomFragment") // Indicate navigation to "My Room" fragment
+                intent.putExtra("navigateTo", "MyRoomFragment")
                 startActivity(intent)
                 finish()
             }
             .addOnFailureListener { error ->
                 Log.e("RoomDetailsActivity", "Failed to cancel booking: ${error.message}")
-                Toast.makeText(
-                    this,
-                    "Failed to cancel booking: ${error.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this, "Failed to cancel booking: ${error.message}", Toast.LENGTH_LONG).show()
             }
     }
+
+
 
     private fun navigateToBookingActivity() {
         val room = intent.getParcelableExtra<Room>("room") ?: return
