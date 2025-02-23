@@ -55,9 +55,9 @@ class RoomDetailsActivity : AppCompatActivity(), CancelBookingFragment.OnDismiss
             ItineraryItem(R.drawable.ic_cave, "Cave Exploration", "Explore stunning caves with skylights."),
             ItineraryItem(R.drawable.ic_dive, "Dive", "Dive into vibrant coral reefs."),
             ItineraryItem(R.drawable.ic_marine, "Diverse Marine Life", "Encounter schools of fish."),
-            ItineraryItem(R.drawable.ic_splash, "Capture Moments", "Underwater photography sessions."),
-            ItineraryItem(R.drawable.ic_splash, "Cave Exploration", "Marvel at crystal-clear cave pools."),
-            ItineraryItem(R.drawable.ic_splash, "Cave Exploration", "Marvel at crystal-clear cave pools.")
+            ItineraryItem(R.drawable.ic_moments, "Capture Moments", "Underwater photography sessions."),
+            ItineraryItem(R.drawable.ic_cave2, "Cave Exploration", "Marvel at crystal-clear cave pools."),
+            ItineraryItem(R.drawable.ic_cave2, "Cave Exploration", "Marvel at crystal-clear cave pools.")
         )
 
         val recyclerView = findViewById<RecyclerView>(R.id.itineraryRecyclerView)

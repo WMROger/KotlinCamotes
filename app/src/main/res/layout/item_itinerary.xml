@@ -15,10 +15,11 @@
         <!-- Background Image -->
         <ImageView
             android:id="@+id/itineraryImage"
-            android:layout_width="match_parent"
+            android:layout_width="495dp"
+            android:layout_marginLeft="-50dp"
             android:layout_height="150dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_splash3" />
+            android:src="@drawable/ic_cave" />
 
         <!-- Dark Overlay for Text Contrast -->
         <View
