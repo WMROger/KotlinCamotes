@@ -31,18 +31,19 @@
                     android:id="@+id/roomImage"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
-                <!-- Dots Indicator (at the bottom, centered) -->
-                <LinearLayout
-                    android:id="@+id/indicator_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|center_horizontal"
-                    android:layout_marginBottom="20dp"
-                    android:orientation="horizontal">
-                    <!-- Dots will be added programmatically -->
-                </LinearLayout>
+
 
             </FrameLayout>
+            <!-- Dots Indicator (at the bottom, centered) -->
+            <LinearLayout
+                android:id="@+id/indicator_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginTop="15dp"
+                android:orientation="horizontal">
+                <!-- Dots will be added programmatically -->
+            </LinearLayout>
             <!-- Room Title -->
             <TextView
                 android:id="@+id/roomTitle"
@@ -244,8 +245,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:paddingHorizontal="16dp"
                 android:clipToPadding="false"
+                android:paddingHorizontal="16dp"
                 android:scrollbars="vertical" />
 
 

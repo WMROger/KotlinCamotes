@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.model.Room
+import android.widget.LinearLayout
+
 
 class RoomAdapter(
     private var roomList: MutableList<Room>,
@@ -42,12 +44,14 @@ class RoomAdapter(
 
     class RoomViewHolder(itemView: View, private val onRoomClick: (Room) -> Unit) :
         RecyclerView.ViewHolder(itemView) {
+
         private val roomCarousel: ViewPager2 = itemView.findViewById(R.id.roomCarousel)
         private val roomTitle: TextView = itemView.findViewById(R.id.roomTitle)
         private val roomPeople: TextView = itemView.findViewById(R.id.roomPeople)
         private val roomPrice: TextView = itemView.findViewById(R.id.roomPrice)
         private val roomRating: TextView = itemView.findViewById(R.id.roomRating)
         private val favoriteButton: ImageView = itemView.findViewById(R.id.favoriteButton)
+        private val indicatorLayout: LinearLayout = itemView.findViewById(R.id.indicator_layout)
 
         fun bind(room: Room) {
             // Set default index to avoid recycling issues
@@ -56,6 +60,9 @@ class RoomAdapter(
             // Ensure images are loaded correctly and safely handle null
             val imageUrls = room.imageUrls?.takeIf { it.isNotEmpty() } ?: listOf(room.imageUrl)
             roomCarousel.adapter = ImageCarouselAdapter(imageUrls)
+
+            // Update the page indicators immediately when the room is bound
+            updateIndicators(imageUrls.size)
 
             // Improve performance with offscreen limit
             roomCarousel.offscreenPageLimit = 1
@@ -85,9 +92,35 @@ class RoomAdapter(
 
             // Handle room click event
             itemView.setOnClickListener { onRoomClick(room) }
+
+            // Set a page change listener to update indicators
+            roomCarousel.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    updateIndicators(imageUrls.size, position)
+                }
+            })
         }
 
 
+        // Method to update page indicators
+        private fun updateIndicators(imageCount: Int, selectedPosition: Int = 0) {
+            // Clear previous indicators
+            indicatorLayout.removeAllViews()
+
+            // Add the new indicators based on the image count
+            for (i in 0 until imageCount) {
+                val indicator = ImageView(itemView.context).apply {
+                    setImageResource(if (i == selectedPosition) R.drawable.dot_active else R.drawable.dot_inactive)
+                    layoutParams = LinearLayout.LayoutParams(16, 26).apply {
+                        setMargins(4, 0, 4, 0)
+                    }
+                }
+                indicatorLayout.addView(indicator)
+            }
+        }
+
+        // Method to update favorite icon
         private fun updateFavoriteIcon(isFavorited: Boolean) {
             favoriteButton.setImageResource(
                 if (isFavorited) R.drawable.ic_heart else R.drawable.ic_heart_black
@@ -111,3 +144,4 @@ class RoomAdapter(
         }
     }
 }
+

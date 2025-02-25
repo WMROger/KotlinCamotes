@@ -45,7 +45,19 @@
                 android:src="@drawable/ic_heart_black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Page Indicator Layout -->
+        <LinearLayout
+            android:id="@+id/indicator_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal">
+            <!-- Dots will be added programmatically -->
+        </LinearLayout>
 
         <!-- Title and Rating in ConstraintLayout -->
         <androidx.constraintlayout.widget.ConstraintLayout
