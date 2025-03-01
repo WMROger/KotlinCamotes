@@ -51,13 +51,15 @@
         app:layout_constraintTop_toBottomOf="@id/headerText" />
 
     <!-- HorizontalScrollView for Filters -->
+
+    <!-- SwipeRefreshLayout and RecyclerView -->
     <HorizontalScrollView
         android:id="@+id/scrollableFiltersLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:scrollbars="none"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/subheaderText">
 
@@ -106,7 +108,6 @@
         </androidx.appcompat.widget.LinearLayoutCompat>
     </HorizontalScrollView>
 
-    <!-- SwipeRefreshLayout and RecyclerView -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="0dp"

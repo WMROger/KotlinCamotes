@@ -103,7 +103,7 @@ class HomeFragment : Fragment() {
             setTypeface(null, Typeface.BOLD)
             setTextColor(if (category == selectedCategory) Color.WHITE else Color.BLACK)
             gravity = Gravity.CENTER
-            setPadding(16, 8, 16, 8)
+            setPadding(32, 16, 32, 16)
             background = if (category == selectedCategory) {
                 requireContext().getDrawable(R.drawable.filter_button_selected)
             } else {
@@ -113,7 +113,9 @@ class HomeFragment : Fragment() {
                 0,
                 LinearLayoutCompat.LayoutParams.WRAP_CONTENT,
                 1f
-            )
+            ).apply {
+                setMargins(0, 0, 8, 0)
+            }
 
             setOnClickListener {
                 updateRoomList(category) // Apply or reset filter
@@ -128,6 +130,7 @@ class HomeFragment : Fragment() {
 
         filtersLayout.addView(filterButton)
     }
+
 
     private fun resetFilterButtons() {
         for (i in 0 until filtersLayout.childCount) {
