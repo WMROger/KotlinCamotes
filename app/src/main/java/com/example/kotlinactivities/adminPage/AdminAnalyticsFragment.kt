@@ -1,7 +1,6 @@
 package com.example.kotlinactivities.adminPage
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -54,33 +53,28 @@ class AdminAnalyticsFragment : Fragment() {
                     val startDate = bookingSnapshot.child("startDate").getValue(Long::class.java) ?: 0L
                     val endDate = bookingSnapshot.child("endDate").getValue(Long::class.java) ?: 0L
 
-                    // Debugging logs for each booking entry
-                    Log.d("AdminAnalyticsFragment", "Processing Booking - Payment Status: $paymentStatus, Start Date: $startDate, Current Time: $currentTime")
-
                     when (paymentStatus) {
                         "Cancelled" -> canceledCount++
                         "Pending Approval" -> {
-                            Log.d("AdminAnalyticsFragment", "Pending Approval Booking: Start Date: $startDate")
-                            val isUpcoming = startDate > currentTime
-                            Log.d("AdminAnalyticsFragment", "Is upcoming? ${isUpcoming}, Start Date: $startDate, Current Time: $currentTime")
-
-                            if (isUpcoming) {
+                            // Check if it's an upcoming booking (startDate is in the future)
+                            if (startDate > currentTime) {
                                 upcomingCount++
-                                Log.d("AdminAnalyticsFragment", "Upcoming Booking (Pending Approval) added. Start Date: $startDate")
                             }
                         }
                         "Success" -> {
                             successCount++
+                            // Check if it's an active booking (currently within the stay period)
                             if (startDate <= currentTime && endDate >= currentTime) {
                                 activeRoomsCount++
-                                Log.d("AdminAnalyticsFragment", "Active Room added. Start Date: $startDate, End Date: $endDate")
                             }
                         }
                     }
-                }
 
-                // Debugging log for final counts
-                Log.d("AdminAnalyticsFragment", "Final Counts: Canceled: $canceledCount, Upcoming: $upcomingCount, Active Rooms: $activeRoomsCount")
+                    // Upcoming Booking: If startDate is in the future (Pending or Success)
+                    if ((paymentStatus == "Pending Approval" || paymentStatus == "Success") && startDate > currentTime) {
+                        upcomingCount++
+                    }
+                }
 
                 // Update UI
                 binding.tvCanceledBookings.text = canceledCount.toString()
