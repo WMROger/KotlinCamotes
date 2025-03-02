@@ -22,8 +22,14 @@ class AdminAnalyticsFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
+    ): View? {
+        // Inflate the layout using view binding
         _binding = FragmentAdminAnalyticsBinding.inflate(inflater, container, false)
+        return binding.root // Return the root view of the binding
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         swipeRefreshLayout = binding.swipeRefreshLayout  // Access the SwipeRefreshLayout
 
@@ -34,8 +40,6 @@ class AdminAnalyticsFragment : Fragment() {
 
         // Initially fetch data
         fetchBookingsData()
-
-        return binding.root
     }
 
     private fun fetchBookingsData() {
@@ -93,9 +97,9 @@ class AdminAnalyticsFragment : Fragment() {
         })
     }
 
-
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        _binding = null  // Set to null to avoid memory leaks
     }
+
 }
