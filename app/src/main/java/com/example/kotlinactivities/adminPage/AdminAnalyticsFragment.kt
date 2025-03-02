@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.kotlinactivities.databinding.FragmentAdminAnalyticsBinding
 import com.google.firebase.database.*
+import java.util.*
 
 class AdminAnalyticsFragment : Fragment() {
 
@@ -50,12 +51,41 @@ class AdminAnalyticsFragment : Fragment() {
                 var rescheduleCount = 0
                 var successCount = 0
                 var activeRoomsCount = 0
+                var totalRevenue = 0.0  // Total revenue calculation
+                var previousMonthRevenue = 0.0  // Previous month's revenue
                 val currentTime = System.currentTimeMillis()
+
+                // Get the current and previous month
+                val calendar = Calendar.getInstance()
+                val currentYear = calendar.get(Calendar.YEAR)
+                val currentMonth = calendar.get(Calendar.MONTH) // Month starts from 0 (Jan = 0)
+
+                // Get previous month and handle year change
+                calendar.add(Calendar.MONTH, -1)
+                val previousMonth = calendar.get(Calendar.MONTH)
+                val previousYear = calendar.get(Calendar.YEAR)
 
                 for (bookingSnapshot in snapshot.children) {
                     val paymentStatus = bookingSnapshot.child("paymentStatus").value.toString()
                     val startDate = bookingSnapshot.child("startDate").getValue(Long::class.java) ?: 0L
                     val endDate = bookingSnapshot.child("endDate").getValue(Long::class.java) ?: 0L
+                    val totalPrice = bookingSnapshot.child("totalPrice").getValue(Double::class.java) ?: 0.0
+
+                    // Convert startDate to calendar to check the month
+                    val bookingCalendar = Calendar.getInstance()
+                    bookingCalendar.timeInMillis = startDate
+                    val bookingMonth = bookingCalendar.get(Calendar.MONTH)
+                    val bookingYear = bookingCalendar.get(Calendar.YEAR)
+
+                    // Check if the booking is in the current month and add to total revenue
+                    if (bookingMonth == currentMonth && bookingYear == currentYear && paymentStatus == "Success") {
+                        totalRevenue += totalPrice
+                    }
+
+                    // Check if the booking is in the previous month and add to previous month revenue
+                    if (bookingMonth == previousMonth && bookingYear == previousYear && paymentStatus == "Success") {
+                        previousMonthRevenue += totalPrice
+                    }
 
                     when (paymentStatus) {
                         "Cancelled" -> canceledCount++
@@ -80,11 +110,20 @@ class AdminAnalyticsFragment : Fragment() {
                     }
                 }
 
+                // Calculate revenue percentage change
+                val revenuePercentageChange = if (previousMonthRevenue > 0) {
+                    ((totalRevenue - previousMonthRevenue) / previousMonthRevenue) * 100
+                } else {
+                    0.0
+                }
+
                 // Update UI
                 binding.tvCanceledBookings.text = canceledCount.toString()
                 binding.tvUpcomingBookings.text = upcomingCount.toString()
-                binding.tvRescheduledBookings.text = rescheduleCount.toString()  // Update this if you have a condition for reschedules
+                binding.tvRescheduledBookings.text = rescheduleCount.toString()
                 binding.tvActiveRooms.text = activeRoomsCount.toString()
+                binding.tvRevenue.text = "₱%.2f".format(totalRevenue) // Format as currency
+                binding.tvRevenuePercentage.text = "%.2f%%".format(revenuePercentageChange) // Display percentage
 
                 // Stop the refresh animation
                 swipeRefreshLayout.isRefreshing = false
@@ -101,5 +140,4 @@ class AdminAnalyticsFragment : Fragment() {
         super.onDestroyView()
         _binding = null  // Set to null to avoid memory leaks
     }
-
 }
