@@ -14,7 +14,7 @@
         android:id="@+id/admin_settings"
         android:icon="@drawable/ic_myroom"
         android:iconTint="#000000"
-        android:title="Settings" />
+        android:title="Analytics" />
     <item
         android:id="@+id/admin_profile"
         android:icon="@drawable/ic_profile"

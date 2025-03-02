@@ -97,39 +97,42 @@ class HomeFragment : Fragment() {
     }
 
     private fun addFilterButton(category: String) {
-        val filterButton = TextView(requireContext()).apply {
-            text = category
-            textSize = 14f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(if (category == selectedCategory) Color.WHITE else Color.BLACK)
-            gravity = Gravity.CENTER
-            setPadding(32, 16, 32, 16)
-            background = if (category == selectedCategory) {
-                requireContext().getDrawable(R.drawable.filter_button_selected)
-            } else {
-                requireContext().getDrawable(R.drawable.filter_button_default)
-            }
-            layoutParams = LinearLayoutCompat.LayoutParams(
-                0,
-                LinearLayoutCompat.LayoutParams.WRAP_CONTENT,
-                1f
-            ).apply {
-                setMargins(0, 0, 8, 0)
-            }
+        // Check if the fragment is still attached to its context
+        if (isAdded) {
+            val filterButton = TextView(requireContext()).apply {
+                text = category
+                textSize = 14f
+                setTypeface(null, Typeface.BOLD)
+                setTextColor(if (category == selectedCategory) Color.WHITE else Color.BLACK)
+                gravity = Gravity.CENTER
+                setPadding(32, 16, 32, 16)
+                background = if (category == selectedCategory) {
+                    requireContext().getDrawable(R.drawable.filter_button_selected)
+                } else {
+                    requireContext().getDrawable(R.drawable.filter_button_default)
+                }
+                layoutParams = LinearLayoutCompat.LayoutParams(
+                    0,
+                    LinearLayoutCompat.LayoutParams.WRAP_CONTENT,
+                    1f
+                ).apply {
+                    setMargins(0, 0, 8, 0)
+                }
 
-            setOnClickListener {
-                updateRoomList(category) // Apply or reset filter
-                resetFilterButtons() // Reset visual styles for all buttons
-                // Highlight this button if it's now the selected category
-                if (selectedCategory == category) {
-                    background = requireContext().getDrawable(R.drawable.filter_button_selected)
-                    setTextColor(Color.WHITE)
+                setOnClickListener {
+                    updateRoomList(category) // Apply or reset filter
+                    resetFilterButtons() // Reset visual styles for all buttons
+                    // Highlight this button if it's now the selected category
+                    if (selectedCategory == category) {
+                        background = requireContext().getDrawable(R.drawable.filter_button_selected)
+                        setTextColor(Color.WHITE)
+                    }
                 }
             }
+            filtersLayout.addView(filterButton)
         }
-
-        filtersLayout.addView(filterButton)
     }
+
 
 
     private fun resetFilterButtons() {

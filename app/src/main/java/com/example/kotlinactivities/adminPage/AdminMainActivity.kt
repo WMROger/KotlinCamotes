@@ -38,7 +38,7 @@ class AdminMainActivity : BaseActivity() {
             val fragment = when (id) {
                 R.id.admin_dashboard -> ApprovalFragment()
                 R.id.admin_add_room -> AddRoomFragment()
-                R.id.admin_settings -> ProfileFragment() // Replace with the correct fragment if necessary
+                R.id.admin_settings -> AdminAnalyticsFragment() // Replace with the correct fragment if necessary
                 R.id.admin_profile -> ProfileFragment()
                 else -> null
             }

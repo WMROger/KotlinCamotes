@@ -103,6 +103,7 @@ dependencies {
     implementation(libs.firebase.vertexai)
     implementation(libs.androidx.room.ktx)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.androidx.gridlayout)
     kapt("com.github.bumptech.glide:compiler:4.15.1")
     debugImplementation("com.github.bumptech.glide:okhttp3-integration:4.15.1")
     implementation ("com.google.android.material:material:1.11.0") // Update to the latest version
