@@ -15,6 +15,7 @@ import com.example.kotlinactivities.adminPage.adminAdapter.AdminBookingAdapter
 import com.example.kotlinactivities.model.AdminBooking
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.database.*
+import kotlinx.coroutines.NonCancellable.isCancelled
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -58,15 +59,19 @@ class ApprovalFragment : Fragment() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 when (tab?.position) {
-                    0 -> loadBookings { isToday(it) }
-                    1 -> loadBookings { isUpcoming(it) }
-                    2 -> loadBookings { isRescheduled(it) }
+                    0 -> loadBookings { isToday(it) }        // Today's Bookings
+                    1 -> loadBookings { isUpcoming(it) }     // Upcoming Bookings
+                    2 -> loadBookings { isRescheduled(it) }  // Rescheduled Bookings
+                    3 -> loadBookings { isCancelled(it) }    // Canceled Bookings
+                    4 -> loadBookings { isExtendedStay(it) } // Extend Stay Bookings
                 }
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
+
+
 
         // Handle filter icon click
         filterIcon.setOnClickListener {
@@ -81,7 +86,6 @@ class ApprovalFragment : Fragment() {
     private fun setupTabLayout() {
         tabLayout.addTab(tabLayout.newTab().setText("Today's bookings"))
         tabLayout.addTab(tabLayout.newTab().setText("Upcoming bookings"))
-        tabLayout.addTab(tabLayout.newTab().setText("Rescheduled"))
         tabLayout.addTab(tabLayout.newTab().setText("Canceled"))
         tabLayout.addTab(tabLayout.newTab().setText("Extend Stay"))
     }
@@ -115,6 +119,7 @@ class ApprovalFragment : Fragment() {
                             startDateReadable = bookingSnapshot.child("startDateReadable").getValue(String::class.java),
                             endDateReadable = bookingSnapshot.child("endDateReadable").getValue(String::class.java)
                         )
+                        Log.d("Debug", "Booking StartDate: ${booking.startDateReadable}, Expected Format: MMM dd, yyyy")
 
                         if (filterCondition(booking)) {
                             bookingsList.add(booking)
@@ -142,8 +147,6 @@ class ApprovalFragment : Fragment() {
         })
     }
 
-
-
     private fun updatePaymentStatus(bookingId: String) {
         val bookingRef = databaseReference.child(bookingId)
 
@@ -164,16 +167,10 @@ class ApprovalFragment : Fragment() {
             }
     }
 
-
-
-
     private fun reloadAllTabs() {
         tabLayout.getTabAt(0)?.let { loadBookings { isToday(it) } }  // Today's Bookings
         tabLayout.getTabAt(1)?.let { loadBookings { isUpcoming(it) } }  // Upcoming Bookings
     }
-
-
-
 
 
     private fun fetchUserName(userId: String, callback: (String) -> Unit) {
@@ -187,27 +184,20 @@ class ApprovalFragment : Fragment() {
     }
 
     private fun isToday(booking: AdminBooking): Boolean {
-        if (booking.startDateReadable.isNullOrEmpty() || booking.paymentStatus.isNullOrEmpty()) {
+        if (booking.startDate == null || booking.endDate == null || booking.paymentStatus.isNullOrEmpty()) {
             return false
         }
 
-        // Format of stored date in Firebase
-        val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+        val today = System.currentTimeMillis()
 
-        // Get today's date
-        val todayDate = dateFormat.format(Date())
+        Log.d(
+            "BookingCheck",
+            "Booking ID: ${booking.id}, StartDate: ${booking.startDateReadable}, EndDate: ${booking.endDateReadable}, Today: ${SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(today)}, PaymentStatus: ${booking.paymentStatus}"
+        )
 
-        Log.d("BookingCheck", "Booking ID: ${booking.id}, StartDateReadable: ${booking.startDateReadable}, Today: $todayDate, PaymentStatus: ${booking.paymentStatus}, PaymentMethod: ${booking.paymentMethod}")
-
-        // Allow "Success" payments to appear in "Today's Bookings" even if startDate is later
         return booking.paymentStatus.equals("Success", ignoreCase = true) &&
-                (booking.startDateReadable == todayDate || booking.startDateReadable > todayDate)
+                today in booking.startDate..booking.endDate
     }
-
-
-
-
-
 
 
     private fun isUpcoming(booking: AdminBooking): Boolean {
@@ -217,4 +207,13 @@ class ApprovalFragment : Fragment() {
     private fun isRescheduled(booking: AdminBooking): Boolean {
         return booking.paymentStatus == "Rescheduled"
     }
+
+    private fun isCancelled(booking: AdminBooking): Boolean {
+        return booking.paymentStatus.equals("Cancelled", ignoreCase = true)
+    }
+
+    private fun isExtendedStay(booking: AdminBooking): Boolean {
+        return booking.paymentStatus.equals("Extended Stay", ignoreCase = true)
+    }
+
 }

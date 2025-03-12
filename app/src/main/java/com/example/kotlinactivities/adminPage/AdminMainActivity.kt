@@ -39,16 +39,13 @@ class AdminMainActivity : BaseActivity() {
                 R.id.admin_dashboard -> ApprovalFragment()
                 R.id.admin_add_room -> AddRoomFragment()
                 R.id.admin_settings -> AdminAnalyticsFragment() // Replace with the correct fragment if necessary
-                R.id.admin_profile -> ProfileFragment()
+                R.id.admin_profile -> FragmentAdminProfile()
                 else -> null
             }
             fragment?.let { loadFragment(it) }
         }
 
-        // Handle Logout Button
-        findViewById<Button>(R.id.logoutButton).setOnClickListener {
-            logoutUser()
-        }
+
     }
 
     // Function to load selected fragments
