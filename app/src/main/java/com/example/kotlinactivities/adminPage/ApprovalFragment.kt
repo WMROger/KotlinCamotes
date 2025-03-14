@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adminPage.adminAdapter.AdminBookingAdapter
 import com.example.kotlinactivities.model.AdminBooking
+import com.example.kotlinactivities.network.sendEmail
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.database.*
 import kotlinx.coroutines.NonCancellable.isCancelled
@@ -20,6 +21,10 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
 
 class ApprovalFragment : Fragment() {
 
@@ -63,7 +68,7 @@ class ApprovalFragment : Fragment() {
                     1 -> loadBookings { isUpcoming(it) }     // Upcoming Bookings
                     2 -> loadBookings { isRescheduled(it) }  // Rescheduled Bookings
                     3 -> loadBookings { isCancelled(it) }    // Canceled Bookings
-                    4 -> loadBookings { isExtendedStay(it) } // Extend Stay Bookings
+//                    4 -> loadBookings { isExtendedStay(it) } // Extend Stay Bookings
                 }
             }
 
@@ -147,25 +152,43 @@ class ApprovalFragment : Fragment() {
         })
     }
 
-    private fun updatePaymentStatus(bookingId: String) {
+    private fun updatePaymentStatus(bookingId: String, isCancelled: Boolean = false) {
         val bookingRef = databaseReference.child(bookingId)
+        val newStatus = if (isCancelled) "Cancelled" else "Success"
 
-        bookingRef.child("paymentStatus").setValue("Success")
+        bookingRef.child("paymentStatus").setValue(newStatus)
             .addOnSuccessListener {
-                bookingRef.child("paymentMethod").get()
-                    .addOnSuccessListener { snapshot ->
-                        val method = snapshot.getValue(String::class.java) ?: "Unknown"
-                        val message = if (method.equals("Cash", ignoreCase = true)) "Payment confirmed via Cash!" else "Payment confirmed!"
-                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-
-                        // Reload "Today's Bookings" to reflect updated paid bookings
-                        loadBookings { isToday(it) }
+                bookingRef.get().addOnSuccessListener { snapshot ->
+                    val userEmail = snapshot.child("userEmail").getValue(String::class.java) ?: return@addOnSuccessListener
+                    val subject = if (isCancelled) "Booking Cancelled" else "Booking Approved"
+                    val message = if (isCancelled) {
+                        "Dear user,\n\nWe regret to inform you that your booking has been cancelled.\n\nIf you have any concerns, please contact us."
+                    } else {
+                        "Dear user,\n\nYour booking has been approved!\n\nThank you for choosing us."
                     }
+
+                    // Launch a coroutine to send the email
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            sendEmail(userEmail, subject, message)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+
+                    val toastMessage = if (isCancelled) "Booking cancelled and email sent!" else "Payment confirmed and email sent!"
+                    Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
+
+                    // Reload bookings after update
+                    loadBookings { isToday(it) }
+                }
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Update failed", Toast.LENGTH_SHORT).show()
             }
     }
+
+
 
     private fun reloadAllTabs() {
         tabLayout.getTabAt(0)?.let { loadBookings { isToday(it) } }  // Today's Bookings
@@ -212,8 +235,8 @@ class ApprovalFragment : Fragment() {
         return booking.paymentStatus.equals("Cancelled", ignoreCase = true)
     }
 
-    private fun isExtendedStay(booking: AdminBooking): Boolean {
-        return booking.paymentStatus.equals("Extended Stay", ignoreCase = true)
-    }
+//    private fun isExtendedStay(booking: AdminBooking): Boolean {
+//        return booking.paymentStatus.equals("Extended Stay", ignoreCase = true)
+//    }
 
 }

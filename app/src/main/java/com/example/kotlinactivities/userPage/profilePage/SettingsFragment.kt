@@ -30,7 +30,11 @@ class SettingsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_settings, container, false)
-
+// Handle notification settings button click
+        val notificationSection = view.findViewById<LinearLayout>(R.id.notifications_section)
+        notificationSection.setOnClickListener {
+            openNotificationSettings()
+        }
         // Hide the bottom navbar when the SettingsFragment is visible
         (requireActivity() as MainActivity).setNavbarVisibility(false)
 
@@ -87,6 +91,13 @@ class SettingsFragment : Fragment() {
         }
 
         return view
+    }
+    private fun openNotificationSettings() {
+        val intent = Intent().apply {
+            action = android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
+            putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, requireContext().packageName)
+        }
+        startActivity(intent)
     }
 
     private fun logoutUser() {

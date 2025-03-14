@@ -104,6 +104,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.androidx.gridlayout)
+    implementation(libs.volley)
     kapt("com.github.bumptech.glide:compiler:4.15.1")
     debugImplementation("com.github.bumptech.glide:okhttp3-integration:4.15.1")
     implementation ("com.google.android.material:material:1.11.0") // Update to the latest version
@@ -113,7 +114,8 @@ dependencies {
 
     // Android UI testing
     androidTestImplementation(libs.junit.junit)
-
+    implementation ("com.sun.mail:android-mail:1.6.2")
+    implementation ("com.sun.mail:android-activation:1.6.2")
     implementation ("com.airbnb.android:lottie:5.2.0")
     implementation ("androidx.core:core-splashscreen:1.0.1")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")

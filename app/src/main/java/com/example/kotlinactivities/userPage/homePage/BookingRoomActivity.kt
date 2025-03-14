@@ -11,14 +11,20 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.toolbox.JsonObjectRequest
 import com.example.kotlinactivities.MainActivity
 import com.example.kotlinactivities.R
 import com.example.kotlinactivities.adapter.CalendarAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import org.json.JSONObject
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import com.android.volley.Request
+import com.android.volley.toolbox.Volley
+
+
 
 class BookingRoomActivity : AppCompatActivity() {
 
@@ -239,7 +245,6 @@ class BookingRoomActivity : AppCompatActivity() {
                 "paymentStatus" to "Pending Approval"
             )
 
-
             // Upload booking data to Firebase
             bookingsRef.child(bookingId).setValue(bookingData)
                 .addOnSuccessListener {
@@ -249,6 +254,10 @@ class BookingRoomActivity : AppCompatActivity() {
                         "Booking submitted. Please wait for approval.",
                         Toast.LENGTH_LONG
                     ).show()
+
+                    // Notify admin about the new booking
+                    notifyAdminByEmail(bookingData)
+
                     navigateToHomeFragment()
                 }
                 .addOnFailureListener { error ->
@@ -267,6 +276,58 @@ class BookingRoomActivity : AppCompatActivity() {
             ).show()
         }
     }
+
+    private fun notifyAdminByEmail(bookingData: Map<String, Any>) {
+        val adminEmail = "camotesisland1@gmail.com"  // Replace with actual admin email
+        val subject = "New Booking Notification"
+        val message = """
+        A new booking has been made:
+        
+        User Email: ${bookingData["userEmail"]}
+        Room Title: ${bookingData["roomTitle"]}
+        Check-in: ${bookingData["startDateReadable"]}
+        Check-out: ${bookingData["endDateReadable"]}
+        Total Price: ₱${bookingData["totalPrice"]}
+        Payment Method: ${bookingData["paymentMethod"]}
+        """
+
+        val emailData = mapOf(
+            "to" to adminEmail,
+            "subject" to subject,
+            "message" to message
+        )
+
+        // Assuming you have set up Firebase Cloud Functions or your email service
+        sendEmailThroughServer(emailData)
+    }
+
+    private fun sendEmailThroughServer(emailData: Map<String, String>) {
+        val url = "https://waveaway.scarlet2.io/send-email.php"
+
+        // Create the JSON object that will be sent in the request
+        val requestBody = JSONObject()
+        requestBody.put("to", emailData["to"])       // Email recipient
+        requestBody.put("subject", emailData["subject"]) // Subject of the email
+        requestBody.put("message", emailData["message"]) // Body of the email
+
+        // Create the JsonObjectRequest
+        val request = object : JsonObjectRequest(
+            Request.Method.POST,
+            url,
+            requestBody, // Pass the request body with actual email data
+            { response ->
+                Log.d("EmailNotification", "Email sent successfully: $response")
+            },
+            { error ->
+                Log.e("EmailNotification", "Error sending email: ${error.message}")
+            }
+        ) {}
+
+        // Initialize the RequestQueue and add the request to the queue
+        val requestQueue = Volley.newRequestQueue(this)
+        requestQueue.add(request)
+    }
+
 
     private fun navigateToHomeFragment() {
         val intent = Intent(this, MainActivity::class.java)
