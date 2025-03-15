@@ -15,5 +15,6 @@ data class AdminBooking(
     val startDate: Long? = null,
     val endDate: Long? = null,
     val startDateReadable: String? = null,
-    val endDateReadable: String? = null
+    val endDateReadable: String? = null,
+    var userName: String? = "" // Added userName field
 )

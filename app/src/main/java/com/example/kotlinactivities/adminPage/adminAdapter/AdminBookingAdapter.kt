@@ -1,5 +1,6 @@
 package com.example.kotlinactivities.adminPage.adminAdapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,11 +50,24 @@ class AdminBookingAdapter(
         holder.checkIn.text = "Check-in: 8am"
         holder.checkOut.text = "Check-out: 8pm"
         holder.totalPrice.text = "₱${booking.totalPrice ?: 0}"
+        holder.userName.text = booking.userName ?: "Loading..." // Display username
 
         // Fetch and display user name
         booking.userId?.let { userId ->
-            fetchUserName(userId) { name -> holder.userName.text = name }
+            holder.userName.text = "Loading..." // Show loading state
+            holder.userName.tag = userId  // Store userId to prevent wrong updates
+
+            Log.d("AdminBookingAdapter", "Fetching username for userId: $userId")
+
+            fetchUserName(userId) { name ->
+                Log.d("AdminBookingAdapter", "Updating UI: $name for userId: $userId")
+
+                if (holder.userName.tag == userId) {
+                    holder.userName.text = name
+                }
+            }
         }
+
 
         // Set payment status text
         holder.paymentStatus.text = when (booking.paymentStatus?.lowercase(Locale.ROOT)) {
@@ -94,12 +108,16 @@ class AdminBookingAdapter(
         if (!isUpcomingTab && booking.paymentStatus.equals("Success", ignoreCase = true)) {
             holder.itemView.isClickable = false
             holder.itemView.isEnabled = false
-            holder.itemView.alpha = 0.7f // Reduce opacity to show it's non-clickable
+            holder.itemView.alpha = 0.7f
         } else {
             holder.itemView.isClickable = true
             holder.itemView.isEnabled = true
             holder.itemView.alpha = 1.0f
         }
+
+// Ensure the item is visible in the list
+        holder.itemView.visibility = View.VISIBLE
+
     }
 
     override fun getItemCount(): Int = bookings.size

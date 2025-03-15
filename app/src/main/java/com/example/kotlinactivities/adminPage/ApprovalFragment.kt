@@ -16,6 +16,7 @@ import com.example.kotlinactivities.model.AdminBooking
 import com.example.kotlinactivities.network.sendEmail
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.database.*
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.NonCancellable.isCancelled
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -33,6 +34,7 @@ class ApprovalFragment : Fragment() {
     private val bookingsList: MutableList<AdminBooking> = mutableListOf()
     private lateinit var databaseReference: DatabaseReference
     private lateinit var tabLayout: TabLayout
+    private val userCache = mutableMapOf<String, String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -96,16 +98,14 @@ class ApprovalFragment : Fragment() {
     }
 
     private fun loadBookings(filterCondition: (AdminBooking) -> Boolean) {
-        databaseReference.addValueEventListener(object : ValueEventListener {
+        databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 bookingsList.clear()
+                val today = System.currentTimeMillis()
 
                 for (bookingSnapshot in snapshot.children) {
                     try {
-                        if (!bookingSnapshot.hasChildren()) {
-                            Log.e("FirebaseError", "Invalid booking data: ${bookingSnapshot.value}")
-                            continue
-                        }
+                        if (!bookingSnapshot.hasChildren()) continue
 
                         val booking = AdminBooking(
                             id = bookingSnapshot.key,
@@ -122,18 +122,28 @@ class ApprovalFragment : Fragment() {
                             startDate = bookingSnapshot.child("startDate").getValue(Long::class.java),
                             endDate = bookingSnapshot.child("endDate").getValue(Long::class.java),
                             startDateReadable = bookingSnapshot.child("startDateReadable").getValue(String::class.java),
-                            endDateReadable = bookingSnapshot.child("endDateReadable").getValue(String::class.java)
+                            endDateReadable = bookingSnapshot.child("endDateReadable").getValue(String::class.java),
+                            userName = "" // Will be fetched later
                         )
-                        Log.d("Debug", "Booking StartDate: ${booking.startDateReadable}, Expected Format: MMM dd, yyyy")
 
                         if (filterCondition(booking)) {
                             bookingsList.add(booking)
-                        }
 
+                            // Fetch username asynchronously and update UI
+                            booking.userId?.let { userId ->
+                                fetchUserName(userId) { userName ->
+                                    booking.userName = userName
+                                    bookingsAdapter.notifyItemChanged(bookingsList.indexOf(booking))
+                                }
+                            }
+                        }
                     } catch (e: Exception) {
                         Log.e("ApprovalFragment", "Error parsing booking: ${e.message}")
                     }
                 }
+
+                // Sort bookings by closest start date
+                bookingsList.sortBy { kotlin.math.abs(it.startDate!! - today) }
 
                 Log.d("FinalListSize", "Total Bookings Displayed: ${bookingsList.size}")
 
@@ -151,6 +161,24 @@ class ApprovalFragment : Fragment() {
             }
         })
     }
+
+    private fun fetchUserName(userId: String, callback: (String) -> Unit) {
+        Log.d("fetchUserName", "Fetching username for userId: $userId")
+        val usersRef = FirebaseDatabase.getInstance().getReference("users").child(userId)
+        usersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userName = snapshot.child("name").getValue(String::class.java) ?: "Unknown User"
+                Log.d("fetchUserName", "Username found: $userName")
+                callback(userName)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("fetchUserName", "Error fetching username", error.toException())
+                callback("Unknown User")
+            }
+        })
+    }
+
 
     private fun updatePaymentStatus(bookingId: String, isCancelled: Boolean = false) {
         val bookingRef = databaseReference.child(bookingId)
@@ -195,31 +223,44 @@ class ApprovalFragment : Fragment() {
         tabLayout.getTabAt(1)?.let { loadBookings { isUpcoming(it) } }  // Upcoming Bookings
     }
 
-
-    private fun fetchUserName(userId: String, callback: (String) -> Unit) {
-        val usersReference = FirebaseDatabase.getInstance().getReference("Users")
-        usersReference.child(userId).get().addOnSuccessListener { snapshot ->
-            val fullName = snapshot.child("name").getValue(String::class.java)
-            callback(fullName ?: "Unknown")
-        }.addOnFailureListener {
-            callback("Unknown")
-        }
-    }
-
     private fun isToday(booking: AdminBooking): Boolean {
         if (booking.startDate == null || booking.endDate == null || booking.paymentStatus.isNullOrEmpty()) {
             return false
         }
 
-        val today = System.currentTimeMillis()
+        val todayCalendar = Calendar.getInstance()
+        todayCalendar.timeInMillis = System.currentTimeMillis()
+        todayCalendar.set(Calendar.HOUR_OF_DAY, 0)
+        todayCalendar.set(Calendar.MINUTE, 0)
+        todayCalendar.set(Calendar.SECOND, 0)
+        todayCalendar.set(Calendar.MILLISECOND, 0)
+        val todayMillis = todayCalendar.timeInMillis
+
+        val startCalendar = Calendar.getInstance()
+        startCalendar.timeInMillis = booking.startDate
+        startCalendar.set(Calendar.HOUR_OF_DAY, 0)
+        startCalendar.set(Calendar.MINUTE, 0)
+        startCalendar.set(Calendar.SECOND, 0)
+        startCalendar.set(Calendar.MILLISECOND, 0)
+        val startMillis = startCalendar.timeInMillis
+
+        val endCalendar = Calendar.getInstance()
+        endCalendar.timeInMillis = booking.endDate
+        endCalendar.set(Calendar.HOUR_OF_DAY, 23)
+        endCalendar.set(Calendar.MINUTE, 59)
+        endCalendar.set(Calendar.SECOND, 59)
+        endCalendar.set(Calendar.MILLISECOND, 999)
+        val endMillis = endCalendar.timeInMillis
 
         Log.d(
             "BookingCheck",
-            "Booking ID: ${booking.id}, StartDate: ${booking.startDateReadable}, EndDate: ${booking.endDateReadable}, Today: ${SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(today)}, PaymentStatus: ${booking.paymentStatus}"
+            "Booking ID: ${booking.id}, StartDate: ${booking.startDateReadable}, EndDate: ${booking.endDateReadable}, Today: ${
+                SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(todayMillis)
+            }, PaymentStatus: ${booking.paymentStatus}"
         )
 
         return booking.paymentStatus.equals("Success", ignoreCase = true) &&
-                today in booking.startDate..booking.endDate
+                todayMillis in startMillis..endMillis
     }
 
 
