@@ -1,10 +1,15 @@
 package com.example.kotlinactivities
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -16,11 +21,13 @@ import com.example.kotlinactivities.authenticationPage.LoginActivity
 import com.example.kotlinactivities.model.Room
 import com.google.firebase.auth.FirebaseAuth
 import io.ak1.BubbleTabBar
+import android.Manifest
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var bubbleTabBar: BubbleTabBar
     private lateinit var auth: FirebaseAuth
+    private val CALL_PHONE_REQUEST_CODE = 101
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,5 +109,35 @@ class MainActivity : AppCompatActivity() {
     // Method to control bottom bar visibility
     fun setNavbarVisibility(isVisible: Boolean) {
         bubbleTabBar.visibility = if (isVisible) View.VISIBLE else View.GONE
+    }
+
+    fun makePhoneCall(phoneNumber: String) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+            // Permission is granted, make the call
+            val callIntent = Intent(Intent.ACTION_CALL)
+            callIntent.data = Uri.parse("tel:$phoneNumber")
+            startActivity(callIntent)
+        } else {
+            // Request permission
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CALL_PHONE), CALL_PHONE_REQUEST_CODE)
+        }
+    }
+
+    // Handle permission result
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CALL_PHONE_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, make the call
+                makePhoneCall("1234567890")  // Example number
+            } else {
+                // Permission denied
+                showToast("Call permission denied")
+            }
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }

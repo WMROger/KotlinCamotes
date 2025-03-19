@@ -2,23 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.kotlinactivities">
-    <!-- Permissions -->
+
+    <!-- Essential Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission
-        android:name="android.permission.BLUETOOTH_CONNECT"
-        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" android:usesPermissionFlags="neverForLocation" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -30,18 +23,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-
-    <uses-feature
-        android:glEsVersion="0x00020000"
-        android:required="true" />
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
+    <uses-feature android:glEsVersion="0x00020000" android:required="true" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application
         android:name=".MyApp"
         android:allowBackup="true"
-        android:background="#F4F5F7"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
@@ -52,23 +39,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
         tools:targetApi="31">
-        <activity
-            android:name=".authenticationPage.RegisterGoogleActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.KotlinActivites" />
-        <activity
-            android:name=".adminPage.AdminMainActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".userPage.profilePage.ChangePasswordActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".authenticationPage.ForgetPasswordActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" /> <!-- Splash Activity -->
+
+        <!-- Splash Activity -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -77,50 +49,41 @@
             android:theme="@style/Theme.KotlinActivities.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- Main Activity -->
+        </activity>
+
+        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
-            android:usesCleartextTraffic="true" /> <!-- Onboarding Activity -->
-        <activity
-            android:name=".OnboardingActivity"
-            android:exported="true"
-            android:screenOrientation="portrait" /> <!-- Other Activities -->
-        <activity
-            android:name=".userPage.homePage.BookingRoomActivity"
-            android:exported="true"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".authenticationPage.VerificationActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".userPage.homePage.RoomDetailsActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".userPage.homePage.PaymentNotImplementedActivity"
-            android:exported="true"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".authenticationPage.RegisterActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".authenticationPage.LoginActivity"
-            android:exported="true"
-            android:screenOrientation="portrait" />
-<!--        <service-->
-<!--            android:name=".network.MyFirebaseMessagingService"-->
-<!--            android:exported="false">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="com.google.firebase.MESSAGING_EVENT"/>-->
-<!--            </intent-filter>-->
-<!--        </service>-->
+
+        <!-- Authentication -->
+        <activity android:name=".authenticationPage.LoginActivity" android:exported="true" android:screenOrientation="portrait" />
+        <activity android:name=".authenticationPage.RegisterActivity" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".authenticationPage.ForgetPasswordActivity" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".authenticationPage.VerificationActivity" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".authenticationPage.RegisterGoogleActivity" android:exported="false" android:screenOrientation="portrait" />
+
+        <!-- User Pages -->
+        <activity android:name=".userPage.homePage.BookingRoomActivity" android:exported="true" android:screenOrientation="portrait" />
+        <activity android:name=".userPage.homePage.RoomDetailsActivity" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".userPage.homePage.PaymentNotImplementedActivity" android:exported="true" android:screenOrientation="portrait" />
+        <activity android:name=".userPage.profilePage.ChangePasswordActivity" android:exported="false" android:screenOrientation="portrait" />
+
+        <!-- Admin -->
+        <activity android:name=".adminPage.AdminMainActivity" android:exported="false" android:screenOrientation="portrait" />
+
+        <!-- Onboarding -->
+        <activity android:name=".OnboardingActivity" android:exported="true" android:screenOrientation="portrait" />
+
+        <!-- Firebase Messaging Service -->
+        <service android:name=".network.MyFirebaseMessagingService" android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
 
         <meta-data
             android:name="preloaded_fonts"
