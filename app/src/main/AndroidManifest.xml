@@ -88,7 +88,7 @@
             android:usesCleartextTraffic="true" /> <!-- Onboarding Activity -->
         <activity
             android:name=".OnboardingActivity"
-            android:exported="false"
+            android:exported="true"
             android:screenOrientation="portrait" /> <!-- Other Activities -->
         <activity
             android:name=".userPage.homePage.BookingRoomActivity"
@@ -114,6 +114,13 @@
             android:name=".authenticationPage.LoginActivity"
             android:exported="true"
             android:screenOrientation="portrait" />
+<!--        <service-->
+<!--            android:name=".network.MyFirebaseMessagingService"-->
+<!--            android:exported="false">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.google.firebase.MESSAGING_EVENT"/>-->
+<!--            </intent-filter>-->
+<!--        </service>-->
 
         <meta-data
             android:name="preloaded_fonts"

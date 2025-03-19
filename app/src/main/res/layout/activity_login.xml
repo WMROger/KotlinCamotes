@@ -21,7 +21,7 @@
         <!-- Bottom wave image -->
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="650dp"
+            android:layout_height="800dp"
             android:layout_gravity="bottom"
             android:scaleType="fitXY"
             android:src="@drawable/waves_image" />

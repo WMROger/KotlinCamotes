@@ -118,9 +118,12 @@ dependencies {
     implementation ("com.sun.mail:android-activation:1.6.2")
     implementation ("com.airbnb.android:lottie:5.2.0")
     implementation ("androidx.core:core-splashscreen:1.0.1")
-    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.squareup.okhttp3:okhttp:4.10.0")
 
+    // firebase cloud messaging
+    implementation ("com.google.firebase:firebase-messaging:23.2.1")
+    implementation ("com.google.firebase:firebase-bom:32.7.0") // Check for the latest version
 }
