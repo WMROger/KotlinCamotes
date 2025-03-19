@@ -25,7 +25,22 @@ import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 
+
+private const val NOTIFICATION_ID = 1
+private const val CHANNEL_ID = "booking_notifications"
+private const val PERMISSION_REQUEST_CODE = 1001
+private const val REQUEST_CODE_STORAGE = 1002
 
 class ApprovalFragment : Fragment() {
 
@@ -179,7 +194,6 @@ class ApprovalFragment : Fragment() {
         })
     }
 
-
     private fun updatePaymentStatus(bookingId: String, isCancelled: Boolean = false) {
         val bookingRef = databaseReference.child(bookingId)
         val newStatus = if (isCancelled) "Cancelled" else "Success"
@@ -190,12 +204,12 @@ class ApprovalFragment : Fragment() {
                     val userEmail = snapshot.child("userEmail").getValue(String::class.java) ?: return@addOnSuccessListener
                     val subject = if (isCancelled) "Booking Cancelled" else "Booking Approved"
                     val message = if (isCancelled) {
-                        "Dear user,\n\nWe regret to inform you that your booking has been cancelled.\n\nIf you have any concerns, please contact us."
+                        "Dear user, your booking has been cancelled."
                     } else {
-                        "Dear user,\n\nYour booking has been approved!\n\nThank you for choosing us."
+                        "Dear user, your booking has been approved!"
                     }
 
-                    // Launch a coroutine to send the email
+                    // Send email notification
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
                             sendEmail(userEmail, subject, message)
@@ -204,10 +218,13 @@ class ApprovalFragment : Fragment() {
                         }
                     }
 
-                    val toastMessage = if (isCancelled) "Booking cancelled and email sent!" else "Payment confirmed and email sent!"
+                    // Send push notification
+                    sendNotification(subject, message)
+
+                    val toastMessage = if (isCancelled) "Booking cancelled and notification sent!" else "Payment confirmed and notification sent!"
                     Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
 
-                    // Reload bookings after update
+                    // Reload bookings
                     loadBookings { isToday(it) }
                 }
             }
@@ -215,8 +232,6 @@ class ApprovalFragment : Fragment() {
                 Toast.makeText(context, "Update failed", Toast.LENGTH_SHORT).show()
             }
     }
-
-
 
     private fun reloadAllTabs() {
         tabLayout.getTabAt(0)?.let { loadBookings { isToday(it) } }  // Today's Bookings
@@ -228,28 +243,24 @@ class ApprovalFragment : Fragment() {
             return false
         }
 
-        val todayCalendar = Calendar.getInstance()
-        todayCalendar.timeInMillis = System.currentTimeMillis()
-        todayCalendar.set(Calendar.HOUR_OF_DAY, 0)
-        todayCalendar.set(Calendar.MINUTE, 0)
-        todayCalendar.set(Calendar.SECOND, 0)
-        todayCalendar.set(Calendar.MILLISECOND, 0)
-        val todayMillis = todayCalendar.timeInMillis
+        val todayMillis = System.currentTimeMillis()
 
-        val startCalendar = Calendar.getInstance()
-        startCalendar.timeInMillis = booking.startDate
-        startCalendar.set(Calendar.HOUR_OF_DAY, 0)
-        startCalendar.set(Calendar.MINUTE, 0)
-        startCalendar.set(Calendar.SECOND, 0)
-        startCalendar.set(Calendar.MILLISECOND, 0)
+        val startCalendar = Calendar.getInstance().apply {
+            timeInMillis = booking.startDate
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
         val startMillis = startCalendar.timeInMillis
 
-        val endCalendar = Calendar.getInstance()
-        endCalendar.timeInMillis = booking.endDate
-        endCalendar.set(Calendar.HOUR_OF_DAY, 23)
-        endCalendar.set(Calendar.MINUTE, 59)
-        endCalendar.set(Calendar.SECOND, 59)
-        endCalendar.set(Calendar.MILLISECOND, 999)
+        val endCalendar = Calendar.getInstance().apply {
+            timeInMillis = booking.endDate
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }
         val endMillis = endCalendar.timeInMillis
 
         Log.d(
@@ -262,6 +273,7 @@ class ApprovalFragment : Fragment() {
         return booking.paymentStatus.equals("Success", ignoreCase = true) &&
                 todayMillis in startMillis..endMillis
     }
+
 
 
     private fun isUpcoming(booking: AdminBooking): Boolean {
@@ -279,5 +291,77 @@ class ApprovalFragment : Fragment() {
 //    private fun isExtendedStay(booking: AdminBooking): Boolean {
 //        return booking.paymentStatus.equals("Extended Stay", ignoreCase = true)
 //    }
+
+    private fun checkAndRequestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), PERMISSION_REQUEST_CODE)
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == REQUEST_CODE_STORAGE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted
+                Toast.makeText(context, "Storage Permission Granted", Toast.LENGTH_SHORT).show()
+            } else {
+                // Permission denied
+                Toast.makeText(context, "Storage Permission Denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun checkAndRequestPermission() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(requireActivity(),
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE_STORAGE)
+        }
+    }
+
+    private fun sendNotification(title: String, message: String) {
+        val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        // Create the notification channel for Android 8.0+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Booking Notifications",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notifications for booking status updates"
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        // Check permission for Android 13+ (TIRAMISU)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), PERMISSION_REQUEST_CODE)
+                return
+            }
+        }
+
+        // Build the notification
+        val notification = NotificationCompat.Builder(requireContext(), CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification) // Replace with your actual notification icon
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .build()
+
+        NotificationManagerCompat.from(requireContext()).notify(NOTIFICATION_ID, notification)
+    }
+
 
 }

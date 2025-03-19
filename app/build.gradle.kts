@@ -126,4 +126,5 @@ dependencies {
     // firebase cloud messaging
     implementation ("com.google.firebase:firebase-messaging:23.2.1")
     implementation ("com.google.firebase:firebase-bom:32.7.0") // Check for the latest version
+
 }
